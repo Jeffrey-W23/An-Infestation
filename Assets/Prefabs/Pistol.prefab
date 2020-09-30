@@ -129,3 +129,7 @@ MonoBehaviour:
   m_gBulletBlueprint: {fileID: 7604746321527292191, guid: e81265babb2361049873b8aa2436f4d5, type: 3}
   m_gBulletSpawn: {fileID: 538179910454100966}
   m_nPoolSize: 20
+  firerate: 0.3
+  fieldOfView: {fileID: 7622777482627003352, guid: 803e4ccc2e8d3974cbf2c990c68e69dd, type: 3}
+  magsize: 6
+  firemode: 0

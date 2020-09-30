@@ -84,6 +84,10 @@ public class Player : MonoBehaviour
     //
     [SerializeField] private FieldOfView fieldOfView;
 
+    public FieldOfView GetFOVScript()
+    {
+        return fieldOfView;
+    }
 
 
 
@@ -107,6 +111,9 @@ public class Player : MonoBehaviour
     {
         // Run the interaction function
         Interaction();
+
+        //
+        FieldOfView();
     }
 
     //--------------------------------------------------------------------------------------
@@ -189,14 +196,26 @@ public class Player : MonoBehaviour
 
         // Update the rotation.
         transform.rotation = Quaternion.AngleAxis(fAngle, Vector3.forward);
+    }
 
 
+
+
+
+
+    private void FieldOfView()
+    {
         Vector3 target = fieldOfView.GetMouseWorldPosition();
         Vector3 aimdir = (target - transform.position).normalized;
 
         fieldOfView.SetAimDirection(aimdir);
         fieldOfView.SetOrigin(transform.position);
     }
+
+
+
+
+
 
     //--------------------------------------------------------------------------------------
     // GetFreezePlayer: Get the current freeze status of the player. 

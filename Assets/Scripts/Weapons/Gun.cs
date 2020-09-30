@@ -72,7 +72,7 @@ public class Gun : MonoBehaviour
 
 
 
-
+    private bool isAimDownSights = false;
 
     public float firerate = 0.3f;
 
@@ -80,9 +80,18 @@ public class Gun : MonoBehaviour
 
     private float fireratetimer = 0.0f;
 
-    public int magsize = 6;
+    
+    
+    
+    FieldOfView fieldOfView;
 
-    public ETurnManagerStates firemode = ETurnManagerStates.ETURN_BURST;
+
+
+
+
+    //public int magsize = 6;
+
+    //public ETurnManagerStates firemode = ETurnManagerStates.ETURN_BURST;
 
 
 
@@ -91,6 +100,13 @@ public class Gun : MonoBehaviour
     //--------------------------------------------------------------------------------------
     protected void Awake()
     {
+        //
+        fieldOfView = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().GetFOVScript();
+
+
+
+
+
         // initialize bullet list with size.
         m_gBulletList = new GameObject[m_nPoolSize];
 
@@ -113,7 +129,6 @@ public class Gun : MonoBehaviour
 
         fireratetimer += Time.deltaTime;
 
-
         // If the mouse is pressed.
         if (Input.GetMouseButton(0) && fireratetimer > nextfire)
         {
@@ -132,6 +147,30 @@ public class Gun : MonoBehaviour
                 gBullet.transform.position = m_gBulletSpawn.transform.position;
                 gBullet.transform.rotation = m_gBulletSpawn.transform.rotation;
                 gBullet.GetComponent<PistolBullet>().SetDirection(transform.right);
+            }
+        }
+
+
+        //
+        if (Input.GetMouseButtonDown(1))
+        {
+            isAimDownSights = !isAimDownSights;
+
+            if (isAimDownSights)
+            {
+                fieldOfView.SetViewDistance(50);
+                fieldOfView.SetFOV(30);
+
+                Camera.main.orthographicSize = 10;
+            }
+
+            else
+            {
+                //
+                fieldOfView.SetDefaultViewDistance();
+                fieldOfView.SetDefaultFOV();
+
+                Camera.main.orthographicSize = 8;
             }
         }
     }

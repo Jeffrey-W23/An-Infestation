@@ -31,6 +31,13 @@ public class FieldOfView : MonoBehaviour
     //
     private float fov;
 
+    //
+    private float viewDistance = 15.0f;
+
+    public float DefaultViewDistance = 15;
+
+    public float DefaultFOV = 80;
+
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
@@ -56,7 +63,6 @@ public class FieldOfView : MonoBehaviour
         int rayCount = 50;
         float angle = startingAngle;
         float angleIncrease = fov / rayCount;
-        float viewDistance = 15.0f;
 
         // Setup the new mesh
         Vector3[] vertices = new Vector3[rayCount + 1 + 1];
@@ -120,6 +126,9 @@ public class FieldOfView : MonoBehaviour
         mesh.vertices = vertices;
         mesh.uv = uv;
         mesh.triangles = tris;
+
+        // ensure mesh renderers outside of camera view
+        mesh.RecalculateBounds();
     }
 
     private Vector3 GetVectorFromAngle(float angle)
@@ -179,5 +188,25 @@ public class FieldOfView : MonoBehaviour
     {
         Vector3 worldPos = worldCamera.ScreenToWorldPoint(screenPos);
         return worldPos;
+    }
+
+    public void SetFOV(float n)
+    {
+        fov = n;
+    }
+
+    public void SetViewDistance(float n)
+    {
+        viewDistance = n;
+    }
+
+    public void SetDefaultViewDistance()
+    {
+        viewDistance = DefaultViewDistance;
+    }
+
+    public void SetDefaultFOV()
+    {
+        fov = DefaultFOV;
     }
 }
