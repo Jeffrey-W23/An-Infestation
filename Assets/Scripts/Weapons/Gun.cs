@@ -86,7 +86,9 @@ public class Gun : MonoBehaviour
     FieldOfView fieldOfView;
 
 
+    float newCameraPos = 8;
 
+    float smooth = 4;
 
 
     //public int magsize = 6;
@@ -125,17 +127,22 @@ public class Gun : MonoBehaviour
     protected void Update()
     {
 
-
-
         fireratetimer += Time.deltaTime;
+
+
+
+        float PosA = 8;
+        float PosB = 10;
+
+
+
+
 
         // If the mouse is pressed.
         if (Input.GetMouseButton(0) && fireratetimer > nextfire)
         {
-
-
+            //
             nextfire = fireratetimer + firerate;
-
 
             // Allocate a bullet to the pool.
             GameObject gBullet = Allocate();
@@ -160,8 +167,7 @@ public class Gun : MonoBehaviour
             {
                 fieldOfView.SetViewDistance(50);
                 fieldOfView.SetFOV(30);
-
-                Camera.main.orthographicSize = 10;
+                newCameraPos = PosB;
             }
 
             else
@@ -169,10 +175,12 @@ public class Gun : MonoBehaviour
                 //
                 fieldOfView.SetDefaultViewDistance();
                 fieldOfView.SetDefaultFOV();
-
-                Camera.main.orthographicSize = 8;
+                newCameraPos = PosA;
             }
         }
+
+
+        Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, newCameraPos, Time.deltaTime * smooth);
     }
 
     //--------------------------------------------------------------------------------------

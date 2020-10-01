@@ -31,6 +31,15 @@ public class FieldOfView : MonoBehaviour
     //
     private float fov;
 
+
+
+    private float fovNew = 80;
+
+    private float viewDistanceNew = 15;
+
+    private float smooth = 4;
+
+
     //
     private float viewDistance = 15.0f;
 
@@ -58,7 +67,16 @@ public class FieldOfView : MonoBehaviour
 
 
     private void LateUpdate()
-    {        
+    {
+
+
+        //
+        fov = Mathf.Lerp(fov, fovNew, Time.deltaTime * smooth);
+        viewDistance = Mathf.Lerp(viewDistance, viewDistanceNew, Time.deltaTime * smooth);
+
+
+
+
         //
         int rayCount = 50;
         float angle = startingAngle;
@@ -192,21 +210,21 @@ public class FieldOfView : MonoBehaviour
 
     public void SetFOV(float n)
     {
-        fov = n;
+        fovNew = n;
     }
 
     public void SetViewDistance(float n)
     {
-        viewDistance = n;
+        viewDistanceNew = n;
     }
 
     public void SetDefaultViewDistance()
     {
-        viewDistance = DefaultViewDistance;
+        viewDistanceNew = DefaultViewDistance;
     }
 
     public void SetDefaultFOV()
     {
-        fov = DefaultFOV;
+        fovNew = DefaultFOV;
     }
 }
