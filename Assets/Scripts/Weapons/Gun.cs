@@ -165,7 +165,7 @@ public class Gun : MonoBehaviour
 
             if (isAimDownSights)
             {
-                fieldOfView.SetViewDistance(50);
+                fieldOfView.SetViewDistance(20);
                 fieldOfView.SetFOV(30);
                 newCameraPos = PosB;
             }

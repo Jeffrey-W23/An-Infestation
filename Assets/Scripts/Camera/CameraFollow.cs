@@ -40,9 +40,9 @@ public class CameraFollow : MonoBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // Update: Function that calls each frame to update game objects.
+    // LateUpdate: Function that calls each frame to update game objects.
     //--------------------------------------------------------------------------------------
-    private void Update()
+    private void LateUpdate()
     {
         // Calc the new x and y position of the camera
         float fNewXPosition = m_gTarget.transform.position.x - m_v3Offset.x;
