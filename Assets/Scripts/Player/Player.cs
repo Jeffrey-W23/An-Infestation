@@ -1,7 +1,7 @@
 ﻿//--------------------------------------------------------------------------------------
 // Purpose: The main logic for the Player object.
 //
-// Description: This script will handled most of the typically work that a player has to
+// Description: This script will handled most of the typical work that a player has to
 // do like movement, interaction, opening menus, etc.
 //
 // Author: Thomas Wiltshire
@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
     // MOVEMENT //
     //--------------------------------------------------------------------------------------
     // Title for this section of public values.
-    [Header("Movement:")]
+    [Header("Movement Settings:")]
 
     // public float value for the walking speed.
     [LabelOverride("Walking Speed")] [Tooltip("The speed of which the player will walk in float value.")]
@@ -33,6 +33,23 @@ public class Player : MonoBehaviour
     // public float value for max exhaust level.
     [LabelOverride("Running Exhaust")] [Tooltip("The max level of exhaustion the player can handle before running is false.")]
     public float m_fRunExhaust = 3.0f;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
+    // MOVEMENT //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("FOV Settings:")]
+
+    // public gameobject for the player vision
+    [LabelOverride("Player Vision")] [Tooltip("The gameobject for the players main field of view object.")]
+    public GameObject m_gPlayerVision;
+
+    // public gameobject for the enemy renderer
+    [LabelOverride("Enemy Renderer")] [Tooltip("The gameobject for the players enemy renderer field of view object.")]
+    public GameObject m_gEnemyRenderer;
 
     // Leave a space in the inspector.
     [Space]
@@ -56,6 +73,12 @@ public class Player : MonoBehaviour
     // private rigidbody.
     private Rigidbody2D m_rbRigidBody;
 
+    // private FieldOfView object for player vison FOV
+    private FieldOfView m_sPlayerVisionScript;
+
+    // private FieldOfView object for enemy renderer FOV
+    private FieldOfView m_sEnemyRendererScript;
+
     // private float for the current speed of the player.
     private float m_fCurrentSpeed;
 
@@ -78,20 +101,6 @@ public class Player : MonoBehaviour
     public InteractionEventHandler InteractionCallback;
     //--------------------------------------------------------------------------------------
 
-
-
-
-    //
-    [SerializeField] private FieldOfView fieldOfView;
-
-    public FieldOfView GetFOVScript()
-    {
-        return fieldOfView;
-    }
-
-
-
-
     //--------------------------------------------------------------------------------------
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -102,6 +111,10 @@ public class Player : MonoBehaviour
 
         // set the current speed of the player to walk
         m_fCurrentSpeed = m_fWalkSpeed;
+
+        // Get fov components
+        m_sPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
+        m_sEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
     }
 
     //--------------------------------------------------------------------------------------
@@ -111,9 +124,6 @@ public class Player : MonoBehaviour
     {
         // Run the interaction function
         Interaction();
-
-        //
-        FieldOfView();
     }
 
     //--------------------------------------------------------------------------------------
@@ -126,6 +136,9 @@ public class Player : MonoBehaviour
         {
             // rotate player based on mouse postion.
             Rotate();
+
+            // rotate fov based on mouse position.
+            RotateFieldOfView();
 
             // run the movement function to move player.
             Movement();
@@ -198,24 +211,51 @@ public class Player : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(fAngle, Vector3.forward);
     }
 
-
-
-
-
-
-    private void FieldOfView()
+    //--------------------------------------------------------------------------------------
+    // RotateFieldOfView: Rotate the Field Of Vision  from the mouse movement.
+    //--------------------------------------------------------------------------------------
+    private void RotateFieldOfView()
     {
-        Vector3 target = fieldOfView.GetMouseWorldPosition();
-        Vector3 aimdir = (target - transform.position).normalized;
+        // Calculate direction and rotation of player vision
+        Vector3 v3TargetPV = m_sPlayerVisionScript.GetMouseWorldPosition();
+        Vector3 v3AimDirectionPV = (v3TargetPV - transform.position).normalized;
 
-        fieldOfView.SetAimDirection(aimdir);
-        fieldOfView.SetOrigin(transform.position);
+        // Calculate direction and rotation of enemy renderer
+        Vector3 v3TargetER = m_sEnemyRendererScript.GetMouseWorldPosition();
+        Vector3 v3AimDirectionER = (v3TargetER - transform.position).normalized;
+
+        // Set calculations to player vision
+        m_sPlayerVisionScript.SetAimDirection(v3AimDirectionPV);
+        m_sPlayerVisionScript.SetOrigin(transform.position);
+
+        // Set calculations to enemy renderer
+        m_sEnemyRendererScript.SetAimDirection(v3AimDirectionER);
+        m_sEnemyRendererScript.SetOrigin(transform.position);
     }
 
+    //--------------------------------------------------------------------------------------
+    // GetPlayerVisionScript: Getter for PlayerVisionScript object.
+    //
+    // Return:
+    //      FieldOfView: return the Player vision script component.
+    //--------------------------------------------------------------------------------------
+    public FieldOfView GetPlayerVisionScript()
+    {
+        // return script component
+        return m_sPlayerVisionScript;
+    }
 
-
-
-
+    //--------------------------------------------------------------------------------------
+    // GetEnemyRendererScript: Getter for EnemyRenderer object.
+    //
+    // Return:
+    //      FieldOfView: return the enemy renderer script component.
+    //--------------------------------------------------------------------------------------
+    public FieldOfView GetEnemyRendererScript()
+    {
+        // return script component
+        return m_sEnemyRendererScript;
+    }
 
     //--------------------------------------------------------------------------------------
     // GetFreezePlayer: Get the current freeze status of the player. 

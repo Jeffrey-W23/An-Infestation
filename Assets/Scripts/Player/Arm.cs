@@ -1,21 +1,53 @@
-﻿// Using, etc
+﻿//--------------------------------------------------------------------------------------
+// Purpose: Bend the arm toward the cursor.
+//
+// Author: Thomas Wiltshire
+//--------------------------------------------------------------------------------------
+
+// Using, etc
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//--------------------------------------------------------------------------------------
+// Arm object. Inheriting from MonoBehaviour.
+//--------------------------------------------------------------------------------------
 public class Arm : MonoBehaviour
 {
-    // float for the distance between mouse and object.
-    float m_fDistanceBetween;
+    // WEAPON SETTINGS //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Weapon Settings:")]
 
-    // Weapon prefab.
+    // public gameobject for Weapon prefab.
+    [LabelOverride("Weapon Prefab")] [Tooltip("The weapon equiped to the player at start.")]
     public GameObject m_gWeaponPrefab;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
+    // ARM SETTING //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Arm Setting:")]
+
+    // public int for arm bend value
+    [LabelOverride("Arm Bend")] [Tooltip("The amount of bend on the arm towards the cursor.")]
+    public int m_nArmBend = 120;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
+    // PRIVATE VALUES //
+    //--------------------------------------------------------------------------------------
+    // float for the distance between mouse and object.
+    private float m_fDistanceBetween;
 
     // The Pistol weapon.
     private GameObject m_gPistol;
-
-    //
-    public int ArmBend = 120;
+    //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
     // initialization
@@ -41,7 +73,7 @@ public class Arm : MonoBehaviour
         // Check the distance between the mouse and arm.
         // if far enough away turn the mouse towards mouse.
         // else stop arm rotation.
-        if (m_fDistanceBetween > ArmBend)
+        if (m_fDistanceBetween > m_nArmBend)
         {
             // Get the  mouse direction.
             Vector3 v3Dir = Input.mousePosition - v3Pos;

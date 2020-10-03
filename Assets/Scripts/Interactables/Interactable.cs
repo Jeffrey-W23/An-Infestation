@@ -62,14 +62,14 @@ public class Interactable : MonoBehaviour
     // protected player script for getting the player objects attached script.
     protected Player m_sPlayerObject;
 
+    // protected audio source
+    protected AudioSource m_asAudioSource;
+
     // protected bool for if the object has been interacted with or not.
     protected bool m_bInteracted;
 
     // protected bool for if an object is interactable
     protected bool m_bInteractable = false;
-
-    // protected audio source
-    protected AudioSource m_asAudioSource;
 
     // protected bool for if an interact has been used when the interactable is set to single use
     protected bool m_bInteractUsed = false;

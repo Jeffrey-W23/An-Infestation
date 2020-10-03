@@ -1,5 +1,5 @@
 ﻿//--------------------------------------------------------------------------------------
-// Purpose: Sets an object for the camera to follow.
+// Purpose: Sets an object for a camera to follow.
 //
 // Description: Script takes in a target game object for the camera to follow. Main
 // purpose for following the player around the screen.
@@ -20,7 +20,7 @@ public class CameraFollow : MonoBehaviour
     // PUBLIC VALUES //
     //--------------------------------------------------------------------------------------
     // Public Gameobject for the target the camera is to follow.
-    [LabelOverride("Target")] [Tooltip("The object you want the camera to follow.")]
+    [LabelOverride("Target")] [Tooltip("The target object for the camera to follow.")]
     public GameObject m_gTarget;
     //--------------------------------------------------------------------------------------
 

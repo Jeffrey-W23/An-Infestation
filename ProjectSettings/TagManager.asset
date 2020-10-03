@@ -15,11 +15,11 @@ TagManager:
   - 
   - Player
   - Walls
-  - Mask
-  - BehindMask
-  - Black
-  - FogOfWarMain
-  - FogOfWarSecond
+  - PlayerVision
+  - EnemyRenderer
+  - Enemy
+  - 
+  - 
   - 
   - 
   - 

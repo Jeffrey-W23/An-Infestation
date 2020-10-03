@@ -2,7 +2,7 @@
 // Purpose: Sets the cursor of the scene.
 //
 // Description: Script is used for easily setting the cursor of the current scene.
-// Script takes in a public texture and set the hotpoint to center.
+// Script takes in a public texture and will set the hotpoint to center.
 //
 // Author: Thomas Wiltshire
 //--------------------------------------------------------------------------------------
@@ -17,6 +17,11 @@ using UnityEngine;
 //--------------------------------------------------------------------------------------
 public class CustomCursor : MonoBehaviour
 {
+    // CURSORS //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Cursors:")]
+
     // Public texture for the cursor visuals.
     [LabelOverride("Cursor")] [Tooltip("The cursor object to replace the default unity cursor.")]
     public Texture2D m_tCursor;
@@ -25,9 +30,16 @@ public class CustomCursor : MonoBehaviour
     [LabelOverride("Crosshair")] [Tooltip("The crosshair cursor object to replace the default unity cursor.")]
     public Texture2D m_tCrosshair;
 
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
+    // PUBLIC HIDDEN //
+    //--------------------------------------------------------------------------------------
     // new singleton for setting the cursor throughout project
     [HideInInspector]
     public static CustomCursor m_gInstance;
+    //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
     // initialization
@@ -53,7 +65,7 @@ public class CustomCursor : MonoBehaviour
         Vector2 v2CursorHotspot = new Vector2(tCursor.width / 2, tCursor.height / 2);
 
         // Set the cursor values.
-        Cursor.SetCursor(tCursor, v2CursorHotspot, CursorMode.Auto);
+        Cursor.SetCursor(tCursor, v2CursorHotspot, CursorMode.ForceSoftware);
     }
 
     //--------------------------------------------------------------------------------------
