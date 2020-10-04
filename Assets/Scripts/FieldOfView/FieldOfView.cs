@@ -1,7 +1,9 @@
 ﻿//--------------------------------------------------------------------------------------
 // Purpose: Render an FOV Mesh.
 //
-// Description: 
+// Description: This script will generate and render the field of view vision cone for
+// the player. It is created using a mesh that takes into account other objects around it
+// to change its shape.
 //
 // Author: Thomas Wiltshire
 //--------------------------------------------------------------------------------------
@@ -21,20 +23,20 @@ public class FieldOfView : MonoBehaviour
     // Title for this section of public values.
     [Header("FOV Settings:")]
 
-    //
+    // public layer mask for the layers that will effect the mesh
     [LabelOverride("Effect Layers")] [Tooltip("The layers that will make an effect on the rendering of the fov.")]
     public LayerMask m_lmEffectLayers;
 
-    //
-    [LabelOverride("View Distance")] [Tooltip("")]
+    // public float for the distance of the mesh
+    [LabelOverride("View Distance")] [Tooltip("The view distance of the field of view.")]
     public float m_fViewDistance = 15.0f;
 
-    //
-    [LabelOverride("Field Of View")] [Tooltip("")]
+    // public float for size of the field of view
+    [LabelOverride("Field Of View")] [Tooltip("The size (or width) of the field of view.")]
     public float m_fFOV = 80.0f;
 
-    //
-    [LabelOverride("Lerp Smoothing")] [Tooltip("")]
+    // public float for the lerp smoothing value
+    [LabelOverride("Lerp Smoothing")] [Tooltip("The Smoothing value for the lerp between different distances and fields of view.")]
     public float m_fLerpSmoothing = 4;
 
     // Leave a space in the inspector.
@@ -43,38 +45,30 @@ public class FieldOfView : MonoBehaviour
 
     // PRIVATE VALUES //
     //--------------------------------------------------------------------------------------
-    //
+    // mesh object for drawing the vision cone / fov
     private Mesh m_meshVisionCone;
 
-    //
+    // vector 3 for the mesh origin
     private Vector3 m_v3Origin;
 
-    //
+    // float for the current fov
     private float m_fCurrentFOV;
 
-    //
+    // float for the current view distance
     private float m_fCurrentViewDistance;
 
-    //
+    // float for current lerp smoothing
     private float m_fCurrentLerpSmoothing;
 
-    //
+    // float for mesh starting angle
     private float m_fStartingAngle;
 
-    //
+    // float for lerp view distance storing
     private float m_fLerpViewDistance;
 
-    //
+    // float for lerp fov storing
     private float m_fLerpFOV;
     //--------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
     //--------------------------------------------------------------------------------------
     // initialization
@@ -135,64 +129,46 @@ public class FieldOfView : MonoBehaviour
         int nVertexIndex = 1;
         int nTriangleIndex = 0;
 
-
-
-
-
-
-
-
-
-        //
+        // loop all the rays
         for (int i = 0; i <= nRayCount; i++)
         {
-            //
+            // new vector3 for a vertex
             Vector3 v3Vertex;
 
-            //
+            // Cast at ray out from the origin
             RaycastHit2D rcRaycastHit2D = Physics2D.Raycast(m_v3Origin, GetVectorFromAngle(fAngle), m_fCurrentViewDistance, m_lmEffectLayers);
 
-            //
+            // if collider is null, meaning nothing is hit
             if (rcRaycastHit2D.collider == null)
             {
-                //
+                // draw at maximum distance
                 v3Vertex = m_v3Origin + (GetVectorFromAngle(fAngle) * m_fCurrentViewDistance);
             }
 
-            //
+            // else if the collider has hit
             else
             {
-
-                //
+                // place vertex exaclty on the point where hit
                 v3Vertex = rcRaycastHit2D.point;
             }
 
-            //
+            // add new vertex to vertices
             av3Vertices[nVertexIndex] = v3Vertex;
 
-            //
+            // If not the first ray
             if (i > 0)
             {
-                //
+                // generate triangles
                 anTriangles[nTriangleIndex + 0] = 0;
                 anTriangles[nTriangleIndex + 1] = nVertexIndex - 1;
                 anTriangles[nTriangleIndex + 2] = nVertexIndex;
-
-                //
                 nTriangleIndex += 3;
             }
 
-            //
+            // move on to next angle
             nVertexIndex++;
-
-            //
             fAngle -= fAngleIncrease;
         }
-
-
-
-
-
 
         // Apply newly created mesh to the mesh component
         m_meshVisionCone.vertices = av3Vertices;
@@ -203,81 +179,115 @@ public class FieldOfView : MonoBehaviour
         m_meshVisionCone.RecalculateBounds();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private Vector3 GetVectorFromAngle(float angle)
+    //--------------------------------------------------------------------------------------
+    // GetVectorFromAngle: Get a vector 3 value from a float angle.
+    //
+    // Param:
+    //      fAngle: The angle to calculate vector
+    //
+    // Return:
+    //      Vector3: The vector 3 from float angle
+    //--------------------------------------------------------------------------------------
+    private Vector3 GetVectorFromAngle(float fAngle)
     {
-        //
-        float angleRad = angle * (Mathf.PI / 180.0f);
-        Vector3 newAngle = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+        // calculate vector from angle
+        float fAngleRad = fAngle * (Mathf.PI / 180.0f);
+        Vector3 fNewAngle = new Vector3(Mathf.Cos(fAngleRad), Mathf.Sin(fAngleRad));
 
-        //
-        return newAngle;
+        // return the new angle
+        return fNewAngle;
     }
 
-    private float GetAngleFromVector(Vector3 dir)
+    //--------------------------------------------------------------------------------------
+    // GetAngleFromVector: Get float angle from a vector 3
+    //
+    // Param:
+    //      v3Direction: A vector 3 for the angle direction.
+    //
+    // Return:
+    //      float: float for the angle from vector 3.
+    //--------------------------------------------------------------------------------------
+    private float GetAngleFromVector(Vector3 v3Direction)
     {
-        //
-        dir = dir.normalized;
+        //normalize the direction
+        v3Direction = v3Direction.normalized;
 
-        //
-        float n = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        // calculate angle
+        float fAngle = Mathf.Atan2(v3Direction.y, v3Direction.x) * Mathf.Rad2Deg;
 
-        //
-        if (n < 0)
-            n += 360;
+        // make sure the angle isnt 0
+        if (fAngle < 0)
+            fAngle += 360;
 
-        //
-        return n;
+        // return the angle
+        return fAngle;
     }
 
+    //--------------------------------------------------------------------------------------
+    // GetMouseWorldPosition: Get the mouse position in the world.
+    //
+    // Return:
+    //      Vector3: The mouse position.
+    //--------------------------------------------------------------------------------------
     public Vector3 GetMouseWorldPosition()
     {
-        Vector3 vec = GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
-        vec.z = 0.0f;
-        return vec;
+        // vector 3 for the mouse position in the world
+        Vector3 v3Vector = GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
+
+        // set the z vector to 0
+        v3Vector.z = 0.0f;
+        
+        // return the mosue pos
+        return v3Vector;
     }
 
+    //--------------------------------------------------------------------------------------
+    // GetMouseWorldPositionWithZ: Get the mouse position in the world in 3D space.
+    //
+    // Return:
+    //      Vector3: The mouse position.
+    //--------------------------------------------------------------------------------------
     public Vector3 GetMouseWorldPositionWithZ()
     {
+        // return the mouse pos
         return GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
     }
 
-    public Vector3 GetMouseWorldPositionWithZ(Camera worldCamera)
+    //--------------------------------------------------------------------------------------
+    // GetMouseWorldPositionWithZ: Get the mouse position in the world in 3D space taking in
+    // custom camera object.
+    //
+    // Param:
+    //      cCamera: The camera used for calculating mouse pos.
+    //
+    // Return:
+    //      Vector3: The mouse position.
+    //--------------------------------------------------------------------------------------
+    public Vector3 GetMouseWorldPositionWithZ(Camera cCamera)
     {
-        return GetMouseWorldPositionWithZ(Input.mousePosition, worldCamera);
+        // return the mouse pos
+        return GetMouseWorldPositionWithZ(Input.mousePosition, cCamera);
     }
 
-    public Vector3 GetMouseWorldPositionWithZ(Vector3 screenPos, Camera worldCamera)
+    //--------------------------------------------------------------------------------------
+    // GetMouseWorldPositionWithZ: Get the mouse position in the world in 3D space taking in
+    // custom camera object and screen pos.
+    //
+    // Param:
+    //      v3ScreenPos: Vector3 for the position of screen in world.
+    //      cCamera: The camera used for calculating mouse pos.
+    //
+    // Return:
+    //      Vector3: The mouse position.
+    //--------------------------------------------------------------------------------------
+    public Vector3 GetMouseWorldPositionWithZ(Vector3 v3ScreenPos, Camera cCamera)
     {
-        Vector3 worldPos = worldCamera.ScreenToWorldPoint(screenPos);
-        return worldPos;
+        // vector 3 for the mouse position in the world
+        Vector3 v3WorldPos = cCamera.ScreenToWorldPoint(v3ScreenPos);
+
+        // return the mouse pos
+        return v3WorldPos;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //--------------------------------------------------------------------------------------
     // SetOrigin: Set the origin of the field of view.
