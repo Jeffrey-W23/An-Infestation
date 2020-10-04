@@ -55,6 +55,19 @@ public class Player : MonoBehaviour
     [Space]
     //--------------------------------------------------------------------------------------
 
+    // INVENTORY //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Inventory Settings:")]
+
+    // public int for the inventory size
+    [LabelOverride("Inventory Size")] [Tooltip("The size of the Inventory for the player object.")]
+    public int m_nInventorySize = 6;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
     // DEBUG //
     //--------------------------------------------------------------------------------------
     // Title for this section of public values.
@@ -73,11 +86,20 @@ public class Player : MonoBehaviour
     // private rigidbody.
     private Rigidbody2D m_rbRigidBody;
 
+    // private gameobject for the players arm object
+    private GameObject m_gArm;
+
     // private FieldOfView object for player vison FOV
     private FieldOfView m_sPlayerVisionScript;
 
     // private FieldOfView object for enemy renderer FOV
     private FieldOfView m_sEnemyRendererScript;
+
+    // private inventory for the player object
+    private Inventory m_oInventory;
+
+    // private inventory manager for the inventory manager instance
+    private InventoryManager m_gInventoryManger;
 
     // private float for the current speed of the player.
     private float m_fCurrentSpeed;
@@ -91,6 +113,23 @@ public class Player : MonoBehaviour
     // private bool for freezing the player
     private bool m_bFreezePlayer = false;
     //--------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+    // REMOVE // TEMP // REMOVE // POSSIBLTY //
+    // an array to add some items to the inventory
+    public Item[] itemsToAdd;
+    // REMOVE // TEMP // REMOVE // POSSIBLTY //
+
+
+
+
+
+
 
     // DELEGATES //
     //--------------------------------------------------------------------------------------
@@ -109,12 +148,52 @@ public class Player : MonoBehaviour
         // Get the Rigidbody.
         m_rbRigidBody = GetComponent<Rigidbody2D>();
 
+        // get the player arm object.
+        m_gArm = transform.Find("Arm").gameObject;
+
         // set the current speed of the player to walk
         m_fCurrentSpeed = m_fWalkSpeed;
 
         // Get fov components
         m_sPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
         m_sEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
+
+        // set the inventory of the player
+        m_oInventory = new Inventory(m_nInventorySize);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    private void Start()
+    {
+
+
+
+
+
+
+        // REMOVE // TEMP // REMOVE // POSSIBLTY //
+        // for each item in items to add
+        foreach (Item i in itemsToAdd)
+        {
+            // add an item to the inventory
+            m_oInventory.AddItem(new ItemStack(i, 1));
+        }
+        // REMOVE // TEMP // REMOVE // POSSIBLTY //
+
+
+
+
+
+
+
+
+        // get the inventory manager instance
+        m_gInventoryManger = InventoryManager.m_gInstance;
+
+        // Ensure inventory isnt open when game starts
+        m_gInventoryManger.ResetInventoryStatus();
     }
 
     //--------------------------------------------------------------------------------------
@@ -124,6 +203,9 @@ public class Player : MonoBehaviour
     {
         // Run the interaction function
         Interaction();
+
+        // Open and close the inventory system
+        OpenCloseInventory();
     }
 
     //--------------------------------------------------------------------------------------
@@ -234,6 +316,26 @@ public class Player : MonoBehaviour
     }
 
     //--------------------------------------------------------------------------------------
+    // OpenCloseInventory: Open/Close the Inventory container of the player object.
+    //--------------------------------------------------------------------------------------
+    private void OpenCloseInventory()
+    {
+        // if the i key is down and the inventory is closed
+        if (Input.GetKeyDown(KeyCode.I) && !m_gInventoryManger.IsInventoryOpen())
+        {
+            // Open the player inventory
+            m_gInventoryManger.OpenContainer(new PlayerContainer(null, m_oInventory, m_nInventorySize));
+        }
+
+        // if the i key is down and the inventory is closed
+        else if (Input.GetKeyDown(KeyCode.I) && m_gInventoryManger.IsInventoryOpen())
+        {
+            // close the inventory container
+            m_gInventoryManger.CloseContainer();
+        }
+    }
+
+    //--------------------------------------------------------------------------------------
     // GetPlayerVisionScript: Getter for PlayerVisionScript object.
     //
     // Return:
@@ -255,6 +357,18 @@ public class Player : MonoBehaviour
     {
         // return script component
         return m_sEnemyRendererScript;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetInventory: Get the inventory of the player object.
+    //
+    // Return:
+    //      Inventory: the inventory of the player object.
+    //--------------------------------------------------------------------------------------
+    public Inventory GetInventory()
+    {
+        // return the player inventory
+        return m_oInventory;
     }
 
     //--------------------------------------------------------------------------------------
@@ -287,6 +401,8 @@ public class Player : MonoBehaviour
         else if (!bFreeze)
             m_rbRigidBody.constraints = RigidbodyConstraints2D.None;
 
+        // freeze the player arm
+        m_gArm.GetComponent<Arm>().SetFreezeArm(bFreeze);
     }
 
     //--------------------------------------------------------------------------------------

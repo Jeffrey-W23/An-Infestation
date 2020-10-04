@@ -128,11 +128,15 @@ public class Gun : MonoBehaviour
     //--------------------------------------------------------------------------------------
     protected void Update()
     {
-        // Shoot the bullet
-        ShootBullet();
+        // is player allowed to move
+        if (!m_sPlayer.GetFreezePlayer())
+        {
+            // Shoot the bullet
+            ShootBullet();
 
-        // Aim down sights
-        AimDownSights();
+            // Aim down sights
+            AimDownSights();
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -158,7 +162,7 @@ public class Gun : MonoBehaviour
                 // Update the postion, rotation and set direction of the bullet.
                 gBullet.transform.position = m_gBulletSpawn.transform.position;
                 gBullet.transform.rotation = m_gBulletSpawn.transform.rotation;
-                gBullet.GetComponent<PistolBullet>().SetDirection(transform.right);
+                gBullet.GetComponent<Bullet>().SetDirection(transform.right);
             }
         }
     }

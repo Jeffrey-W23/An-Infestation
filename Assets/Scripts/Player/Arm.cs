@@ -47,6 +47,9 @@ public class Arm : MonoBehaviour
 
     // The Pistol weapon.
     private GameObject m_gPistol;
+
+    // private bool for freezing the arm
+    private bool m_bFreezeArm = false;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -64,25 +67,54 @@ public class Arm : MonoBehaviour
     //--------------------------------------------------------------------------------------
     void LateUpdate()
     {
-        // Get mouse inside camera
-        Vector3 v3Pos = Camera.main.WorldToScreenPoint(transform.position);
-
-        // update the distance.
-        m_fDistanceBetween = Vector3.Distance(v3Pos, Input.mousePosition);
-
-        // Check the distance between the mouse and arm.
-        // if far enough away turn the mouse towards mouse.
-        // else stop arm rotation.
-        if (m_fDistanceBetween > m_nArmBend)
+        // if arm is not frozen
+        if (!m_bFreezeArm)
         {
-            // Get the  mouse direction.
-            Vector3 v3Dir = Input.mousePosition - v3Pos;
+            // Get mouse inside camera
+            Vector3 v3Pos = Camera.main.WorldToScreenPoint(transform.position);
 
-            // Work out the angle.
-            float fAngle = Mathf.Atan2(v3Dir.y, v3Dir.x) * Mathf.Rad2Deg;
+            // update the distance.
+            m_fDistanceBetween = Vector3.Distance(v3Pos, Input.mousePosition);
 
-            // Update the rotation.
-            transform.rotation = Quaternion.AngleAxis(fAngle, Vector3.forward);
+            // Check the distance between the mouse and arm.
+            // if far enough away turn the mouse towards mouse.
+            // else stop arm rotation.
+            if (m_fDistanceBetween > m_nArmBend)
+            {
+                // Get the  mouse direction.
+                Vector3 v3Dir = Input.mousePosition - v3Pos;
+
+                // Work out the angle.
+                float fAngle = Mathf.Atan2(v3Dir.y, v3Dir.x) * Mathf.Rad2Deg;
+
+                // Update the rotation.
+                transform.rotation = Quaternion.AngleAxis(fAngle, Vector3.forward);
+            }
         }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetFreezeArm: Get the current freeze status of the arm. 
+    //
+    // Return:
+    //      bool: the current freeze staus of the arm.
+    //--------------------------------------------------------------------------------------
+    public bool GetFreezeArm()
+    {
+        // get the arm freeze bool
+        return m_bFreezeArm;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetFreezeArm: Set the freeze status of the arm object. Used for ensuring the
+    // arm stays still, good for open menus or possibly cut scenes, etc.
+    //
+    // Param:
+    //      bFreeze: bool for setting the freeze status.
+    //--------------------------------------------------------------------------------------
+    public void SetFreezeArm(bool bFreeze)
+    {
+        // set the arm freeze bool
+        m_bFreezeArm = bFreeze;
     }
 }

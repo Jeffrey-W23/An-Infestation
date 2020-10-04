@@ -105,7 +105,19 @@ MonoBehaviour:
   m_fRunExhaust: 30
   m_gPlayerVision: {fileID: 0}
   m_gEnemyRenderer: {fileID: 0}
-  m_bDebugMode: 0
+  m_nInventorySize: 6
+  m_bDebugMode: 1
+  itemsToAdd:
+  - {fileID: 11400000, guid: 32d1e7b754f99af46a9e57cd7b3ef8c5, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
+  - {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
 --- !u!58 &1316009241188373197
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -238,7 +250,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef93caa6388801247969737236c411d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_gWeaponPrefab: {fileID: 2844137433128880516, guid: 965bb2c683bd2fb4fa36e1f865c38d35, type: 3}
+  m_gWeaponPrefab: {fileID: 1234878131351067050, guid: 965bb2c683bd2fb4fa36e1f865c38d35, type: 3}
   m_nArmBend: 120
 --- !u!1 &1316009241641222504
 GameObject:
@@ -252,7 +264,7 @@ GameObject:
   - component: {fileID: 1316009241641222516}
   - component: {fileID: 1316009241641222519}
   - component: {fileID: 1316009241641222518}
-  m_Layer: 15
+  m_Layer: 11
   m_Name: EnemyRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
