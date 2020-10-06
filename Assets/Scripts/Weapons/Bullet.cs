@@ -40,6 +40,21 @@ public class Bullet : MonoBehaviour
     protected Vector2 m_v2Direction;
     //--------------------------------------------------------------------------------------
 
+
+
+
+
+
+
+    public float m_fTravelDistance = 50;
+
+    private Vector3 m_v3SpawnPosition;
+
+
+
+
+
+
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
@@ -54,11 +69,53 @@ public class Bullet : MonoBehaviour
     //--------------------------------------------------------------------------------------
     protected void FixedUpdate()
     {
+
+
+
+
+
+
         // Update the bullets velocity, direction etc.
         transform.right = m_v2Direction;
         m_rbRigidBody.velocity = (m_v2Direction * m_fSpeed * Time.fixedDeltaTime);
         m_rbRigidBody.angularVelocity = 0;
+
+
+
+
+
+
+        BulletDistance();
+
+
+
     }
+
+
+
+
+
+
+    protected void BulletDistance()
+    {
+        //
+        if (Vector3.Distance(m_v3SpawnPosition, transform.position) > m_fTravelDistance)
+        {
+            // Set to inactive on collision.
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void SetSpawnPosition(Vector3 v3Pos)
+    {
+        m_v3SpawnPosition = v3Pos;
+    }
+
+
+
+
+
+
 
     //--------------------------------------------------------------------------------------
     // SetDirection: Direction setter for the bullet.

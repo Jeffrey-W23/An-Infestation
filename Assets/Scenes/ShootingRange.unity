@@ -487,22 +487,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: MainIncompatible.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: WeaponIncompatible.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_aeIncompatibleInventoryItems.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_aeIncompatibleWeapons.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
       propertyPath: m_gPlayerVision
       value: 
       objectReference: {fileID: 7622777482638948612}
@@ -510,34 +494,6 @@ PrefabInstance:
       propertyPath: m_gEnemyRenderer
       value: 
       objectReference: {fileID: 898301524}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: MainIncompatible.Array.data[0]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: MainIncompatible.Array.data[1]
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_bDebugMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_aeIncompatibleInventoryItems.Array.data[0]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_aeIncompatibleWeapons.Array.data[1]
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_eIncompatibleInventoryItems
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1316009241188373194, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
-      propertyPath: m_eIncompatibleWeapons
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 1316009241188373199, guid: fbdac18a38540b94d9a381ace36b50c2, type: 3}
       propertyPath: m_Name
       value: Player

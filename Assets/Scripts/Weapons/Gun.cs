@@ -159,10 +159,11 @@ public class Gun : MonoBehaviour
             // if a valid bullet and not null.
             if (gBullet)
             {
-                // Update the postion, rotation and set direction of the bullet.
+                // Update the postion, rotation and set direction of the bullet, as well as pass on the spawn pos.
                 gBullet.transform.position = m_gBulletSpawn.transform.position;
                 gBullet.transform.rotation = m_gBulletSpawn.transform.rotation;
                 gBullet.GetComponent<Bullet>().SetDirection(transform.right);
+                gBullet.GetComponent<Bullet>().SetSpawnPosition(m_gBulletSpawn.transform.position);
             }
         }
     }
@@ -244,5 +245,20 @@ public class Gun : MonoBehaviour
 
         // if all fail return null.
         return null;
+    }
+
+
+
+
+
+
+    private void OnDestroy()
+    {
+        // Go through each bullet.
+        for (int i = 0; i < m_nPoolSize; ++i)
+        {
+            //
+            Object.Destroy(m_gBulletList[i]);
+        }
     }
 }

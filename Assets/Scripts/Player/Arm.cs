@@ -17,11 +17,31 @@ public class Arm : MonoBehaviour
     // WEAPON SETTINGS //
     //--------------------------------------------------------------------------------------
     // Title for this section of public values.
-    [Header("Weapon Settings:")]
+    [Header("Hand Settings:")]
 
+
+
+
+
+
+
+    // TEMP // TEMP // // TEMP // TEMP //
     // public gameobject for Weapon prefab.
-    [LabelOverride("Weapon Prefab")] [Tooltip("The weapon equiped to the player at start.")]
-    public GameObject m_gWeaponPrefab;
+    //[LabelOverride("Weapon Prefab")] [Tooltip("The weapon equiped to the player at start.")]
+    //public GameObject m_gWeaponPrefab;
+    // TEMP // TEMP // // TEMP // TEMP //
+
+
+
+
+
+    public GameObject m_gInHand;
+    public GameObject m_gInHandSpawn;
+
+
+
+
+
 
     // Leave a space in the inspector.
     [Space]
@@ -58,8 +78,8 @@ public class Arm : MonoBehaviour
     void Awake()
     {
         // Set the parenting of pistol prefab.
-        m_gPistol = Instantiate(m_gWeaponPrefab);
-        m_gPistol.transform.parent = transform;
+        //m_gPistol = Instantiate(m_gWeaponPrefab);
+        //m_gPistol.transform.parent = transform;
     }
 
     //--------------------------------------------------------------------------------------
@@ -116,5 +136,34 @@ public class Arm : MonoBehaviour
     {
         // set the arm freeze bool
         m_bFreezeArm = bFreeze;
+    }
+
+
+
+
+
+
+
+
+
+
+    public GameObject GetInHand()
+    {
+        return m_gInHand;
+    }
+
+    public void SetInHand(GameObject gObject)
+    {
+        Object.Destroy(m_gInHand);
+
+        if (gObject != null)
+        {
+            m_gInHand = gObject;
+            m_gInHand = Instantiate(m_gInHand);
+
+            m_gInHand.transform.parent = transform;
+            m_gInHand.transform.position = m_gInHandSpawn.transform.position;
+            m_gInHand.transform.rotation = transform.rotation;
+        }
     }
 }

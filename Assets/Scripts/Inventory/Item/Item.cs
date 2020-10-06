@@ -36,4 +36,10 @@ public class Item : ScriptableObject
     [LabelOverride("Item Type")] [Tooltip("What type of item? A weapon, ammo, health item?")]
     public EItemType m_eItemType;
     //--------------------------------------------------------------------------------------
+
+
+
+
+
+    public GameObject m_gSceneObject;
 }

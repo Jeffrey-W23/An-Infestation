@@ -98,7 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_gBulletBlueprint: {fileID: 7604746321527292191, guid: e81265babb2361049873b8aa2436f4d5, type: 3}
   m_gBulletSpawn: {fileID: 4107917781256221349}
-  m_nPoolSize: 20
+  m_nPoolSize: 10
   m_fDownSightsSmoothing: 4
   m_fDownSightsDistance: 20
   m_fDownSightsFOV: 30

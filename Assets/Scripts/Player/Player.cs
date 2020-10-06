@@ -187,6 +187,19 @@ public class Player : MonoBehaviour
 
         // Open and close the inventory system
         OpenCloseInventory();
+
+
+
+
+
+
+        UpdateInHand();
+
+
+
+
+
+
     }
 
     //--------------------------------------------------------------------------------------
@@ -315,6 +328,71 @@ public class Player : MonoBehaviour
             m_gInventoryManger.CloseContainer();
         }
     }
+
+
+
+
+
+
+
+    // make an array of number values for key press //TODO
+
+    public void UpdateInHand()
+    {
+        //
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            //
+            ItemStack oItem = m_oWeapons.GetStackInSlot(0);
+
+            //
+            if(!oItem.IsStackEmpty())
+                m_gArm.GetComponent<Arm>().SetInHand(oItem.GetItem().m_gSceneObject);
+
+            //
+            if (oItem.IsStackEmpty())
+                m_gArm.GetComponent<Arm>().SetInHand(null);
+        }
+
+        //
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            //
+            ItemStack oItem = m_oWeapons.GetStackInSlot(1);
+
+            //
+            if (!oItem.IsStackEmpty())
+                m_gArm.GetComponent<Arm>().SetInHand(oItem.GetItem().m_gSceneObject);
+
+            //
+            if (oItem.IsStackEmpty())
+                m_gArm.GetComponent<Arm>().SetInHand(null);
+        }
+
+        //
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            //
+            ItemStack oItem = m_oWeapons.GetStackInSlot(2);
+
+            //
+            if (!oItem.IsStackEmpty())
+                m_gArm.GetComponent<Arm>().SetInHand(oItem.GetItem().m_gSceneObject);
+
+            //
+            if (oItem.IsStackEmpty())
+                m_gArm.GetComponent<Arm>().SetInHand(null);
+        }
+    }
+
+
+
+
+
+
+
+
+
 
     //--------------------------------------------------------------------------------------
     // GetPlayerVisionScript: Getter for PlayerVisionScript object.
