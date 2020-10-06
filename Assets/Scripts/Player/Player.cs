@@ -64,6 +64,20 @@ public class Player : MonoBehaviour
     [LabelOverride("Inventory Size")] [Tooltip("The size of the Inventory for the player object.")]
     public int m_nInventorySize = 6;
 
+    // public int for the weapon inventory size
+    [LabelOverride("Weapons Solts")] [Tooltip("The amount of solts available for weapon pickups.")]
+    public int m_nWeaponSlots = 3;
+
+    // public list of item type enums for incompatible inventory items
+    [LabelOverride("Incompatible Items")] [Tooltip("Items that are incompatible with the player inventory.")]
+    [EnumFlags] // Used to allow multiple enums in one.
+    public EItemType m_eIncompatibleInventoryItems;
+
+    // public list of item type enums for incompatible weapons
+    [LabelOverride("Incompatible Weapons")] [Tooltip("Weapons incompatible with the weapons slot.")]
+    [EnumFlags] // Used to allow multiple enums in one.
+    public EItemType m_eIncompatibleWeapons;
+
     // Leave a space in the inspector.
     [Space]
     //--------------------------------------------------------------------------------------
@@ -98,6 +112,9 @@ public class Player : MonoBehaviour
     // private inventory for the player object
     private Inventory m_oInventory;
 
+    // private inventory for the players current weapons
+    private Inventory m_oWeapons;
+
     // private inventory manager for the inventory manager instance
     private InventoryManager m_gInventoryManger;
 
@@ -113,23 +130,6 @@ public class Player : MonoBehaviour
     // private bool for freezing the player
     private bool m_bFreezePlayer = false;
     //--------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-    // REMOVE // TEMP // REMOVE // POSSIBLTY //
-    // an array to add some items to the inventory
-    public Item[] itemsToAdd;
-    // REMOVE // TEMP // REMOVE // POSSIBLTY //
-
-
-
-
-
-
 
     // DELEGATES //
     //--------------------------------------------------------------------------------------
@@ -159,7 +159,10 @@ public class Player : MonoBehaviour
         m_sEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
 
         // set the inventory of the player
-        m_oInventory = new Inventory(m_nInventorySize);
+        m_oInventory = new Inventory(m_nInventorySize, m_eIncompatibleInventoryItems);
+
+        // set the weapons inventory of the player
+        m_oWeapons = new Inventory(m_nWeaponSlots, m_eIncompatibleWeapons);
     }
 
     //--------------------------------------------------------------------------------------
@@ -167,28 +170,6 @@ public class Player : MonoBehaviour
     //--------------------------------------------------------------------------------------
     private void Start()
     {
-
-
-
-
-
-
-        // REMOVE // TEMP // REMOVE // POSSIBLTY //
-        // for each item in items to add
-        foreach (Item i in itemsToAdd)
-        {
-            // add an item to the inventory
-            m_oInventory.AddItem(new ItemStack(i, 1));
-        }
-        // REMOVE // TEMP // REMOVE // POSSIBLTY //
-
-
-
-
-
-
-
-
         // get the inventory manager instance
         m_gInventoryManger = InventoryManager.m_gInstance;
 
@@ -324,7 +305,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I) && !m_gInventoryManger.IsInventoryOpen())
         {
             // Open the player inventory
-            m_gInventoryManger.OpenContainer(new PlayerContainer(null, m_oInventory, m_nInventorySize));
+            m_gInventoryManger.OpenContainer(new PlayerContainer(m_oWeapons, m_oInventory, m_nInventorySize));
         }
 
         // if the i key is down and the inventory is closed
@@ -369,6 +350,18 @@ public class Player : MonoBehaviour
     {
         // return the player inventory
         return m_oInventory;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetWeapons: Get the weapon inventory of the player object.
+    //
+    // Return:
+    //      Inventory: the inventory of the weapons slot.
+    //--------------------------------------------------------------------------------------
+    public Inventory GetWeapons()
+    {
+        // return the weapons inventory
+        return m_oWeapons;
     }
 
     //--------------------------------------------------------------------------------------

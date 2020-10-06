@@ -257,6 +257,17 @@ public class InventoryManager : MonoBehaviour
     {
         return m_gPlayer.GetInventory();
     }
+
+    //--------------------------------------------------------------------------------------
+    // GetPlayerWeaponsInventory: Get the player weapons inventory.
+    //
+    // Return:
+    //      Inventory: returns an inventory object for the player inventory.
+    //--------------------------------------------------------------------------------------
+    public Inventory GetPlayerWeaponsInventory()
+    {
+        return m_gPlayer.GetWeapons();
+    }
 }
 
 //--------------------------------------------------------------------------------------

@@ -10,15 +10,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //--------------------------------------------------------------------------------------
-// Enum EItemType. Used for setting the type of item.
-//--------------------------------------------------------------------------------------
-public enum EItemType
-{
-    ETYPE_GUN,
-    ETYPE_BULLET
-}
-
-//--------------------------------------------------------------------------------------
 // Item object. Inheriting from ScriptableObject.
 //--------------------------------------------------------------------------------------
 [CreateAssetMenu(fileName = "New Item")] // Create a menu item for quickly creating items

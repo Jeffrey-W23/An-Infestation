@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70e044bb57a11f24fabdf96ecbf70704, type: 3}
-  m_Name: Pistol
+  m_Name: TestItem
   m_EditorClassIdentifier: 
-  m_strTitle: Pistol
-  m_sIcon: {fileID: 21300000, guid: 4e7de079d51c2a6448e8a8b900159ddf, type: 3}
+  m_strTitle: Test
+  m_sIcon: {fileID: 21300000, guid: 16a27e9301e5af94182d399746fc175d, type: 3}
   m_nMaxStackSize: 1
-  m_eItemType: 1
+  m_eItemType: 0

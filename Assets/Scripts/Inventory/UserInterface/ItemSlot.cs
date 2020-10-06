@@ -46,6 +46,9 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
 
     // private inventory manager instance
     private InventoryManager m_gInventoryManger;
+
+    // private list of item type enums for incompatible items
+    private EItemType m_eIncompatibleItems;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -61,6 +64,9 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
         // set the id and container
         m_nId = nId;
         m_oCurrentContainer = oContainer;
+
+        // set the incompatible items
+        m_eIncompatibleItems = oInventory.GetIncompatibleItems();
 
         // set the current stack to the stack in the inventory
         m_oCurrentStack = oInventory.GetStackInSlot(nId);
@@ -78,13 +84,27 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
     // Param:
     //      oStack: the item stack to set to the item slot.
     //--------------------------------------------------------------------------------------
-    private void SetSlotContent(ItemStack oStack)
+    private bool SetSlotContent(ItemStack oStack)
     {
+        // ensure the stack is not empty
+        if (!oStack.IsStackEmpty())
+        {
+            // if the item is incompatible
+            if (oStack.GetItem().m_eItemType == m_eIncompatibleItems)
+            {
+                // return false, slot not set.
+                return false;
+            }
+        }
+
         // set the current stack to passed in stack
         m_oCurrentStack.SetStack(oStack);
 
         // update the slot
         UpdateSlot();
+
+        // return true for successful slot setting
+        return true;
     }
 
     //--------------------------------------------------------------------------------------
@@ -211,6 +231,9 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
     //--------------------------------------------------------------------------------------
     private void OnLeftClick(ItemStack oCurrentSelectedStack, ItemStack oCurrentStackCopy)
     {
+        // bool for if a slot is compatible or not
+        bool bCompatibleSlot = false;
+
         // if the current stack is not empty and the selected stack is empty
         if (!m_oCurrentStack.IsStackEmpty() && oCurrentSelectedStack.IsStackEmpty())
         {
@@ -228,16 +251,20 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
         if (m_oCurrentStack.IsStackEmpty() && !oCurrentSelectedStack.IsStackEmpty())
         {
             // Set the slot content to the current selected stack
-            SetSlotContent(oCurrentSelectedStack);
+            bCompatibleSlot = SetSlotContent(oCurrentSelectedStack);
 
-            // set the current selected stack to empty
-            m_gInventoryManger.SetSelectedStack(ItemStack.m_oEmpty);
+            // if the slot is compatible
+            if (bCompatibleSlot)
+            {
+                // set the current selected stack to empty
+                m_gInventoryManger.SetSelectedStack(ItemStack.m_oEmpty);
 
-            // activate the tooltip
-            SetTooltip(m_oCurrentStack.GetItem().m_strTitle);
+                // activate the tooltip
+                SetTooltip(m_oCurrentStack.GetItem().m_strTitle);
+            }
         }
 
-        // if both current stack and selected stack are empty
+        // if both current stack and selected stack are not empty
         if (!m_oCurrentStack.IsStackEmpty() && !oCurrentSelectedStack.IsStackEmpty())
         {
             // are the stacks equal
@@ -250,13 +277,17 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                     oCurrentStackCopy.IncreaseStack(oCurrentSelectedStack.GetItemCount());
 
                     // set the slot conent to the current stack copy
-                    SetSlotContent(oCurrentStackCopy);
+                    bCompatibleSlot = SetSlotContent(oCurrentStackCopy);
 
-                    // set the currently selected stack to empty
-                    m_gInventoryManger.SetSelectedStack(ItemStack.m_oEmpty);
+                    // if the slot is compatible
+                    if (bCompatibleSlot)
+                    {
+                        // set the currently selected stack to empty
+                        m_gInventoryManger.SetSelectedStack(ItemStack.m_oEmpty);
 
-                    // activate the tooltip
-                    SetTooltip(m_oCurrentStack.GetItem().m_strTitle);
+                        // activate the tooltip
+                        SetTooltip(m_oCurrentStack.GetItem().m_strTitle);
+                    }
                 }
 
                 // else if the item is not addable
@@ -275,13 +306,17 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                     oCurrentSelectedStackCopy.SetItemCount(nDifference);
 
                     // set the content of the stack to the current stack copy
-                    SetSlotContent(oCurrentStackCopy);
+                    bCompatibleSlot = SetSlotContent(oCurrentStackCopy);
 
-                    // set the currently selected stack to the current selected stack copy
-                    m_gInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy);
+                    // if the slot is compatible
+                    if (bCompatibleSlot)
+                    {
+                        // set the currently selected stack to the current selected stack copy
+                        m_gInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy);
 
-                    // deactivate the tooltip
-                    SetTooltip(string.Empty);
+                        // deactivate the tooltip
+                        SetTooltip(string.Empty);
+                    }
                 }
             }
 
@@ -289,13 +324,17 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
             else
             {
                 // set the slot content to the currently selected stack
-                SetSlotContent(oCurrentSelectedStack);
+                bCompatibleSlot = SetSlotContent(oCurrentSelectedStack);
 
-                // set the currently selected stack to the current selected stack copy
-                m_gInventoryManger.SetSelectedStack(oCurrentStackCopy);
+                // if the slot is compatible
+                if (bCompatibleSlot)
+                {
+                    // set the currently selected stack to the current selected stack copy
+                    m_gInventoryManger.SetSelectedStack(oCurrentStackCopy);
 
-                // deactivate the tooltip
-                SetTooltip(string.Empty);
+                    // deactivate the tooltip
+                    SetTooltip(string.Empty);
+                }
             }
         }
     }
@@ -309,6 +348,9 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
     //--------------------------------------------------------------------------------------
     private void OnRightClick(ItemStack oCurrentSelectedStack, ItemStack oCurrentStackCopy)
     {
+        // bool for if a slot is compatible or not
+        bool bCompatibleSlot = false;
+
         // if the current stack is not empty and the selected stack is empty
         if (!m_oCurrentStack.IsStackEmpty() && oCurrentSelectedStack.IsStackEmpty())
         {
@@ -329,22 +371,26 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
         if (m_oCurrentStack.IsStackEmpty() && !oCurrentSelectedStack.IsStackEmpty())
         {
             // Set the slot content of a new item stack
-            SetSlotContent(new ItemStack(oCurrentSelectedStack.GetItem(), 1));
+            bCompatibleSlot = SetSlotContent(new ItemStack(oCurrentSelectedStack.GetItem(), 1));
 
-            // get a copy of the currently selected stack
-            ItemStack oCurrentSelectedStackCopy = oCurrentSelectedStack.CopyStack();
+            // if the slot is compatible
+            if (bCompatibleSlot)
+            {
+                // get a copy of the currently selected stack
+                ItemStack oCurrentSelectedStackCopy = oCurrentSelectedStack.CopyStack();
 
-            // decrease the currently selected count by 1
-            oCurrentSelectedStackCopy.DecreaseStack(1);
+                // decrease the currently selected count by 1
+                oCurrentSelectedStackCopy.DecreaseStack(1);
 
-            // set the currently selected stack in the manager to this one 
-            m_gInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy);
+                // set the currently selected stack in the manager to this one 
+                m_gInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy);
 
-            // deactivate the tooltip
-            SetTooltip(string.Empty);
+                // deactivate the tooltip
+                SetTooltip(string.Empty);
+            }
         }
 
-        // if both current stack and selected stack are empty
+        // if both current stack and selected stack are not empty
         if (!m_oCurrentStack.IsStackEmpty() && !oCurrentSelectedStack.IsStackEmpty())
         {
             // if the items stacks are equal
@@ -357,19 +403,23 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                     oCurrentStackCopy.IncreaseStack(1);
 
                     // set the content of the current slot
-                    SetSlotContent(oCurrentStackCopy);
+                    bCompatibleSlot = SetSlotContent(oCurrentStackCopy);
 
-                    // get a copy of the currently selected stack
-                    ItemStack oCurrentSelectedStackCopy = oCurrentSelectedStack.CopyStack();
+                    // if the slot is compatible
+                    if (bCompatibleSlot)
+                    {
+                        // get a copy of the currently selected stack
+                        ItemStack oCurrentSelectedStackCopy = oCurrentSelectedStack.CopyStack();
 
-                    // decrease the count
-                    oCurrentSelectedStackCopy.DecreaseStack(1);
+                        // decrease the count
+                        oCurrentSelectedStackCopy.DecreaseStack(1);
 
-                    // set the currently selected stack in the manager to this new one 
-                    m_gInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy);
+                        // set the currently selected stack in the manager to this new one 
+                        m_gInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy);
 
-                    // deactivate the tooltip
-                    SetTooltip(string.Empty);
+                        // deactivate the tooltip
+                        SetTooltip(string.Empty);
+                    }
                 }
             }
         }

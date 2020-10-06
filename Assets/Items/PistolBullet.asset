@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70e044bb57a11f24fabdf96ecbf70704, type: 3}
-  m_Name: Pistol Bullet
+  m_Name: PistolBullet
   m_EditorClassIdentifier: 
   m_strTitle: Pistol Bullet
   m_sIcon: {fileID: 21300000, guid: 66a49b690697e8d4ebc44bec5ac44d11, type: 3}
   m_nMaxStackSize: 20
-  m_eItemType: 1
+  m_eItemType: 2

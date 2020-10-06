@@ -13,6 +13,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //--------------------------------------------------------------------------------------
+// Enum EItemType. Used for setting the type of item.
+//--------------------------------------------------------------------------------------
+public enum EItemType
+{
+    ETYPE_GUN = 1 << 0,
+    ETYPE_BULLET = 1 << 1 
+}
+
+//--------------------------------------------------------------------------------------
 // Inventory object.
 //--------------------------------------------------------------------------------------
 public class Inventory
@@ -20,13 +29,17 @@ public class Inventory
     // private List of item stack: the inventory array.
     private List<ItemStack> m_aoItems = new List<ItemStack>();
 
+    // private enum item type for list of incompatible items in inventory
+    [EnumFlags] // Used to allow multiple enums in one.
+    public EItemType m_eIncompatibleItems;
+
     //--------------------------------------------------------------------------------------
     // Default Constructor.
     //
     // Param:
     //      nSize: An int for the size of the inventory system to create.
     //--------------------------------------------------------------------------------------
-    public Inventory(int nSize)
+    public Inventory(int nSize, EItemType aeCompatibleItems)
     {
         // loop through the inventory size
         for (int i = 0; i < nSize; i++)
@@ -34,6 +47,9 @@ public class Inventory
             // add an item stack for every item
             m_aoItems.Add(new ItemStack(i));
         }
+
+        // set the incompatible items of this inventory
+        SetIncompatibleItems(aeCompatibleItems);
     }
 
     //--------------------------------------------------------------------------------------
@@ -47,6 +63,13 @@ public class Inventory
     //--------------------------------------------------------------------------------------
     public bool AddItem(ItemStack oStack)
     {
+        // check if the item attempting to add to the inventory is incompatible
+        if (oStack.GetItem().m_eItemType == m_eIncompatibleItems)
+        {
+            // return false, item not added.
+            return false;
+        }
+
         // loop through each item stack in the inventory
         foreach (ItemStack i in m_aoItems)
         {
@@ -117,5 +140,29 @@ public class Inventory
     {
         // return the inventory
         return m_aoItems;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetIncompatibleItems: Set the incompatible item list.
+    //
+    // Param:
+    //      eItems: The items to set to the incompatible items list.
+    //--------------------------------------------------------------------------------------
+    public void SetIncompatibleItems(EItemType eItems)
+    {
+        // set the incompatible items
+        m_eIncompatibleItems = eItems;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetIncompatibleItems: Get the list of incompatible items
+    //
+    // Return:
+    //      EItemType: return the list of incompatible items
+    //--------------------------------------------------------------------------------------
+    public EItemType GetIncompatibleItems()
+    {
+        // return incompatible items
+        return m_eIncompatibleItems;
     }
 }
