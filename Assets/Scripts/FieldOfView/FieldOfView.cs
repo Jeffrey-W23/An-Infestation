@@ -192,10 +192,10 @@ public class FieldOfView : MonoBehaviour
     {
         // calculate vector from angle
         float fAngleRad = fAngle * (Mathf.PI / 180.0f);
-        Vector3 fNewAngle = new Vector3(Mathf.Cos(fAngleRad), Mathf.Sin(fAngleRad));
+        Vector3 v3NewAngle = new Vector3(Mathf.Cos(fAngleRad), Mathf.Sin(fAngleRad));
 
         // return the new angle
-        return fNewAngle;
+        return v3NewAngle;
     }
 
     //--------------------------------------------------------------------------------------

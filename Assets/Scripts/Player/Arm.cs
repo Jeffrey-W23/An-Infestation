@@ -19,29 +19,9 @@ public class Arm : MonoBehaviour
     // Title for this section of public values.
     [Header("Hand Settings:")]
 
-
-
-
-
-
-
-    // TEMP // TEMP // // TEMP // TEMP //
-    // public gameobject for Weapon prefab.
-    //[LabelOverride("Weapon Prefab")] [Tooltip("The weapon equiped to the player at start.")]
-    //public GameObject m_gWeaponPrefab;
-    // TEMP // TEMP // // TEMP // TEMP //
-
-
-
-
-
-    public GameObject m_gInHand;
+    // public gameobject for the in hand item spawn location
+    [LabelOverride("In-Hand Item Spawn")] [Tooltip("The spawn location of the In-Hand item.")]
     public GameObject m_gInHandSpawn;
-
-
-
-
-
 
     // Leave a space in the inspector.
     [Space]
@@ -65,11 +45,14 @@ public class Arm : MonoBehaviour
     // float for the distance between mouse and object.
     private float m_fDistanceBetween;
 
-    // The Pistol weapon.
-    private GameObject m_gPistol;
-
     // private bool for freezing the arm
     private bool m_bFreezeArm = false;
+
+    // private itemstack for the current hands item
+    private ItemStack m_oInHandItemStack;
+
+    // private gameobject for the item in player hand
+    private GameObject m_gInHand;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -77,9 +60,8 @@ public class Arm : MonoBehaviour
     //--------------------------------------------------------------------------------------
     void Awake()
     {
-        // Set the parenting of pistol prefab.
-        //m_gPistol = Instantiate(m_gWeaponPrefab);
-        //m_gPistol.transform.parent = transform;
+        // set the in hand stack to empty.
+        m_oInHandItemStack = ItemStack.m_oEmpty;
     }
 
     //--------------------------------------------------------------------------------------
@@ -138,29 +120,66 @@ public class Arm : MonoBehaviour
         m_bFreezeArm = bFreeze;
     }
 
-
-
-
-
-
-
-
-
-
-    public GameObject GetInHand()
+    //--------------------------------------------------------------------------------------
+    // GetInHandItemStack: Get the current in hand item stack.
+    //
+    // Return:
+    //      ItemStack: The item stack in hand
+    //--------------------------------------------------------------------------------------
+    public ItemStack GetInHandItemStack()
     {
-        return m_gInHand;
+        // return the in hand item stack
+        return m_oInHandItemStack;
     }
 
-    public void SetInHand(GameObject gObject)
+    //--------------------------------------------------------------------------------------
+    // SetInHandItemStack: Set the in hand item stack.
+    //
+    // Param:
+    //      oItem: The item to set to the in hand item stack.
+    //--------------------------------------------------------------------------------------
+    public void SetInHandItemStack(ItemStack oItem)
     {
+        // if the item is not empty
+        if (oItem != ItemStack.m_oEmpty)
+        {
+            // set in the hand item stack to the passed in item
+            m_oInHandItemStack = oItem;
+
+            // set the in hand item to the hand
+            SetInHandObject(m_oInHandItemStack.GetItem().m_gSceneObject);
+        }
+
+        // else if the item is empty
+        else
+        {
+            // set in the hand item stack to the passed in item
+            m_oInHandItemStack = oItem;
+
+            // set the in hand item to null
+            SetInHandObject(null);
+        }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetInHand: Set the current in hand object.
+    //
+    // Param:
+    //      gObject: The object to set to the hand.
+    //--------------------------------------------------------------------------------------
+    private void SetInHandObject(GameObject gObject)
+    {
+        // destroy the object currently in hand
         Object.Destroy(m_gInHand);
 
+        // if the passed in object is not null
         if (gObject != null)
         {
+            // set the in hand to the passed in object and instantiate
             m_gInHand = gObject;
             m_gInHand = Instantiate(m_gInHand);
 
+            // Set the transform of the in hand item
             m_gInHand.transform.parent = transform;
             m_gInHand.transform.position = m_gInHandSpawn.transform.position;
             m_gInHand.transform.rotation = transform.rotation;

@@ -19,7 +19,7 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     // public static inventory manager singleton
-    public static InventoryManager m_gInstance;
+    public static InventoryManager m_oInstance;
 
     // INVENTORY //
     //--------------------------------------------------------------------------------------
@@ -46,20 +46,14 @@ public class InventoryManager : MonoBehaviour
     private ItemStack m_oCurrentSelectedStack = ItemStack.m_oEmpty;
 
     // private selected stack.
-    private SelectedStack m_gSelectedStack;
+    private SelectedStack m_oSelectedStack;
 
     // private tooltip for the seting tooltip
-    private Tooltip m_gToolTip;
+    private Tooltip m_oToolTip;
 
     // private bool for if an inventory is open or not.
     private bool m_bIsInventoryOpen = false;
     //--------------------------------------------------------------------------------------
-
-    // REMOVE // TEMP // REMOVE // POSSIBLTY //
-    // private player object for getting the player.
-    [HideInInspector]
-    public Player m_gPlayer; // TEMP // NEEDS TO BE PRIVATE // TEMP
-    // REMOVE // TEMP // REMOVE // POSSIBLTY //
 
     //--------------------------------------------------------------------------------------
     // Initialization.
@@ -67,39 +61,13 @@ public class InventoryManager : MonoBehaviour
     private void Awake()
     {
         // set instance
-        m_gInstance = this;
+        m_oInstance = this;
 
         // get the selected stack component
-        m_gSelectedStack = GetComponentInChildren<SelectedStack>();
+        m_oSelectedStack = GetComponentInChildren<SelectedStack>();
 
         // get the tooltip component
-        m_gToolTip = GetComponentInChildren<Tooltip>();
-
-        // get the player object
-        m_gPlayer = FindObjectOfType<Player>();
-    }
-
-    //--------------------------------------------------------------------------------------
-    // Update: Function that calls each frame to update game objects.
-    //--------------------------------------------------------------------------------------
-    private void Update()
-    {
-        // if the inventory is currently opened
-        if (m_bIsInventoryOpen)
-        {
-            // if the escape key is pressed
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                // Close the inventory container
-                CloseContainer();
-
-                // allow the player to move again because an inventory is no longer open
-                m_gPlayer.SetFreezePlayer(false);
-
-                // turn off the tool tip
-                ActivateToolTip(string.Empty);
-            }
-        }
+        m_oToolTip = GetComponentInChildren<Tooltip>();
     }
 
     //--------------------------------------------------------------------------------------
@@ -134,7 +102,7 @@ public class InventoryManager : MonoBehaviour
     // Param:
     //      nContainer: Takes in container type for which container to open.
     //--------------------------------------------------------------------------------------
-    public void OpenContainer(Container nContainer)
+    public void OpenContainer(Container oContainer)
     {
         // if the current open container is not null
         if (m_oCurrentOpenContainer != null)
@@ -144,16 +112,13 @@ public class InventoryManager : MonoBehaviour
         }
 
         // Set the current open container to passed in container
-        m_oCurrentOpenContainer = nContainer;
+        m_oCurrentOpenContainer = oContainer;
 
         // set the inventory opened to true
         m_bIsInventoryOpen = true;
 
-        // stop the player from moving when the inventory is open
-        m_gPlayer.SetFreezePlayer(true);
-
         // set the cursor back to default
-        CustomCursor.m_gInstance.SetDefaultCursor();
+        CustomCursor.m_oInstance.SetDefaultCursor();
     }
 
     //--------------------------------------------------------------------------------------
@@ -168,11 +133,27 @@ public class InventoryManager : MonoBehaviour
             m_oCurrentOpenContainer.Close();
         }
 
+        // if the current selected stack is not empty
+        if (!m_oCurrentSelectedStack.IsStackEmpty())
+        {
+            // Get the origin inventory of the selected stack
+            Inventory oOrigin = m_oSelectedStack.GetOriginInventory();
+
+            // Add the current selected stack back to the origin inventory
+            oOrigin.AddItem(m_oCurrentSelectedStack);
+
+            // set the selected stack back to emtpy.
+            SetSelectedStack(ItemStack.m_oEmpty, null);
+        }
+
+        // turn off the tool tip
+        ActivateToolTip(string.Empty);
+
         // set the inventory opened to false
         m_bIsInventoryOpen = false;
 
-        // freeze the player
-        m_gPlayer.SetFreezePlayer(false);
+        // set the cursor back to previous
+        CustomCursor.m_oInstance.SetPreviousCursor();
     }
 
     //--------------------------------------------------------------------------------------
@@ -206,9 +187,6 @@ public class InventoryManager : MonoBehaviour
     {
         // reset the inventory open status back to false
         m_bIsInventoryOpen = false;
-
-        // unfreeze the player.
-        m_gPlayer.SetFreezePlayer(false);
     }
 
     //--------------------------------------------------------------------------------------
@@ -229,10 +207,14 @@ public class InventoryManager : MonoBehaviour
     // Param:
     //      oStack: Takes in type ItemStack to set currently selected.
     //--------------------------------------------------------------------------------------
-    public void SetSelectedStack(ItemStack oStack)
+    public void SetSelectedStack(ItemStack oStack, Inventory oOrigin)
     {
         // set the currently selected stack
-        m_gSelectedStack.SetSelectedStack(m_oCurrentSelectedStack = oStack);
+        m_oSelectedStack.SetSelectedStack(m_oCurrentSelectedStack = oStack);
+
+        // check if the origin is not null, if not then set origin to origin of the selected stack.
+        if (oOrigin != null)
+            m_oSelectedStack.SetOriginInventory(oOrigin);
     }
 
     //--------------------------------------------------------------------------------------
@@ -244,29 +226,7 @@ public class InventoryManager : MonoBehaviour
     public void ActivateToolTip(string strTitle)
     {
         // set the tooltip
-        m_gToolTip.SetTooltip(strTitle);
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetPlayerInventory: Get the player inventory.
-    //
-    // Return:
-    //      Inventory: returns an inventory object for the player inventory.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetPlayerInventory()
-    {
-        return m_gPlayer.GetInventory();
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetPlayerWeaponsInventory: Get the player weapons inventory.
-    //
-    // Return:
-    //      Inventory: returns an inventory object for the player inventory.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetPlayerWeaponsInventory()
-    {
-        return m_gPlayer.GetWeapons();
+        m_oToolTip.SetTooltip(strTitle);
     }
 }
 

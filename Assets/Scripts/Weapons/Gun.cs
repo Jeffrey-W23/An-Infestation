@@ -76,13 +76,26 @@ public class Gun : MonoBehaviour
     [Space]
     //--------------------------------------------------------------------------------------
 
+    // OTHER SETTINGS //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Other Settings:")]
+
+    // public texture2d for the guns crosshair
+    [LabelOverride("Gun Crosshair")] [Tooltip("The cursor to use for the guns crosshair.")]
+    public Texture2D m_tCrosshair;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
     // PROTECTED VALUES //
     //--------------------------------------------------------------------------------------
     // An Array of GameObjects for bullets.
-    protected GameObject[] m_gBulletList;
+    protected GameObject[] m_agBulletList;
 
     // playber object for getting player script
-    protected Player m_sPlayer;
+    protected Player m_oPlayer;
 
     // bool for if the gun is down sights
     protected bool m_bDownSights = false;
@@ -106,20 +119,23 @@ public class Gun : MonoBehaviour
     protected void Awake()
     {
         // Get the player object
-        m_sPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        m_oPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
         // Set camera zoom
-        m_fCameraPosA = Camera.main.orthographicSize;
+        m_fCameraPosA = m_oPlayer.m_fDefaultCameraZoom;
+
+        // set the crosshair of the gun
+        CustomCursor.m_oInstance.SetCustomCursor(m_tCrosshair);
 
         // initialize bullet list with size.
-        m_gBulletList = new GameObject[m_nPoolSize];
+        m_agBulletList = new GameObject[m_nPoolSize];
 
         // Go through each bullet.
         for (int i = 0; i < m_nPoolSize; ++i)
         {
             // Instantiate and set active state.
-            m_gBulletList[i] = Instantiate(m_gBulletBlueprint);
-            m_gBulletList[i].SetActive(false);
+            m_agBulletList[i] = Instantiate(m_gBulletBlueprint);
+            m_agBulletList[i].SetActive(false);
         }
     }
 
@@ -129,7 +145,7 @@ public class Gun : MonoBehaviour
     protected void Update()
     {
         // is player allowed to move
-        if (!m_sPlayer.GetFreezePlayer())
+        if (!m_oPlayer.GetFreezePlayer())
         {
             // Shoot the bullet
             ShootBullet();
@@ -186,14 +202,14 @@ public class Gun : MonoBehaviour
             if (m_bDownSights)
             {
                 // set the fov, distance and lerp smoothing of the player vision
-                m_sPlayer.GetPlayerVisionScript().SetViewDistance(m_fDownSightsDistance);
-                m_sPlayer.GetPlayerVisionScript().SetFOV(m_fDownSightsFOV);
-                m_sPlayer.GetPlayerVisionScript().SetLerpSmoothing(m_fDownSightsSmoothing);
+                m_oPlayer.GetPlayerVisionScript().SetViewDistance(m_fDownSightsDistance);
+                m_oPlayer.GetPlayerVisionScript().SetFOV(m_fDownSightsFOV);
+                m_oPlayer.GetPlayerVisionScript().SetLerpSmoothing(m_fDownSightsSmoothing);
 
                 // set the fov, distance and lerp smoothing of the enemy renderer
-                m_sPlayer.GetEnemyRendererScript().SetViewDistance(m_fDownSightsDistance);
-                m_sPlayer.GetEnemyRendererScript().SetFOV(m_fDownSightsFOV);
-                m_sPlayer.GetEnemyRendererScript().SetLerpSmoothing(m_fDownSightsSmoothing);
+                m_oPlayer.GetEnemyRendererScript().SetViewDistance(m_fDownSightsDistance);
+                m_oPlayer.GetEnemyRendererScript().SetFOV(m_fDownSightsFOV);
+                m_oPlayer.GetEnemyRendererScript().SetLerpSmoothing(m_fDownSightsSmoothing);
 
                 // change the camera zoom
                 m_fCurrentCameraPos = fCameraPosB;
@@ -202,15 +218,8 @@ public class Gun : MonoBehaviour
             // else if not down sights
             else
             {
-                // set the fov, distance and lerp smoothing of the player vision
-                m_sPlayer.GetPlayerVisionScript().SetDefaultViewDistance();
-                m_sPlayer.GetPlayerVisionScript().SetDefaultFOV();
-                m_sPlayer.GetPlayerVisionScript().SetDefaultLerpSmoothing();
-
-                // set the fov, distance and lerp smoothing of the enemy renderer
-                m_sPlayer.GetEnemyRendererScript().SetDefaultViewDistance();
-                m_sPlayer.GetEnemyRendererScript().SetDefaultFOV();
-                m_sPlayer.GetEnemyRendererScript().SetDefaultLerpSmoothing();
+                // Set the player fov back to default
+                m_oPlayer.SetFOVDefault();
 
                 // change the camera zoom
                 m_fCurrentCameraPos = m_fCameraPosA;
@@ -233,13 +242,13 @@ public class Gun : MonoBehaviour
         for (int i = 0; i < m_nPoolSize; ++i)
         {
             // Check if active.
-            if (!m_gBulletList[i].activeInHierarchy)
+            if (!m_agBulletList[i].activeInHierarchy)
             {
                 // Set active state.
-                m_gBulletList[i].SetActive(true);
+                m_agBulletList[i].SetActive(true);
 
                 // return the bullet.
-                return m_gBulletList[i];
+                return m_agBulletList[i];
             }
         }
 
@@ -247,18 +256,16 @@ public class Gun : MonoBehaviour
         return null;
     }
 
-
-
-
-
-
+    //--------------------------------------------------------------------------------------
+    // OnDestroy: Function that runs on the destroy of a game object.
+    //--------------------------------------------------------------------------------------
     private void OnDestroy()
     {
         // Go through each bullet.
         for (int i = 0; i < m_nPoolSize; ++i)
         {
-            //
-            Object.Destroy(m_gBulletList[i]);
+            // Destory the bullet list
+            Object.Destroy(m_agBulletList[i]);
         }
     }
 }

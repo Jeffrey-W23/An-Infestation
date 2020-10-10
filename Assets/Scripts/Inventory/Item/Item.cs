@@ -35,11 +35,9 @@ public class Item : ScriptableObject
     // public enum for item type.
     [LabelOverride("Item Type")] [Tooltip("What type of item? A weapon, ammo, health item?")]
     public EItemType m_eItemType;
-    //--------------------------------------------------------------------------------------
 
-
-
-
-
+    // public gameobject for this items scene object.
+    [LabelOverride("Object in Scene")] [Tooltip("The gameobject that will represent this item in the unity scene.")]
     public GameObject m_gSceneObject;
+    //--------------------------------------------------------------------------------------
 }

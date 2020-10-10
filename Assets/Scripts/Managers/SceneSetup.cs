@@ -22,7 +22,5 @@ public class SceneSetup : MonoBehaviour
     //--------------------------------------------------------------------------------------
     void Start()
     {
-        // Set the cursor to the crosshair
-        CustomCursor.m_gInstance.SetCrosshair();
     }
 }

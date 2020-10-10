@@ -40,7 +40,34 @@ public class SelectedStack : MonoBehaviour
     //--------------------------------------------------------------------------------------
     // private item stack for the current selected item stack.
     private ItemStack m_oCurrentStack = ItemStack.m_oEmpty;
+
+    // private inventory for the origin of the selected item
+    private Inventory m_oOriginInventory;
     //--------------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------------
+    // SetOriginInventory: Set the origin inventory of the selected stack.
+    //
+    // Param:
+    //      oOrigin: The inventory to set the origin
+    //--------------------------------------------------------------------------------------
+    public void SetOriginInventory(Inventory oOrigin)
+    {
+        // set the origin inventory
+        m_oOriginInventory = oOrigin;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetOriginInventory: Get the origin inventory of the selected stack.
+    //
+    // Return:
+    //      Inventory: Returns the origin inventory of the selected stack.
+    //--------------------------------------------------------------------------------------
+    public Inventory GetOriginInventory()
+    {
+        // return the origin inventory 
+        return m_oOriginInventory;
+    }
 
     //--------------------------------------------------------------------------------------
     // Update: Function that calls each frame to update game objects.

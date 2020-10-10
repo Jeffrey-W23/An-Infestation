@@ -48,6 +48,6 @@ public class PlayerContainer : Container
     public override GameObject GetPrefab()
     {
         // return the inventory managers instance container prefab
-        return InventoryManager.m_gInstance.GetContainerPrefab("PlayerContainer");
+        return InventoryManager.m_oInstance.GetContainerPrefab("PlayerContainer");
     }
 }

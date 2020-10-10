@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8489697154923447268}
   - component: {fileID: 8489697154923447269}
-  - component: {fileID: 8489697154923447270}
   - component: {fileID: 8489697154923447259}
+  - component: {fileID: 5559870761770929361}
   m_Layer: 13
   m_Name: PistolPickup
   m_TagString: Untagged
@@ -84,26 +84,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8489697154923447270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8489697154923447271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad664a68edadf1b43b9ca359bc12e679, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_bSingleUse: 1
-  m_tmBtnVisual: {fileID: 102135054861482192, guid: adaa98cd5531af04096f225dc20853fe, type: 3}
-  m_bInteractAudio: 0
-  m_acInteractAudio: {fileID: 0}
-  m_oItem: {fileID: 11400000, guid: 32d1e7b754f99af46a9e57cd7b3ef8c5, type: 2}
-  m_nItemCount: 1
-  m_bCustomSprite: 0
-  m_sCustomSprite: {fileID: 0}
 --- !u!58 &8489697154923447259
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -120,3 +100,23 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.12
+--- !u!114 &5559870761770929361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8489697154923447271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75de7cf291d0e914890fa14c3aff8604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_bSingleUse: 0
+  m_tmBtnVisual: {fileID: 102135054861482192, guid: adaa98cd5531af04096f225dc20853fe, type: 3}
+  m_bInteractAudio: 0
+  m_acInteractAudio: {fileID: 0}
+  m_oItem: {fileID: 11400000, guid: 32d1e7b754f99af46a9e57cd7b3ef8c5, type: 2}
+  m_nItemCount: 1
+  m_bCustomSprite: 0
+  m_sCustomSprite: {fileID: 0}

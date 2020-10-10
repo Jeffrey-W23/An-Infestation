@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad664a68edadf1b43b9ca359bc12e679, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_bSingleUse: 1
+  m_bSingleUse: 0
   m_tmBtnVisual: {fileID: 102135054861482192, guid: adaa98cd5531af04096f225dc20853fe, type: 3}
   m_bInteractAudio: 0
   m_acInteractAudio: {fileID: 0}

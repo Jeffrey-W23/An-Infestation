@@ -38,7 +38,16 @@ public class CustomCursor : MonoBehaviour
     //--------------------------------------------------------------------------------------
     // new singleton for setting the cursor throughout project
     [HideInInspector]
-    public static CustomCursor m_gInstance;
+    public static CustomCursor m_oInstance;
+    //--------------------------------------------------------------------------------------
+
+    // PRIVATE VALUES //
+    //--------------------------------------------------------------------------------------
+    // private texture2d for the current cursor
+    private Texture2D m_tCurrentCursor;
+
+    // private texture2d for the previous cursor
+    private Texture2D m_tPreviousCursor;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -47,10 +56,14 @@ public class CustomCursor : MonoBehaviour
     private void Awake()
     {
         // set instance
-        m_gInstance = this;
+        m_oInstance = this;
 
         // Set the cursor to the default
         SetCustomCursor(m_tCursor);
+
+        // set the previous and current cursor
+        m_tCurrentCursor = m_tCursor;
+        m_tPreviousCursor = m_tCursor;
     }
 
     //--------------------------------------------------------------------------------------
@@ -61,11 +74,17 @@ public class CustomCursor : MonoBehaviour
     //--------------------------------------------------------------------------------------
     public void SetCustomCursor(Texture2D tCursor)
     {
+        // Set the previous cursor to current cursor before it is changed.
+        m_tPreviousCursor = GetCurrentCursor();
+
         // Set the mouse click point.
         Vector2 v2CursorHotspot = new Vector2(tCursor.width / 2, tCursor.height / 2);
 
         // Set the cursor values.
         Cursor.SetCursor(tCursor, v2CursorHotspot, CursorMode.ForceSoftware);
+
+        // set the current cursor
+        m_tCurrentCursor = tCursor;
     }
 
     //--------------------------------------------------------------------------------------
@@ -84,5 +103,38 @@ public class CustomCursor : MonoBehaviour
     {
         // Set the cursor to the desfault
         SetCustomCursor(m_tCrosshair);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetPrevious: Set the cursor to the previously used cursor.
+    //--------------------------------------------------------------------------------------
+    public void SetPreviousCursor()
+    {
+        // set the custom cursor to previous cursor
+        SetCustomCursor(m_tPreviousCursor);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetCurrentCursor: Get the currently selected cursor.
+    //
+    // Return:
+    //      Texture2D: returns the current cursor as a texture2D
+    //--------------------------------------------------------------------------------------
+    public Texture2D GetCurrentCursor()
+    {
+        // return the current cursor
+        return m_tCurrentCursor;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetPreviousCursor: Get the previously selected cursor.
+    //
+    // Return:
+    //      Texture2D: returns the previous cursor as a texture2D
+    //--------------------------------------------------------------------------------------
+    public Texture2D GetPreviousCursor()
+    {
+        // return the current cursor
+        return m_tPreviousCursor;
     }
 }

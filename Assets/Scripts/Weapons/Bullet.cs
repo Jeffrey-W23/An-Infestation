@@ -23,9 +23,12 @@ public class Bullet : MonoBehaviour
     [Header("Bullet Settings:")]
 
     // Public float for the bullet speed.
-    [LabelOverride("Speed")]
-    [Tooltip("The speed the bullet will fly from the gun across the map.")]
+    [LabelOverride("Speed")] [Tooltip("The speed the bullet will fly from the gun across the map.")]
     public float m_fSpeed = 15.0f;
+
+    // public float for the max travel distance of the bullet
+    [LabelOverride("Max Travel Distance")] [Tooltip("The max travel distance of the bullet before despawn.")]
+    public float m_fTravelDistance = 50;
 
     // Leave a space in the inspector.
     [Space]
@@ -38,22 +41,10 @@ public class Bullet : MonoBehaviour
 
     // protected vector2 for bullet direction.
     protected Vector2 m_v2Direction;
+
+    // protected vector3 for the spawn position of the bullet
+    protected Vector3 m_v3SpawnPosition;
     //--------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-    public float m_fTravelDistance = 50;
-
-    private Vector3 m_v3SpawnPosition;
-
-
-
-
-
 
     //--------------------------------------------------------------------------------------
     // initialization
@@ -69,36 +60,21 @@ public class Bullet : MonoBehaviour
     //--------------------------------------------------------------------------------------
     protected void FixedUpdate()
     {
-
-
-
-
-
-
         // Update the bullets velocity, direction etc.
         transform.right = m_v2Direction;
         m_rbRigidBody.velocity = (m_v2Direction * m_fSpeed * Time.fixedDeltaTime);
         m_rbRigidBody.angularVelocity = 0;
 
-
-
-
-
-
-        BulletDistance();
-
-
-
+        // Check the bullet distance
+        CheckBulletDistance();
     }
 
-
-
-
-
-
-    protected void BulletDistance()
+    //--------------------------------------------------------------------------------------
+    // CheckBulletDistance: Check if the bullet has hit the max distance.
+    //--------------------------------------------------------------------------------------
+    protected void CheckBulletDistance()
     {
-        //
+        // if the bullet position is past the max distance
         if (Vector3.Distance(m_v3SpawnPosition, transform.position) > m_fTravelDistance)
         {
             // Set to inactive on collision.
@@ -106,16 +82,17 @@ public class Bullet : MonoBehaviour
         }
     }
 
+    //--------------------------------------------------------------------------------------
+    // SetSpawnPosition: Set the spawn position of the bullet.
+    //
+    // Param:
+    //      v3Pos: The vector 3 position to set the spawn.
+    //--------------------------------------------------------------------------------------
     public void SetSpawnPosition(Vector3 v3Pos)
     {
+        // set the spawn position of the bullet
         m_v3SpawnPosition = v3Pos;
     }
-
-
-
-
-
-
 
     //--------------------------------------------------------------------------------------
     // SetDirection: Direction setter for the bullet.

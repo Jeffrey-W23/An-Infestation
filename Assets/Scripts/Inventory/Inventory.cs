@@ -17,8 +17,11 @@ using UnityEngine;
 //--------------------------------------------------------------------------------------
 public enum EItemType
 {
-    ETYPE_GUN = 1 << 0,
-    ETYPE_BULLET = 1 << 1 
+    ETYPE_NONE = 1 << 0,
+    ETYPE_ALL = 1 << 1,
+    ETYPE_GUN = 1 << 2,
+    ETYPE_BULLET = 1 << 3,
+    ETYPE_TEST = 1 << 4
 }
 
 //--------------------------------------------------------------------------------------
@@ -29,9 +32,8 @@ public class Inventory
     // private List of item stack: the inventory array.
     private List<ItemStack> m_aoItems = new List<ItemStack>();
 
-    // private enum item type for list of incompatible items in inventory
-    [EnumFlags] // Used to allow multiple enums in one.
-    public EItemType m_eIncompatibleItems;
+    // private list of enums for incompatible items in an inventory
+    public List<EItemType> m_aeIncompatibleItems = new List<EItemType>();
 
     //--------------------------------------------------------------------------------------
     // Default Constructor.
@@ -39,7 +41,7 @@ public class Inventory
     // Param:
     //      nSize: An int for the size of the inventory system to create.
     //--------------------------------------------------------------------------------------
-    public Inventory(int nSize, EItemType aeCompatibleItems)
+    public Inventory(int nSize, List<EItemType> aeIncompatibleItems)
     {
         // loop through the inventory size
         for (int i = 0; i < nSize; i++)
@@ -48,8 +50,8 @@ public class Inventory
             m_aoItems.Add(new ItemStack(i));
         }
 
-        // set the incompatible items of this inventory
-        SetIncompatibleItems(aeCompatibleItems);
+        // set the incompatible and compatible items of this inventory
+        SetIncompatibleItems(aeIncompatibleItems);
     }
 
     //--------------------------------------------------------------------------------------
@@ -64,7 +66,7 @@ public class Inventory
     public bool AddItem(ItemStack oStack)
     {
         // check if the item attempting to add to the inventory is incompatible
-        if (oStack.GetItem().m_eItemType == m_eIncompatibleItems)
+        if (CheckIfIncompatible(oStack.GetItem().m_eItemType, m_aeIncompatibleItems))
         {
             // return false, item not added.
             return false;
@@ -146,23 +148,51 @@ public class Inventory
     // SetIncompatibleItems: Set the incompatible item list.
     //
     // Param:
-    //      eItems: The items to set to the incompatible items list.
+    //      aeItems: The items to set to the incompatible items list.
     //--------------------------------------------------------------------------------------
-    public void SetIncompatibleItems(EItemType eItems)
+    public void SetIncompatibleItems(List<EItemType> aeItems)
     {
         // set the incompatible items
-        m_eIncompatibleItems = eItems;
+        m_aeIncompatibleItems = aeItems;
     }
 
     //--------------------------------------------------------------------------------------
     // GetIncompatibleItems: Get the list of incompatible items
     //
     // Return:
-    //      EItemType: return the list of incompatible items
+    //      List<EItemType>: return the list of incompatible items
     //--------------------------------------------------------------------------------------
-    public EItemType GetIncompatibleItems()
+    public List<EItemType> GetIncompatibleItems()
     {
         // return incompatible items
-        return m_eIncompatibleItems;
+        return m_aeIncompatibleItems;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // CheckIfIncompatible: Check if an item is incompatible with an inventory.
+    //
+    // Param:
+    //      eCheck: The Enum value representing the item to check.
+    //      aeIncompatibleList: The incompatible items list to check the item against.
+    //
+    // Return:
+    //      bool: Return if the item is compatible with the inventory or not.
+    //--------------------------------------------------------------------------------------
+    public bool CheckIfIncompatible(EItemType eCheck, List<EItemType> aeIncompatibleList)
+    {
+        // loop through the incompatible items list
+        for (int i = 0; i < aeIncompatibleList.Count; i++)
+        {
+            // if the incompatible items list has a ETYPE_ALL return true
+            if (aeIncompatibleList[i] == EItemType.ETYPE_ALL)
+                return true;
+
+            // if the eCheck value matches and incompatible item and that value is not ETYPE_NONE return true
+            if (eCheck == aeIncompatibleList[i] && aeIncompatibleList[i] != EItemType.ETYPE_NONE)
+                return true;
+        }
+
+        // else return false
+        return false;
     }
 }

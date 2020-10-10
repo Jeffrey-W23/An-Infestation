@@ -831,10 +831,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5494405317735948186, guid: b54490e6070b42742a5fba7aba12b085, type: 3}
-      propertyPath: m_CullingMask.m_Bits
-      value: 15159
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b54490e6070b42742a5fba7aba12b085, type: 3}
 --- !u!1001 &6825439784771168092
@@ -844,10 +840,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 6825439783681189508, guid: f5d98d72799aecf4594c90155ab4eb6f, type: 3}
-      propertyPath: m_bSingleUse
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6825439783681189510, guid: f5d98d72799aecf4594c90155ab4eb6f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.91
@@ -1073,10 +1065,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8489697154923447268, guid: 1742301106463c346809f18278ce90fa, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8489697154923447270, guid: 1742301106463c346809f18278ce90fa, type: 3}
-      propertyPath: m_bSingleUse
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8489697154923447271, guid: 1742301106463c346809f18278ce90fa, type: 3}

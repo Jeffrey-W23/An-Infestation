@@ -32,7 +32,7 @@ public class Container
     protected Inventory m_oPlayerInventory;
 
     // protected list of item slot for the slots of this container.
-    protected List<ItemSlot> m_agSlots = new List<ItemSlot>();
+    protected List<ItemSlot> m_aoSlots = new List<ItemSlot>();
 
     //--------------------------------------------------------------------------------------
     // Default Constructor.
@@ -64,17 +64,17 @@ public class Container
     public void AddSlot(Inventory oInventory, int nId, Transform tParent)
     {
         // get the slot component
-        GameObject gInstance = Object.Instantiate(InventoryManager.m_gInstance.m_gSlotPrefab);
-        ItemSlot gSlot = gInstance.GetComponent<ItemSlot>();
+        GameObject gInstance = Object.Instantiate(InventoryManager.m_oInstance.m_gSlotPrefab);
+        ItemSlot oSlot = gInstance.GetComponent<ItemSlot>();
 
         // set the postion of the slot to the parent
         gInstance.transform.SetParent(tParent);
 
         // add the slot to the slots array
-        m_agSlots.Add(gSlot);
+        m_aoSlots.Add(oSlot);
 
         // set the slot to the slot object
-        gSlot.SetSlot(oInventory, nId, this);
+        oSlot.SetSlot(oInventory, nId, this);
     }
 
     //--------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ public class Container
     public void UpdateSlots()
     {
         // for each slot in slots array
-        foreach (ItemSlot i in m_agSlots)
+        foreach (ItemSlot i in m_aoSlots)
         {
             // Update the slot
             i.UpdateSlot();
@@ -96,7 +96,7 @@ public class Container
     public void Open()
     {
         // instantiate the container prefab at the inventory manager
-        m_gPrefab = Object.Instantiate(GetPrefab(), InventoryManager.m_gInstance.transform);
+        m_gPrefab = Object.Instantiate(GetPrefab(), InventoryManager.m_oInstance.transform);
 
         // set the prefab to draw at the back
         m_gPrefab.transform.SetAsFirstSibling();

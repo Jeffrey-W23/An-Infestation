@@ -60,7 +60,7 @@ public class Interactable : MonoBehaviour
     // PROTECTED VALUES //
     //--------------------------------------------------------------------------------------
     // protected player script for getting the player objects attached script.
-    protected Player m_sPlayerObject;
+    protected Player m_oPlayerObject;
 
     // protected audio source
     protected AudioSource m_asAudioSource;
@@ -84,7 +84,7 @@ public class Interactable : MonoBehaviour
     protected void Awake()
     {
         // Set the player script object to the player script.
-        m_sPlayerObject = GameObject.Find("Player").GetComponent<Player>();
+        m_oPlayerObject = GameObject.Find("Player").GetComponent<Player>();
 
         // Set the interacted bool to false for starting.
         m_bInteracted = false;
@@ -114,11 +114,11 @@ public class Interactable : MonoBehaviour
         if (cObject.tag == "Player" && !m_bInteracted && !m_bInteractable && !m_bInteractUsed && !m_bHoldInteraction)
         {
             // Display debug message showing interaction.
-            if (m_sPlayerObject.m_bDebugMode)
+            if (m_oPlayerObject.m_bDebugMode)
                 Debug.Log("Subscribed for Interaction");
 
             // Subscribe the function InteractedWith with the InteractionEvent delegate event
-            m_sPlayerObject.InteractionCallback += InteractedWith;
+            m_oPlayerObject.InteractionCallback += InteractedWith;
 
             // activate gameobject for visual indicator
             m_tmBtnVisual.gameObject.SetActive(true);
@@ -140,7 +140,7 @@ public class Interactable : MonoBehaviour
         if (cObject.tag == "Player" && !m_bInteractUsed)
         {
             // Display debug message showing interaction.
-            if (m_sPlayerObject.m_bDebugMode)
+            if (m_oPlayerObject.m_bDebugMode)
                 Debug.Log("Exited Interactable Trigger");
 
             // call exit interaction function.
@@ -154,14 +154,14 @@ public class Interactable : MonoBehaviour
     protected void ExitInteract()
     {
         // if callback is not null
-        if (m_sPlayerObject.InteractionCallback != null)
+        if (m_oPlayerObject.InteractionCallback != null)
         {
             // Display debug message showing interaction.
-            if (m_sPlayerObject.m_bDebugMode)
+            if (m_oPlayerObject.m_bDebugMode)
                 Debug.Log("Unsubscribed for Interaction");
 
             // Unsubscribe the function InteractedWith with the InteractionEvent delegate event
-            m_sPlayerObject.InteractionCallback -= InteractedWith;
+            m_oPlayerObject.InteractionCallback -= InteractedWith;
 
             // deactivate gameobject for visual indicator
             m_tmBtnVisual.gameObject.SetActive(false);
@@ -178,7 +178,7 @@ public class Interactable : MonoBehaviour
     protected virtual void InteractedWith()
     {
         // Display debug message showing interaction.
-        if (m_sPlayerObject.m_bDebugMode)
+        if (m_oPlayerObject.m_bDebugMode)
             Debug.Log("Interaction Triggered");
 
         // if the interactable is not single use.
@@ -205,7 +205,7 @@ public class Interactable : MonoBehaviour
             m_bInteractUsed = true;
 
             // Make sure that the function is being unsubscribed from the delegate.
-            m_sPlayerObject.InteractionCallback -= InteractedWith;
+            m_oPlayerObject.InteractionCallback -= InteractedWith;
 
             // deactivate and destory gameobject for visual indicator
             Destroy(m_tmBtnVisual);

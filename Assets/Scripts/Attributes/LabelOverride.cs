@@ -17,15 +17,15 @@ using UnityEditor;
 public class LabelOverrideAttribute : PropertyAttribute
 {
     // public string for label to replace.
-    public string m_sLabel;
+    public string m_strLabel;
 
     //--------------------------------------------------------------------------------------
     // initialization.
     //--------------------------------------------------------------------------------------
-    public LabelOverrideAttribute(string sLabel)
+    public LabelOverrideAttribute(string strLabel)
     {
         // set label.
-        this.m_sLabel = sLabel;
+        this.m_strLabel = strLabel;
     }
 
     // Check if using the editor.
@@ -50,7 +50,7 @@ public class LabelOverrideAttribute : PropertyAttribute
         {
             // Set the local label to the inspector value label.
             var propertyAttribute = this.attribute as LabelOverrideAttribute;
-            guiLabel.text = propertyAttribute.m_sLabel;
+            guiLabel.text = propertyAttribute.m_strLabel;
             EditorGUI.PropertyField(rPosition, spProperty, guiLabel);
         }
     }

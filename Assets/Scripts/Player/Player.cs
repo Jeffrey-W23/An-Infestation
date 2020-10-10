@@ -51,6 +51,10 @@ public class Player : MonoBehaviour
     [LabelOverride("Enemy Renderer")] [Tooltip("The gameobject for the players enemy renderer field of view object.")]
     public GameObject m_gEnemyRenderer;
 
+    // public float for the inital and default view of the player camera.
+    [LabelOverride("Default Camera Zoom")] [Tooltip("The default zoom of the camera on the player.")]
+    public float m_fDefaultCameraZoom;
+
     // Leave a space in the inspector.
     [Space]
     //--------------------------------------------------------------------------------------
@@ -70,13 +74,11 @@ public class Player : MonoBehaviour
 
     // public list of item type enums for incompatible inventory items
     [LabelOverride("Incompatible Items")] [Tooltip("Items that are incompatible with the player inventory.")]
-    [EnumFlags] // Used to allow multiple enums in one.
-    public EItemType m_eIncompatibleInventoryItems;
+    public List<EItemType> m_aeIncompatibleInventoryItems;
 
     // public list of item type enums for incompatible weapons
     [LabelOverride("Incompatible Weapons")] [Tooltip("Weapons incompatible with the weapons slot.")]
-    [EnumFlags] // Used to allow multiple enums in one.
-    public EItemType m_eIncompatibleWeapons;
+    public List<EItemType> m_aeIncompatibleWeapons;
 
     // Leave a space in the inspector.
     [Space]
@@ -104,10 +106,10 @@ public class Player : MonoBehaviour
     private GameObject m_gArm;
 
     // private FieldOfView object for player vison FOV
-    private FieldOfView m_sPlayerVisionScript;
+    private FieldOfView m_oPlayerVisionScript;
 
     // private FieldOfView object for enemy renderer FOV
-    private FieldOfView m_sEnemyRendererScript;
+    private FieldOfView m_oEnemyRendererScript;
 
     // private inventory for the player object
     private Inventory m_oInventory;
@@ -116,7 +118,14 @@ public class Player : MonoBehaviour
     private Inventory m_oWeapons;
 
     // private inventory manager for the inventory manager instance
-    private InventoryManager m_gInventoryManger;
+    private InventoryManager m_oInventoryManger;
+
+    // private array of initial keycodes for selecting weapon index.
+    private KeyCode[] m_akInitWeaponSelectorControls = new KeyCode[] { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3,
+        KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9 };
+
+    // private array of needed keycodes for selecting weapon index. 
+    private KeyCode[] m_akWeaponSelectorControls;
 
     // private float for the current speed of the player.
     private float m_fCurrentSpeed;
@@ -129,6 +138,9 @@ public class Player : MonoBehaviour
 
     // private bool for freezing the player
     private bool m_bFreezePlayer = false;
+
+    // private int for the current postion of the weapon selection.
+    private int m_nWeaponSelectorPos = 0;
     //--------------------------------------------------------------------------------------
 
     // DELEGATES //
@@ -155,14 +167,17 @@ public class Player : MonoBehaviour
         m_fCurrentSpeed = m_fWalkSpeed;
 
         // Get fov components
-        m_sPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
-        m_sEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
+        m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
+        m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
+
+        // set the camera zoom to the default
+        Camera.main.orthographicSize = m_fDefaultCameraZoom;
 
         // set the inventory of the player
-        m_oInventory = new Inventory(m_nInventorySize, m_eIncompatibleInventoryItems);
+        m_oInventory = new Inventory(m_nInventorySize, m_aeIncompatibleInventoryItems);
 
         // set the weapons inventory of the player
-        m_oWeapons = new Inventory(m_nWeaponSlots, m_eIncompatibleWeapons);
+        m_oWeapons = new Inventory(m_nWeaponSlots, m_aeIncompatibleWeapons);
     }
 
     //--------------------------------------------------------------------------------------
@@ -171,10 +186,20 @@ public class Player : MonoBehaviour
     private void Start()
     {
         // get the inventory manager instance
-        m_gInventoryManger = InventoryManager.m_gInstance;
+        m_oInventoryManger = InventoryManager.m_oInstance;
 
         // Ensure inventory isnt open when game starts
-        m_gInventoryManger.ResetInventoryStatus();
+        m_oInventoryManger.ResetInventoryStatus();
+
+        // set the count of the keyboard controls to the size of the weapon inventory
+        m_akWeaponSelectorControls = new KeyCode[m_oWeapons.GetInventory().Count];
+
+        // loop through the keyboard controls
+        for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
+        {
+            // Set the keyboard controls avalible for weapon selection.
+            m_akWeaponSelectorControls[i] = m_akInitWeaponSelectorControls[i];
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -182,24 +207,18 @@ public class Player : MonoBehaviour
     //--------------------------------------------------------------------------------------
     private void Update()
     {
-        // Run the interaction function
-        Interaction();
+        // if the player is not frozen
+        if (!m_bFreezePlayer)
+        {
+            // Run the interaction function
+            Interaction();
+
+            // Update the in hand object of player
+            UpdateInHand();
+        }
 
         // Open and close the inventory system
         OpenCloseInventory();
-
-
-
-
-
-
-        UpdateInHand();
-
-
-
-
-
-
     }
 
     //--------------------------------------------------------------------------------------
@@ -293,20 +312,36 @@ public class Player : MonoBehaviour
     private void RotateFieldOfView()
     {
         // Calculate direction and rotation of player vision
-        Vector3 v3TargetPV = m_sPlayerVisionScript.GetMouseWorldPosition();
+        Vector3 v3TargetPV = m_oPlayerVisionScript.GetMouseWorldPosition();
         Vector3 v3AimDirectionPV = (v3TargetPV - transform.position).normalized;
 
         // Calculate direction and rotation of enemy renderer
-        Vector3 v3TargetER = m_sEnemyRendererScript.GetMouseWorldPosition();
+        Vector3 v3TargetER = m_oEnemyRendererScript.GetMouseWorldPosition();
         Vector3 v3AimDirectionER = (v3TargetER - transform.position).normalized;
 
         // Set calculations to player vision
-        m_sPlayerVisionScript.SetAimDirection(v3AimDirectionPV);
-        m_sPlayerVisionScript.SetOrigin(transform.position);
+        m_oPlayerVisionScript.SetAimDirection(v3AimDirectionPV);
+        m_oPlayerVisionScript.SetOrigin(transform.position);
 
         // Set calculations to enemy renderer
-        m_sEnemyRendererScript.SetAimDirection(v3AimDirectionER);
-        m_sEnemyRendererScript.SetOrigin(transform.position);
+        m_oEnemyRendererScript.SetAimDirection(v3AimDirectionER);
+        m_oEnemyRendererScript.SetOrigin(transform.position);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetFOVDefault: Set back the default settings for the field of view.
+    //--------------------------------------------------------------------------------------
+    public void SetFOVDefault()
+    {
+        // set the fov, distance and lerp smoothing of the player vision
+        m_oPlayerVisionScript.SetDefaultViewDistance();
+        m_oPlayerVisionScript.SetDefaultFOV();
+        m_oPlayerVisionScript.SetDefaultLerpSmoothing();
+
+        // set the fov, distance and lerp smoothing of the enemy renderer
+        m_oEnemyRendererScript.SetDefaultViewDistance();
+        m_oEnemyRendererScript.SetDefaultFOV();
+        m_oEnemyRendererScript.SetDefaultLerpSmoothing();
     }
 
     //--------------------------------------------------------------------------------------
@@ -315,84 +350,98 @@ public class Player : MonoBehaviour
     private void OpenCloseInventory()
     {
         // if the i key is down and the inventory is closed
-        if (Input.GetKeyDown(KeyCode.I) && !m_gInventoryManger.IsInventoryOpen())
+        if (Input.GetKeyDown(KeyCode.I) && !m_oInventoryManger.IsInventoryOpen())
         {
             // Open the player inventory
-            m_gInventoryManger.OpenContainer(new PlayerContainer(m_oWeapons, m_oInventory, m_nInventorySize));
+            m_oInventoryManger.OpenContainer(new PlayerContainer(m_oWeapons, m_oInventory, m_nInventorySize));
+
+            // freeze the player
+            SetFreezePlayer(true);
         }
 
-        // if the i key is down and the inventory is closed
-        else if (Input.GetKeyDown(KeyCode.I) && m_gInventoryManger.IsInventoryOpen())
+        // if the i key is down and the inventory is open
+        else if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.Escape) && m_oInventoryManger.IsInventoryOpen())
         {
             // close the inventory container
-            m_gInventoryManger.CloseContainer();
+            m_oInventoryManger.CloseContainer();
+
+            // confirm the in hand item is correct
+            ConfirmPlayerHand();
+
+            // unfreeze the player
+            SetFreezePlayer(false);
         }
     }
 
-
-
-
-
-
-
-    // make an array of number values for key press //TODO
-
+    //--------------------------------------------------------------------------------------
+    // UpdateInHand: Update the current object in the player hand on key press.
+    //--------------------------------------------------------------------------------------
     public void UpdateInHand()
     {
-        //
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        // loop through the weapon selector keys
+        for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
         {
-            //
-            ItemStack oItem = m_oWeapons.GetStackInSlot(0);
+            // if a number key corresponds with a weapon slot
+            if (Input.GetKeyDown(m_akWeaponSelectorControls[i]))
+            {
+                // move the weapon selector pos
+                m_nWeaponSelectorPos = i;
 
-            //
-            if(!oItem.IsStackEmpty())
-                m_gArm.GetComponent<Arm>().SetInHand(oItem.GetItem().m_gSceneObject);
-
-            //
-            if (oItem.IsStackEmpty())
-                m_gArm.GetComponent<Arm>().SetInHand(null);
+                // change the weapon in the hand of the player
+                ChangeWeaponInHand(m_nWeaponSelectorPos);
+            }
         }
 
-        //
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        // Set the new camera position with a lerp
+        Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, m_fDefaultCameraZoom, Time.deltaTime * 4);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // ChangeWeaponInHand: Change the weapon object in the player hand.
+    //
+    // Param:
+    //      nIndex: The index to corresponding weapon item stack.
+    //--------------------------------------------------------------------------------------
+    public void ChangeWeaponInHand(int nIndex)
+    {
+        // Set the fov back to default
+        SetFOVDefault();
+
+        // get the item from weapons inventory based on passed in index
+        ItemStack oItem = m_oWeapons.GetStackInSlot(nIndex);
+
+        // if item stack is not empty, set the item to in hand
+        if (!oItem.IsStackEmpty())
+            m_gArm.GetComponent<Arm>().SetInHandItemStack(oItem);
+
+        // if item is empty
+        if (oItem.IsStackEmpty())
         {
-            //
-            ItemStack oItem = m_oWeapons.GetStackInSlot(1);
+            // Set the in hand item stack to empty
+            m_gArm.GetComponent<Arm>().SetInHandItemStack(ItemStack.m_oEmpty);
 
-            //
-            if (!oItem.IsStackEmpty())
-                m_gArm.GetComponent<Arm>().SetInHand(oItem.GetItem().m_gSceneObject);
-
-            //
-            if (oItem.IsStackEmpty())
-                m_gArm.GetComponent<Arm>().SetInHand(null);
-        }
-
-        //
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            //
-            ItemStack oItem = m_oWeapons.GetStackInSlot(2);
-
-            //
-            if (!oItem.IsStackEmpty())
-                m_gArm.GetComponent<Arm>().SetInHand(oItem.GetItem().m_gSceneObject);
-
-            //
-            if (oItem.IsStackEmpty())
-                m_gArm.GetComponent<Arm>().SetInHand(null);
+            // Set the cursor back to default
+            CustomCursor.m_oInstance.SetDefaultCursor();
         }
     }
 
-
-
-
-
-
-
-
-
+    //--------------------------------------------------------------------------------------
+    // ConfirmPlayerHand: Confirm the object in hand matches the current selection.
+    //--------------------------------------------------------------------------------------
+    public void ConfirmPlayerHand()
+    {
+        // loop through the possible weapon selections
+        for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
+        {
+            // if the item in hand matches the weapons inventory
+            if (m_oWeapons.GetStackInSlot(i).GetItem() == m_gArm.GetComponent<Arm>().GetInHandItemStack().GetItem())
+            {
+                // if the weapon selction does not match what is in hand, change the in hand item to the correct selection.
+                if (i != m_nWeaponSelectorPos)
+                    ChangeWeaponInHand(m_nWeaponSelectorPos);
+            }
+        }
+    }
 
     //--------------------------------------------------------------------------------------
     // GetPlayerVisionScript: Getter for PlayerVisionScript object.
@@ -403,7 +452,7 @@ public class Player : MonoBehaviour
     public FieldOfView GetPlayerVisionScript()
     {
         // return script component
-        return m_sPlayerVisionScript;
+        return m_oPlayerVisionScript;
     }
 
     //--------------------------------------------------------------------------------------
@@ -415,7 +464,7 @@ public class Player : MonoBehaviour
     public FieldOfView GetEnemyRendererScript()
     {
         // return script component
-        return m_sEnemyRendererScript;
+        return m_oEnemyRendererScript;
     }
 
     //--------------------------------------------------------------------------------------

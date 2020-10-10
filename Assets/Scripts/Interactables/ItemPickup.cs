@@ -34,7 +34,6 @@ public class ItemPickup : Interactable
     [LabelOverride("Use a Custom Sprite?")] [Tooltip("Will this item pickup use a custom item or use the same icon as the inventory item?")]
     public bool m_bCustomSprite = true;
 
-
     // public sprite for the custom sprite
     [LabelOverride("Custom Sprite")] [Tooltip("The sprite to use for the custom sprite.")]
     public Sprite m_sCustomSprite;
@@ -49,7 +48,7 @@ public class ItemPickup : Interactable
     protected SpriteRenderer m_srSpriteRenderer;
 
     // protected inventory manager object for getting the inventory manager intstance
-    private InventoryManager m_gInventoryManger;
+    protected InventoryManager m_oInventoryManger;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -81,10 +80,27 @@ public class ItemPickup : Interactable
     //--------------------------------------------------------------------------------------
     // initialization.
     //--------------------------------------------------------------------------------------
-    private void Start()
+    protected void Start()
     {
         // get the inventory instance
-        m_gInventoryManger = InventoryManager.m_gInstance;
+        m_oInventoryManger = InventoryManager.m_oInstance;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // PickupItem: virtual function for picking up an item and adding to an inventory.
+    //--------------------------------------------------------------------------------------
+    protected virtual void PickupItem()
+    {
+        // bool for if the item can be added
+        bool bItemAdded = false;
+
+        // Atempt to add item to inventory
+        bItemAdded = m_oPlayerObject.GetInventory().AddItem(new ItemStack(m_oItem, m_nItemCount));
+
+        // remove the object from the world if a pick up is succesful
+        if (bItemAdded)
+            Object.Destroy(gameObject);
+
     }
 
     //--------------------------------------------------------------------------------------
@@ -96,26 +112,8 @@ public class ItemPickup : Interactable
         // Run the base interactedWith function.
         base.InteractedWith();
 
-        // bool for if the item can be added
-        bool bItemAdded = false;
-
-        // if the item is a gun
-        if (m_oItem.m_eItemType == EItemType.ETYPE_GUN)
-        {
-            // Atempt to add item to weapons inventory
-            bItemAdded = m_gInventoryManger.GetPlayerWeaponsInventory().AddItem(new ItemStack(m_oItem, m_nItemCount));
-        }
-
-        // else if the item is anything else
-        else
-        {
-            // Atempt to add item to inventory
-            bItemAdded = m_gInventoryManger.GetPlayerInventory().AddItem(new ItemStack(m_oItem, m_nItemCount));
-        }
-
-        // remove the object from the world if a pick up is succesful
-        if (bItemAdded)
-            Object.Destroy(gameObject);
+        //
+        PickupItem();
 
         // enabled interaction again
         m_bInteracted = false;
