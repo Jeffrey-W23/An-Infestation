@@ -27,17 +27,42 @@ public class FieldOfView : MonoBehaviour
     [LabelOverride("Effect Layers")] [Tooltip("The layers that will make an effect on the rendering of the fov.")]
     public LayerMask m_lmEffectLayers;
 
-    // public float for the distance of the mesh
-    [LabelOverride("View Distance")] [Tooltip("The view distance of the field of view.")]
-    public float m_fViewDistance = 15.0f;
-
     // public float for size of the field of view
     [LabelOverride("Field Of View")] [Tooltip("The size (or width) of the field of view.")]
     public float m_fFOV = 80.0f;
 
-    // public float for the lerp smoothing value
-    [LabelOverride("Lerp Smoothing")] [Tooltip("The Smoothing value for the lerp between different distances and fields of view.")]
-    public float m_fLerpSmoothing = 4;
+    // public float for the distance of the mesh
+    [LabelOverride("View Distance")] [Tooltip("The view distance of the field of view.")]
+    public float m_fViewDistance = 15.0f;
+
+    // public float for the inital and default view of the player camera.
+    [LabelOverride("Default Camera Zoom")] [Tooltip("The default zoom of the camera on the player.")]
+    public float m_fCameraSize = 8;
+
+    // public float for the size of the camera when toggled off
+    [LabelOverride("Disabled Camera Zoom")] [Tooltip("The zoom of the camera when the field of view is disabled.")]
+    public float m_fToggleCameraSize = 6;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
+    // LERP SETTINGS //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Lerp Settings:")]
+
+    // public float for the fov smoothing value
+    [LabelOverride("FOV Smoothing")] [Tooltip("The Smoothing value for the lerp between different distances and fields of view.")]
+    public float m_fFOVSmoothing = 4;
+
+    // public float for smoothing the camera lerp
+    [LabelOverride("Camera Smoothing")] [Tooltip("The Smoothing value for the lerp between different camera sizes")]
+    public float m_fCameraSmoothing = 4;
+
+    // public float for smoothing the lerp of fov during toggle 
+    [LabelOverride("Toggle Smoothing")] [Tooltip("The Smoothing value for the lerp between an enabled field of view and disabled one.")]
+    public float m_fToggleSmoothing = 10;
 
     // Leave a space in the inspector.
     [Space]
@@ -57,8 +82,8 @@ public class FieldOfView : MonoBehaviour
     // float for the current view distance
     private float m_fCurrentViewDistance;
 
-    // float for current lerp smoothing
-    private float m_fCurrentLerpSmoothing;
+    // float for current fov smoothing
+    private float m_fCurrentFOVSmoothing;
 
     // float for mesh starting angle
     private float m_fStartingAngle;
@@ -68,6 +93,15 @@ public class FieldOfView : MonoBehaviour
 
     // float for lerp fov storing
     private float m_fLerpFOV;
+    
+    // private float for the current camera size
+    private float m_fCurrentCameraSize;
+    
+    // private float for the current camera smoothing value
+    private float m_fCurrentCameraSmoothing = 0;
+
+    // private bool for the current toggle of the fov
+    private bool m_bFOVToggle = true;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -90,8 +124,8 @@ public class FieldOfView : MonoBehaviour
         // set the current view distance to the public value
         m_fCurrentViewDistance = m_fViewDistance;
 
-        // set the current lerp smoothing to the public value
-        m_fCurrentLerpSmoothing = m_fLerpSmoothing;
+        // set the current fov smoothing to the public value
+        m_fCurrentFOVSmoothing = m_fFOVSmoothing;
 
         // set the starting angle to 0
         m_fStartingAngle = 0;
@@ -101,6 +135,12 @@ public class FieldOfView : MonoBehaviour
 
         // set the lerp fov to the public value
         m_fLerpFOV = m_fFOV;
+
+        // Set the current camera size to the set size
+        m_fCurrentCameraSize = m_fCameraSize;
+
+        // set the current camera smoothing to default
+        m_fCurrentCameraSmoothing = m_fCameraSmoothing;    
     }
 
     //--------------------------------------------------------------------------------------
@@ -109,8 +149,8 @@ public class FieldOfView : MonoBehaviour
     private void LateUpdate()
     {
         // Check if there is any changes to the current fov and view distance. if there is lerp to the new value.
-        m_fCurrentFOV = Mathf.Lerp(m_fCurrentFOV, m_fLerpFOV, Time.deltaTime * m_fCurrentLerpSmoothing);
-        m_fCurrentViewDistance = Mathf.Lerp(m_fCurrentViewDistance, m_fLerpViewDistance, Time.deltaTime * m_fCurrentLerpSmoothing);
+        m_fCurrentFOV = Mathf.Lerp(m_fCurrentFOV, m_fLerpFOV, Time.deltaTime * m_fCurrentFOVSmoothing);
+        m_fCurrentViewDistance = Mathf.Lerp(m_fCurrentViewDistance, m_fLerpViewDistance, Time.deltaTime * m_fCurrentFOVSmoothing);
 
         // Set up the mesh values
         int nRayCount = 50;
@@ -177,6 +217,107 @@ public class FieldOfView : MonoBehaviour
 
         // ensure mesh renderers outside of camera view
         m_meshVisionCone.RecalculateBounds();
+    }
+
+    //--------------------------------------------------------------------------------------
+    // Update: Function that calls each frame to update game objects.
+    //--------------------------------------------------------------------------------------
+    private void Update()
+    {
+        // Set the new camera position with a lerp
+        Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, m_fCurrentCameraSize, Time.deltaTime * m_fCurrentCameraSmoothing);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // ToggleFOV: Toggle the Field Of View values from Default to Nothing.
+    //
+    // Param:
+    //      bState: The state of the toggle, on or off.
+    //--------------------------------------------------------------------------------------
+    public void ToggleFOV(bool bState)
+    {
+        // change the toggle var to reflect request
+        m_bFOVToggle = bState;
+
+        // if the fov is toggled
+        if (bState)
+        {
+            // set fov to default
+            SetFOVDefault();
+        }
+
+        // else if the fov is not toggled
+        else if (!bState)
+        {
+            // adjust the fov values, turning off the fov
+            AdjustFOV(0, 0, m_fToggleCameraSize, m_fToggleSmoothing, m_fCurrentCameraSmoothing);
+        }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // AdjustFOV: Adjust the Field Of View values to a custom setting.
+    //
+    // Param:
+    //      fViewDistance: The view distance of the FOV vision.
+    //      fFOV: The width of the FOV vision.
+    //      fCameraSize: The zoom of the camera.
+    //      fFOVSmoothing: The smoothing value for lerping the new fov settings.
+    //      fCameraSmoothing: The smoothing value for lerping the new camera size.
+    //--------------------------------------------------------------------------------------
+    public void AdjustFOV(float fViewDistance, float fFOV, float fCameraSize, float fFOVSmoothing, float fCameraSmoothing) 
+    {
+        m_fLerpFOV = fFOV;
+        m_fLerpViewDistance = fViewDistance;
+        m_fCurrentCameraSize = fCameraSize;
+        m_fCurrentFOVSmoothing = fFOVSmoothing;
+        m_fCurrentCameraSmoothing = fCameraSmoothing;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetFOVDefault: Set the Field Of View back to default settings.
+    //--------------------------------------------------------------------------------------
+    public void SetFOVDefault()
+    {
+        m_fLerpViewDistance = m_fViewDistance;
+        m_fLerpFOV = m_fFOV;
+        m_fCurrentCameraSize = m_fCameraSize;
+        m_fCurrentFOVSmoothing = m_fFOVSmoothing;
+        m_fCurrentCameraSmoothing = m_fCameraSmoothing;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetToggleState: Get the current status of the Field Of View.
+    //
+    // Returns:
+    //      bool: a bool representing if the fOV is toggled or not.
+    //--------------------------------------------------------------------------------------
+    public bool GetToggleState()
+    {
+        return m_bFOVToggle;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetOrigin: Set the origin of the field of view.
+    //
+    // Param:
+    //      v3Origin: A vector 3 value to set to the orign value.
+    //--------------------------------------------------------------------------------------
+    public void SetOrigin(Vector3 v3Origin)
+    {
+        // set the member orign
+        m_v3Origin = v3Origin;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetAimDirection: Set the direction of the field of view.
+    //
+    // Param:
+    //      v3AimDirection: A vector 3 value to set to the starting angle value.
+    //--------------------------------------------------------------------------------------
+    public void SetAimDirection(Vector3 v3AimDirection)
+    {
+        // Set aim direction taking into account the current fov
+        m_fStartingAngle = GetAngleFromVector(v3AimDirection) + m_fCurrentFOV / 2.0f;
     }
 
     //--------------------------------------------------------------------------------------
@@ -287,92 +428,5 @@ public class FieldOfView : MonoBehaviour
 
         // return the mouse pos
         return v3WorldPos;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetOrigin: Set the origin of the field of view.
-    //
-    // Param:
-    //      v3Origin: A vector 3 value to set to the orign value.
-    //--------------------------------------------------------------------------------------
-    public void SetOrigin(Vector3 v3Origin)
-    {
-        // set the member orign
-        m_v3Origin = v3Origin;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetAimDirection: Set the direction of the field of view.
-    //
-    // Param:
-    //      v3AimDirection: A vector 3 value to set to the starting angle value.
-    //--------------------------------------------------------------------------------------
-    public void SetAimDirection(Vector3 v3AimDirection)
-    {
-        // Set aim direction taking into account the current fov
-        m_fStartingAngle = GetAngleFromVector(v3AimDirection) + m_fCurrentFOV / 2.0f;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetFOV: Set the Lerp FOV value.
-    //
-    // Param:
-    //      fValue: A float value to set to the Lerp FOV value.
-    //--------------------------------------------------------------------------------------
-    public void SetFOV(float fValue)
-    {
-        // set the lerp fov
-        m_fLerpFOV = fValue;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetViewDistance: Set the Lerp View Distance value.
-    //
-    // Param:
-    //      fValue: A float value to set to the Lerp View Distance value.
-    //--------------------------------------------------------------------------------------
-    public void SetViewDistance(float fValue)
-    {
-        // set the lerp view distance
-        m_fLerpViewDistance = fValue;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetLerpSmoothing: Set the Lerp Smoothing value.
-    //
-    // Param:
-    //      fValue: A float value to set to the Lerp Smoothing value.
-    //--------------------------------------------------------------------------------------
-    public void SetLerpSmoothing(float fValue)
-    {
-        // set the current lerp smoothing
-        m_fCurrentLerpSmoothing = fValue;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetDefaultViewDistance: Sets Lerp View Distance value back to the default.
-    //--------------------------------------------------------------------------------------
-    public void SetDefaultViewDistance()
-    {
-        // set the lerp view distance back to default
-        m_fLerpViewDistance = m_fViewDistance;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetDefaultFOV: Sets Lerp FOV value back to the default.
-    //--------------------------------------------------------------------------------------
-    public void SetDefaultFOV()
-    {
-        // set the lerp fov back to default
-        m_fLerpFOV = m_fFOV;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetDefaultLerpSmoothing: Sets Lerp Smoothing value back to the default.
-    //--------------------------------------------------------------------------------------
-    public void SetDefaultLerpSmoothing()
-    {
-        // set the current lerp smoothing back to default
-        m_fCurrentLerpSmoothing = m_fLerpSmoothing;
     }
 }

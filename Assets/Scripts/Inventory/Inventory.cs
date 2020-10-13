@@ -133,12 +133,12 @@ public class Inventory
     }
 
     //--------------------------------------------------------------------------------------
-    // GetInventory: Get the inventory list.
+    // GetArray: Get the inventory list.
     //
     // Return:
     //      List<ItemStack>: return the inventory list.
     //--------------------------------------------------------------------------------------
-    public List<ItemStack> GetInventory()
+    public List<ItemStack> GetArray()
     {
         // return the inventory
         return m_aoItems;

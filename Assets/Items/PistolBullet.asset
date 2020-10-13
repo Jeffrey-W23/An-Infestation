@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PistolBullet
   m_EditorClassIdentifier: 
   m_strTitle: Pistol Bullet
-  m_sIcon: {fileID: 21300000, guid: 66a49b690697e8d4ebc44bec5ac44d11, type: 3}
+  m_sIcon: {fileID: 21300000, guid: ba02220919a4dfb40ad892cc1d194c48, type: 3}
   m_nMaxStackSize: 20
   m_eItemType: 8
   m_gSceneObject: {fileID: 7604746321527292191, guid: e81265babb2361049873b8aa2436f4d5, type: 3}

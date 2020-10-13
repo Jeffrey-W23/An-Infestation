@@ -135,7 +135,6 @@ MonoBehaviour:
   m_fRunExhaust: 5
   m_gPlayerVision: {fileID: 0}
   m_gEnemyRenderer: {fileID: 0}
-  m_fDefaultCameraZoom: 8
   m_nInventorySize: 6
   m_nWeaponSlots: 3
   m_aeIncompatibleInventoryItems: 04000000

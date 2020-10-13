@@ -32,7 +32,7 @@ public class PlayerContainer : Container
         }
 
         // loop through each slot in the weapons inventory
-        for (int i = 0; i < oInventory.GetInventory().Count; i++)
+        for (int i = 0; i < oInventory.GetArray().Count; i++)
         {
             // build the inventory slots
             AddSlot(oInventory, i, m_gPrefab.GetComponentInChildren<Transform>().Find("Weapon Slots").transform);

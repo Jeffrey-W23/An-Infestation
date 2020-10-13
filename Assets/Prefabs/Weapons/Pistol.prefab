@@ -96,14 +96,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fccf48627354a4c4c9035f0ece9a67ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_gBulletBlueprint: {fileID: 7604746321527292191, guid: e81265babb2361049873b8aa2436f4d5, type: 3}
+  m_oBulletBlueprint: {fileID: 11400000, guid: 723cc72f233513a42b9833882708e990, type: 2}
   m_gBulletSpawn: {fileID: 4107917781256221349}
   m_nPoolSize: 10
-  m_fDownSightsSmoothing: 4
+  m_fDownSightsFOVSmoothing: 4
+  m_fDownSightsCameraSmoothing: 4
   m_fDownSightsDistance: 20
   m_fDownSightsFOV: 30
   m_fDownSightsZoom: 10
   m_fFireRate: 0.3
+  m_nAmmoUsage: 1
   m_tCrosshair: {fileID: 2800000, guid: d555b387f98fc0143a4a7168f5c1a3fa, type: 3}
 --- !u!1 &4107917781256221349
 GameObject:

@@ -51,10 +51,6 @@ public class Player : MonoBehaviour
     [LabelOverride("Enemy Renderer")] [Tooltip("The gameobject for the players enemy renderer field of view object.")]
     public GameObject m_gEnemyRenderer;
 
-    // public float for the inital and default view of the player camera.
-    [LabelOverride("Default Camera Zoom")] [Tooltip("The default zoom of the camera on the player.")]
-    public float m_fDefaultCameraZoom;
-
     // Leave a space in the inspector.
     [Space]
     //--------------------------------------------------------------------------------------
@@ -170,9 +166,6 @@ public class Player : MonoBehaviour
         m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
         m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
 
-        // set the camera zoom to the default
-        Camera.main.orthographicSize = m_fDefaultCameraZoom;
-
         // set the inventory of the player
         m_oInventory = new Inventory(m_nInventorySize, m_aeIncompatibleInventoryItems);
 
@@ -192,7 +185,7 @@ public class Player : MonoBehaviour
         m_oInventoryManger.ResetInventoryStatus();
 
         // set the count of the keyboard controls to the size of the weapon inventory
-        m_akWeaponSelectorControls = new KeyCode[m_oWeapons.GetInventory().Count];
+        m_akWeaponSelectorControls = new KeyCode[m_oWeapons.GetArray().Count];
 
         // loop through the keyboard controls
         for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
@@ -215,6 +208,9 @@ public class Player : MonoBehaviour
 
             // Update the in hand object of player
             UpdateInHand();
+
+            // Toggle the fov on and off
+            ToggleFOV();
         }
 
         // Open and close the inventory system
@@ -333,15 +329,37 @@ public class Player : MonoBehaviour
     //--------------------------------------------------------------------------------------
     public void SetFOVDefault()
     {
-        // set the fov, distance and lerp smoothing of the player vision
-        m_oPlayerVisionScript.SetDefaultViewDistance();
-        m_oPlayerVisionScript.SetDefaultFOV();
-        m_oPlayerVisionScript.SetDefaultLerpSmoothing();
+        // if the toggle state is true
+        if (m_oPlayerVisionScript.GetToggleState())
+        {
+            // set the fov, distance and lerp smoothing of the player vision
+            m_oPlayerVisionScript.SetFOVDefault();
 
-        // set the fov, distance and lerp smoothing of the enemy renderer
-        m_oEnemyRendererScript.SetDefaultViewDistance();
-        m_oEnemyRendererScript.SetDefaultFOV();
-        m_oEnemyRendererScript.SetDefaultLerpSmoothing();
+            // set the fov, distance and lerp smoothing of the enemy renderer
+            m_oEnemyRendererScript.SetFOVDefault();
+        }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // ToggleFOV: Switch the FOV on or off with keyboard press
+    //--------------------------------------------------------------------------------------
+    private void ToggleFOV()
+    {
+        // if the f key is pressed and the fov state is true
+        if (Input.GetKeyDown(KeyCode.F) && m_oPlayerVisionScript.GetToggleState())
+        {
+            // set fov to false
+            m_oPlayerVisionScript.ToggleFOV(false);
+            m_oEnemyRendererScript.ToggleFOV(false);
+        }
+
+        // if the f key is pressed and the fov state is false
+        else if (Input.GetKeyDown(KeyCode.F) && !m_oPlayerVisionScript.GetToggleState())
+        {
+            // set fov to true
+            m_oPlayerVisionScript.ToggleFOV(true);
+            m_oEnemyRendererScript.ToggleFOV(true);
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -391,9 +409,6 @@ public class Player : MonoBehaviour
                 ChangeWeaponInHand(m_nWeaponSelectorPos);
             }
         }
-
-        // Set the new camera position with a lerp
-        Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, m_fDefaultCameraZoom, Time.deltaTime * 4);
     }
 
     //--------------------------------------------------------------------------------------
@@ -536,5 +551,8 @@ public class Player : MonoBehaviour
             // Run interaction delegate.
             InteractionCallback();
         }
+
+        // Confirm the player hand
+        ConfirmPlayerHand();
     }
 }

@@ -7,6 +7,7 @@
 // using, etc
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 //--------------------------------------------------------------------------------------
@@ -32,9 +33,13 @@ public class Interactable : MonoBehaviour
     // Title for this section of public values.
     [Header("Visual Indicator:")]
 
-    // public text mesh for the visual indicator of the interactable
-    [LabelOverride("Text Mesh")] [Tooltip("The TextMesh prefab to display when interaction is possible.")]
-    public TextMesh m_tmBtnVisual;
+    // public text mesh pro for the visual indicator of the interactable
+    [LabelOverride("Text Mesh")] [Tooltip("The TextMesh pro prefab to display when interaction is possible.")]
+    public TextMeshPro m_tmpBtnVisual;
+
+    // public vector2 for the offest of the visual indicators position.
+    [LabelOverride("Position Offset")] [Tooltip("A Vector2 for setting an offset for the position of the Visual Indicator.")]
+    public Vector2 m_v2BtnVisualPosOffset = new Vector2(0.0f,0.0f);
 
     // Leave a space in the inspector.
     [Space]
@@ -89,9 +94,11 @@ public class Interactable : MonoBehaviour
         // Set the interacted bool to false for starting.
         m_bInteracted = false;
 
-        // Instantiate gameobject for visual indicator and set active to false.
-        m_tmBtnVisual = Instantiate(m_tmBtnVisual, transform);
-        m_tmBtnVisual.gameObject.SetActive(false);
+        // Instantiate gameobject for visual indicator and set up
+        m_tmpBtnVisual = Instantiate(m_tmpBtnVisual, transform);
+        m_tmpBtnVisual.transform.localPosition = new Vector3(m_v2BtnVisualPosOffset.x, m_v2BtnVisualPosOffset.y, m_tmpBtnVisual.transform.localPosition.z);
+        m_tmpBtnVisual.transform.SetParent(transform, false);
+        m_tmpBtnVisual.gameObject.SetActive(false);
         
         //if there is an audio clip on the object.
         if (m_bInteractAudio)
@@ -121,7 +128,7 @@ public class Interactable : MonoBehaviour
             m_oPlayerObject.InteractionCallback += InteractedWith;
 
             // activate gameobject for visual indicator
-            m_tmBtnVisual.gameObject.SetActive(true);
+            m_tmpBtnVisual.gameObject.SetActive(true);
 
             // set the object as interactable
             m_bInteractable = true;
@@ -164,7 +171,7 @@ public class Interactable : MonoBehaviour
             m_oPlayerObject.InteractionCallback -= InteractedWith;
 
             // deactivate gameobject for visual indicator
-            m_tmBtnVisual.gameObject.SetActive(false);
+            m_tmpBtnVisual.gameObject.SetActive(false);
 
             // not interactable anymore
             m_bInteractable = false;
@@ -208,7 +215,7 @@ public class Interactable : MonoBehaviour
             m_oPlayerObject.InteractionCallback -= InteractedWith;
 
             // deactivate and destory gameobject for visual indicator
-            Destroy(m_tmBtnVisual);
+            Destroy(m_tmpBtnVisual);
 
             // if interaction audio is being used.
             if (m_bInteractAudio)

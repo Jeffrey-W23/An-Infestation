@@ -54,13 +54,22 @@ public class ItemPickup : Interactable
     //--------------------------------------------------------------------------------------
     // initialization.
     //--------------------------------------------------------------------------------------
-    new void Awake()
+    protected new void Awake()
     {
         // Run the base awake
         base.Awake();
 
         // Get the sprite renderer
         m_srSpriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    //--------------------------------------------------------------------------------------
+    // initialization.
+    //--------------------------------------------------------------------------------------
+    protected void Start()
+    {
+        // get the inventory instance
+        m_oInventoryManger = InventoryManager.m_oInstance;
 
         // if the pickup item is going to use a custom sprite
         if (m_bCustomSprite)
@@ -75,15 +84,6 @@ public class ItemPickup : Interactable
             // set the sprite of the pick up item to the inventory iten icon
             m_srSpriteRenderer.sprite = m_oItem.m_sIcon;
         }
-    }
-
-    //--------------------------------------------------------------------------------------
-    // initialization.
-    //--------------------------------------------------------------------------------------
-    protected void Start()
-    {
-        // get the inventory instance
-        m_oInventoryManger = InventoryManager.m_oInstance;
     }
 
     //--------------------------------------------------------------------------------------
