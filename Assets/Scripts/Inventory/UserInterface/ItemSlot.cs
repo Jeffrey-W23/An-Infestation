@@ -238,7 +238,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
         if (!m_oCurrentStack.IsStackEmpty() && oCurrentSelectedStack.IsStackEmpty())
         {
             // set the selected stack to the current stack copy
-            m_oInventoryManger.SetSelectedStack(oCurrentStackCopy, m_oInventory);
+            m_oInventoryManger.SetSelectedStack(oCurrentStackCopy, m_oInventory, m_nId);
 
             // Set the slot content to empty
             SetSlotContent(ItemStack.m_oEmpty);
@@ -257,7 +257,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
             if (bCompatibleSlot)
             {
                 // set the current selected stack to empty
-                m_oInventoryManger.SetSelectedStack(ItemStack.m_oEmpty, m_oInventory);
+                m_oInventoryManger.SetSelectedStack(ItemStack.m_oEmpty, m_oInventory, m_nId);
 
                 // activate the tooltip
                 SetTooltip(m_oCurrentStack.GetItem().m_strTitle);
@@ -283,7 +283,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                     if (bCompatibleSlot)
                     {
                         // set the currently selected stack to empty
-                        m_oInventoryManger.SetSelectedStack(ItemStack.m_oEmpty, m_oInventory);
+                        m_oInventoryManger.SetSelectedStack(ItemStack.m_oEmpty, m_oInventory, m_nId);
 
                         // activate the tooltip
                         SetTooltip(m_oCurrentStack.GetItem().m_strTitle);
@@ -312,7 +312,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                     if (bCompatibleSlot)
                     {
                         // set the currently selected stack to the current selected stack copy
-                        m_oInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy, m_oInventory);
+                        m_oInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy, m_oInventory, m_nId);
 
                         // deactivate the tooltip
                         SetTooltip(string.Empty);
@@ -330,7 +330,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                 if (bCompatibleSlot)
                 {
                     // set the currently selected stack to the current selected stack copy
-                    m_oInventoryManger.SetSelectedStack(oCurrentStackCopy, m_oInventory);
+                    m_oInventoryManger.SetSelectedStack(oCurrentStackCopy, m_oInventory, m_nId);
 
                     // deactivate the tooltip
                     SetTooltip(string.Empty);
@@ -358,7 +358,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
             ItemStack oSplitStack = oCurrentStackCopy.SplitStack(oCurrentStackCopy.GetItemCount() / 2);
 
             // set the currently selected stack to the split stack.
-            m_oInventoryManger.SetSelectedStack(oSplitStack, m_oInventory);
+            m_oInventoryManger.SetSelectedStack(oSplitStack, m_oInventory, m_nId);
 
             // set the contentto the copy of the current stack.
             SetSlotContent(oCurrentStackCopy);
@@ -383,7 +383,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                 oCurrentSelectedStackCopy.DecreaseStack(1);
 
                 // set the currently selected stack in the manager to this one 
-                m_oInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy, m_oInventory);
+                m_oInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy, m_oInventory, m_nId);
 
                 // deactivate the tooltip
                 SetTooltip(string.Empty);
@@ -415,7 +415,7 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                         oCurrentSelectedStackCopy.DecreaseStack(1);
 
                         // set the currently selected stack in the manager to this new one 
-                        m_oInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy, m_oInventory);
+                        m_oInventoryManger.SetSelectedStack(oCurrentSelectedStackCopy, m_oInventory, m_nId);
 
                         // deactivate the tooltip
                         SetTooltip(string.Empty);

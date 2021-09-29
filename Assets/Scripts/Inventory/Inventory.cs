@@ -118,6 +118,66 @@ public class Inventory
     }
 
     //--------------------------------------------------------------------------------------
+    // AddItemAtPosition: Add an item to the inventory system at a set position.
+    //
+    // Param:
+    //      oStack: The item stack to add to the inventory system.
+    //      nIndex: The position in the inventory to add the item.
+    //
+    // Return:
+    //      bool: return the status of the item adding.
+    //--------------------------------------------------------------------------------------
+    public bool AddItemAtPosition(ItemStack oStack, int nIndex)
+    {
+        // check if the item attempting to add to the inventory is incompatible
+        if (CheckIfIncompatible(oStack.GetItem().m_eItemType, m_aeIncompatibleItems))
+        {
+            // return false, item not added.
+            return false;
+        }
+
+        // is the stack empty
+        if (m_aoItems[nIndex].IsStackEmpty())
+        {
+            // set the stack to passed in stack
+            m_aoItems[nIndex].SetStack(oStack);
+
+            // return true, item added
+            return true;
+        }
+
+        // is the stack equal to passed in stack
+        if (ItemStack.AreItemsEqual(oStack, m_aoItems[nIndex]))
+        {
+            // is it possible to add items to this stack
+            if (m_aoItems[nIndex].IsItemAddable(oStack.GetItemCount()))
+            {
+                // increase the stack count
+                m_aoItems[nIndex].IncreaseStack(oStack.GetItemCount());
+
+                // return true, item added
+                return true;
+            }
+
+            // else if the item is not addable
+            else
+            {
+                // new int var, get the difference between passed in stack and current stack
+                int nDifference = (m_aoItems[nIndex].GetItemCount() + oStack.GetItemCount()) - m_aoItems[nIndex].GetItem().m_nMaxStackSize;
+
+                // set the count of the stack to the max stack size of the stacks item
+                m_aoItems[nIndex].SetItemCount(m_aoItems[nIndex].GetItem().m_nMaxStackSize);
+
+                // set the count of the passed in stack to the stack differnce
+                oStack.SetItemCount(nDifference);
+            }
+        }
+
+        // return false, item not added.
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------
     // GetStackInSlot: Get the stack in the requested inventory slot.
     //
     // Param:

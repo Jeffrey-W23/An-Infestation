@@ -38,12 +38,39 @@ public class SelectedStack : MonoBehaviour
 
     // PRIVATE VALUES //
     //--------------------------------------------------------------------------------------
+    // private int for the origin slot of an item stack
+    private int m_nOriginSlot = 0;
+
     // private item stack for the current selected item stack.
     private ItemStack m_oCurrentStack = ItemStack.m_oEmpty;
 
     // private inventory for the origin of the selected item
     private Inventory m_oOriginInventory;
     //--------------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------------
+    // SetOriginSlot: Set the origin of the slot of the selected stack.
+    //
+    // Param:
+    //      nOrigin: An int for setting the origin slot.
+    //--------------------------------------------------------------------------------------
+    public void SetOriginSlot(int nOrigin)
+    {
+        // set the origin slot id
+        m_nOriginSlot = nOrigin;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // GetOriginSlot: Get the origin slot of the selected item stack.
+    //
+    // Return:
+    //      int: An int representing the slot id.
+    //--------------------------------------------------------------------------------------
+    public int GetOriginSlot()
+    {
+        // return the origin slot
+        return m_nOriginSlot;
+    }
 
     //--------------------------------------------------------------------------------------
     // SetOriginInventory: Set the origin inventory of the selected stack.

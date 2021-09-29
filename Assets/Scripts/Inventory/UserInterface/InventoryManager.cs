@@ -140,10 +140,10 @@ public class InventoryManager : MonoBehaviour
             Inventory oOrigin = m_oSelectedStack.GetOriginInventory();
 
             // Add the current selected stack back to the origin inventory
-            oOrigin.AddItem(m_oCurrentSelectedStack);
+            oOrigin.AddItemAtPosition(m_oCurrentSelectedStack, m_oSelectedStack.GetOriginSlot());
 
             // set the selected stack back to emtpy.
-            SetSelectedStack(ItemStack.m_oEmpty, null);
+            SetSelectedStack(ItemStack.m_oEmpty, null, 0);
         }
 
         // turn off the tool tip
@@ -206,15 +206,20 @@ public class InventoryManager : MonoBehaviour
     //
     // Param:
     //      oStack: Takes in type ItemStack to set currently selected.
+    //      oOrigin: Takes in type Inventory, to set the origin inventory of the selected stack.
+    //      nSlotOrigin: Takes in int, to set the origin slot of the selected stack.
     //--------------------------------------------------------------------------------------
-    public void SetSelectedStack(ItemStack oStack, Inventory oOrigin)
+    public void SetSelectedStack(ItemStack oStack, Inventory oOrigin, int nSlotOrigin)
     {
         // set the currently selected stack
         m_oSelectedStack.SetSelectedStack(m_oCurrentSelectedStack = oStack);
 
         // check if the origin is not null, if not then set origin to origin of the selected stack.
         if (oOrigin != null)
+        {
             m_oSelectedStack.SetOriginInventory(oOrigin);
+            m_oSelectedStack.SetOriginSlot(nSlotOrigin);
+        }
     }
 
     //--------------------------------------------------------------------------------------
