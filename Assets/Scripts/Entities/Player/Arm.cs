@@ -8,11 +8,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MLAPI;
 
 //--------------------------------------------------------------------------------------
-// Arm object. Inheriting from MonoBehaviour.
+// Arm object. Inheriting from NetworkedBehaviour.
 //--------------------------------------------------------------------------------------
-public class Arm : MonoBehaviour
+public class Arm : NetworkedBehaviour
 {
     // WEAPON SETTINGS //
     //--------------------------------------------------------------------------------------
@@ -69,28 +70,32 @@ public class Arm : MonoBehaviour
     //--------------------------------------------------------------------------------------
     void LateUpdate()
     {
-        // if arm is not frozen
-        if (!m_bFreezeArm)
+        // Check if current player object is the local player
+        if (IsLocalPlayer)
         {
-            // Get mouse inside camera
-            Vector3 v3Pos = Camera.main.WorldToScreenPoint(transform.position);
-
-            // update the distance.
-            m_fDistanceBetween = Vector3.Distance(v3Pos, Input.mousePosition);
-
-            // Check the distance between the mouse and arm.
-            // if far enough away turn the mouse towards mouse.
-            // else stop arm rotation.
-            if (m_fDistanceBetween > m_nArmBend)
+            // if arm is not frozen
+            if (!m_bFreezeArm)
             {
-                // Get the  mouse direction.
-                Vector3 v3Dir = Input.mousePosition - v3Pos;
+                // Get mouse inside camera
+                Vector3 v3Pos = Camera.main.WorldToScreenPoint(transform.position);
 
-                // Work out the angle.
-                float fAngle = Mathf.Atan2(v3Dir.y, v3Dir.x) * Mathf.Rad2Deg;
+                // update the distance.
+                m_fDistanceBetween = Vector3.Distance(v3Pos, Input.mousePosition);
 
-                // Update the rotation.
-                transform.rotation = Quaternion.AngleAxis(fAngle, Vector3.forward);
+                // Check the distance between the mouse and arm.
+                // if far enough away turn the mouse towards mouse.
+                // else stop arm rotation.
+                if (m_fDistanceBetween > m_nArmBend)
+                {
+                    // Get the  mouse direction.
+                    Vector3 v3Dir = Input.mousePosition - v3Pos;
+
+                    // Work out the angle.
+                    float fAngle = Mathf.Atan2(v3Dir.y, v3Dir.x) * Mathf.Rad2Deg;
+
+                    // Update the rotation.
+                    transform.rotation = Quaternion.AngleAxis(fAngle, Vector3.forward);
+                }
             }
         }
     }

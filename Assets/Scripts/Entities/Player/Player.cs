@@ -11,11 +11,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MLAPI;
 
 //--------------------------------------------------------------------------------------
 // Player object. Inheriting from MonoBehaviour.
 //--------------------------------------------------------------------------------------
-public class Player : MonoBehaviour
+public class Player : NetworkedBehaviour
 {
     // MOVEMENT //
     //--------------------------------------------------------------------------------------
@@ -162,9 +163,9 @@ public class Player : MonoBehaviour
         // set the current speed of the player to walk
         m_fCurrentSpeed = m_fWalkSpeed;
 
-        // Get fov components
-        m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
-        m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
+        // Old method of getting fov components
+        //m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
+        //m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
 
         // set the inventory of the player
         m_oInventory = new Inventory(m_nInventorySize, m_aeIncompatibleInventoryItems);
@@ -193,6 +194,14 @@ public class Player : MonoBehaviour
             // Set the keyboard controls avalible for weapon selection.
             m_akWeaponSelectorControls[i] = m_akInitWeaponSelectorControls[i];
         }
+
+        // Old method of getting fov components
+        //m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
+        //m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
+
+        // Instantiate and get fov components
+        m_oPlayerVisionScript = Instantiate(m_gPlayerVision).GetComponent<FieldOfView>();
+        m_oEnemyRendererScript = Instantiate(m_gEnemyRenderer).GetComponent<FieldOfView>();
     }
 
     //--------------------------------------------------------------------------------------
@@ -200,21 +209,25 @@ public class Player : MonoBehaviour
     //--------------------------------------------------------------------------------------
     private void Update()
     {
-        // if the player is not frozen
-        if (!m_bFreezePlayer)
+        // Check if current player object is the local player
+        if (IsLocalPlayer)
         {
-            // Run the interaction function
-            Interaction();
+            // if the player is not frozen
+            if (!m_bFreezePlayer)
+            {
+                // Run the interaction function
+                Interaction();
 
-            // Update the in hand object of player
-            UpdateInHand();
+                // Update the in hand object of player
+                UpdateInHand();
 
-            // Toggle the fov on and off
-            ToggleFOV();
+                // Toggle the fov on and off
+                ToggleFOV();
+            }
+
+            // Open and close the inventory system
+            OpenCloseInventory();
         }
-
-        // Open and close the inventory system
-        OpenCloseInventory();
     }
 
     //--------------------------------------------------------------------------------------
@@ -222,17 +235,21 @@ public class Player : MonoBehaviour
     //--------------------------------------------------------------------------------------
     private void FixedUpdate()
     {
-        // is player allowed to move
-        if (!m_bFreezePlayer)
+        // Check if current player object is the local player
+        if (IsLocalPlayer)
         {
-            // rotate player based on mouse postion.
-            Rotate();
+            // is player allowed to move
+            if (!m_bFreezePlayer)
+            {
+                // rotate player based on mouse postion.
+                Rotate();
 
-            // rotate fov based on mouse position.
-            RotateFieldOfView();
+                // rotate fov based on mouse position.
+                RotateFieldOfView();
 
-            // run the movement function to move player.
-            Movement();
+                // run the movement function to move player.
+                Movement();
+            }
         } 
     }
 

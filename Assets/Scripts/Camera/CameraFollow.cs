@@ -11,11 +11,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MLAPI;
 
 //--------------------------------------------------------------------------------------
-// CameraFollow object. Inheriting from MonoBehaviour.
+// CameraFollow object. Inheriting from NetworkedBehaviour.
 //--------------------------------------------------------------------------------------
-public class CameraFollow : MonoBehaviour
+public class CameraFollow : NetworkedBehaviour
 {
     // PUBLIC VALUES //
     //--------------------------------------------------------------------------------------
@@ -28,13 +29,27 @@ public class CameraFollow : MonoBehaviour
     //--------------------------------------------------------------------------------------
     // private vector3 for the offset for the camera
     private Vector3 m_v3Offset;
+
+    // private quaternion for setting the cameras inital rotation
+    private Quaternion m_qInitRotation;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
-    private void Awake()
+    private void Start()
     {
+        // Check if current player object is the local player
+        if (!IsLocalPlayer)
+        {
+            // turn off any camera object that is not the local player
+            transform.GetComponent<AudioListener>().enabled = false;
+            transform.GetComponent<Camera>().enabled = false;
+        }
+
+        // Set the initial rotation of this camera
+        m_qInitRotation = transform.rotation;
+
         // set the offset value.
         m_v3Offset = transform.position - m_gTarget.transform.position;
     }
@@ -44,6 +59,9 @@ public class CameraFollow : MonoBehaviour
     //--------------------------------------------------------------------------------------
     private void LateUpdate()
     {
+        // ensure the camera does not rotate with the parent object.
+        transform.rotation = m_qInitRotation;
+
         // Calc the new x and y position of the camera
         float fNewXPosition = m_gTarget.transform.position.x - m_v3Offset.x;
         float fNewYPosition = m_gTarget.transform.position.y - m_v3Offset.y;
