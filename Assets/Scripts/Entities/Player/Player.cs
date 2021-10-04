@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
+using MLAPI.NetworkedVar;
 
 //--------------------------------------------------------------------------------------
 // Player object. Inheriting from MonoBehaviour.
@@ -138,6 +139,18 @@ public class Player : NetworkedBehaviour
 
     // private int for the current postion of the weapon selection.
     private int m_nWeaponSelectorPos = 0;
+
+    // private gameobject for the inner vision renderer
+    private GameObject m_gInnerVisionRenderer;
+
+    // private gameobject for the inner enemy renderer
+    private GameObject m_gInnerEnemyRenderer;
+    //--------------------------------------------------------------------------------------
+
+    // PRIVATE NETWORKED VARS //
+    //--------------------------------------------------------------------------------------
+    // new private bool for keeping track of current state of the FOV
+    private NetworkedVarBool m_bFOVToggle = new NetworkedVarBool(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, true);
     //--------------------------------------------------------------------------------------
 
     // DELEGATES //
@@ -162,10 +175,6 @@ public class Player : NetworkedBehaviour
 
         // set the current speed of the player to walk
         m_fCurrentSpeed = m_fWalkSpeed;
-
-        // Old method of getting fov components
-        //m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
-        //m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
 
         // set the inventory of the player
         m_oInventory = new Inventory(m_nInventorySize, m_aeIncompatibleInventoryItems);
@@ -195,13 +204,16 @@ public class Player : NetworkedBehaviour
             m_akWeaponSelectorControls[i] = m_akInitWeaponSelectorControls[i];
         }
 
-        // Old method of getting fov components
-        //m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
-        //m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
-
         // Instantiate and get fov components
         m_oPlayerVisionScript = Instantiate(m_gPlayerVision).GetComponent<FieldOfView>();
         m_oEnemyRendererScript = Instantiate(m_gEnemyRenderer).GetComponent<FieldOfView>();
+
+        // Find and get the inner renderers for FOV
+        m_gInnerVisionRenderer = transform.Find("VisionRenderer").gameObject;
+        m_gInnerEnemyRenderer = transform.Find("EnemyRenderer").gameObject;
+
+        // Set the main camera for the FOV renderers
+        m_oPlayerVisionScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());    
     }
 
     //--------------------------------------------------------------------------------------
@@ -220,14 +232,14 @@ public class Player : NetworkedBehaviour
 
                 // Update the in hand object of player
                 UpdateInHand();
-
-                // Toggle the fov on and off
-                ToggleFOV();
             }
 
             // Open and close the inventory system
             OpenCloseInventory();
         }
+
+        // Toggle the fov on and off
+        ToggleFOV();
     }
 
     //--------------------------------------------------------------------------------------
@@ -244,13 +256,13 @@ public class Player : NetworkedBehaviour
                 // rotate player based on mouse postion.
                 Rotate();
 
-                // rotate fov based on mouse position.
-                RotateFieldOfView();
-
                 // run the movement function to move player.
                 Movement();
             }
-        } 
+        }
+
+        // rotate fov based on mouse position.
+        RotateFieldOfView();
     }
 
     //--------------------------------------------------------------------------------------
@@ -324,20 +336,28 @@ public class Player : NetworkedBehaviour
     //--------------------------------------------------------------------------------------
     private void RotateFieldOfView()
     {
-        // Calculate direction and rotation of player vision
-        Vector3 v3TargetPV = m_oPlayerVisionScript.GetMouseWorldPosition();
-        Vector3 v3AimDirectionPV = (v3TargetPV - transform.position).normalized;
+        // Check if current player object is the local player
+        if (IsLocalPlayer)
+        {
+            // Calculate direction and rotation of player vision / enemy renderer
+            Vector3 v3Target = m_oPlayerVisionScript.GetMouseWorldPosition();
+            Vector3 v3AimDirection = (v3Target - transform.position).normalized;
 
-        // Calculate direction and rotation of enemy renderer
-        Vector3 v3TargetER = m_oEnemyRendererScript.GetMouseWorldPosition();
-        Vector3 v3AimDirectionER = (v3TargetER - transform.position).normalized;
+            // Send calculations to player vision and enemy renderer
+            m_oPlayerVisionScript.SetAimDirection(v3AimDirection);
+            m_oEnemyRendererScript.SetAimDirection(v3AimDirection);
+        }
 
-        // Set calculations to player vision
-        m_oPlayerVisionScript.SetAimDirection(v3AimDirectionPV);
+        // if not the current player
+        else
+        {
+            // Send calculations to player vision and enemy renderer
+            m_oPlayerVisionScript.SetAimDirection(transform.right);
+            m_oEnemyRendererScript.SetAimDirection(transform.right);
+        }
+
+        // Set position of the vision cone and enemy renderer
         m_oPlayerVisionScript.SetOrigin(transform.position);
-
-        // Set calculations to enemy renderer
-        m_oEnemyRendererScript.SetAimDirection(v3AimDirectionER);
         m_oEnemyRendererScript.SetOrigin(transform.position);
     }
 
@@ -362,20 +382,46 @@ public class Player : NetworkedBehaviour
     //--------------------------------------------------------------------------------------
     private void ToggleFOV()
     {
-        // if the f key is pressed and the fov state is true
-        if (Input.GetKeyDown(KeyCode.F) && m_oPlayerVisionScript.GetToggleState())
+        // Check if current player object is the local player
+        if (IsLocalPlayer)
         {
-            // set fov to false
-            m_oPlayerVisionScript.ToggleFOV(false);
-            m_oEnemyRendererScript.ToggleFOV(false);
+            // Toggle the FOV boolean used for turning FOV off and on
+            if (Input.GetKeyDown(KeyCode.F) && m_oPlayerVisionScript.GetToggleState())
+                m_bFOVToggle.Value = false;
+            else if (Input.GetKeyDown(KeyCode.F) && !m_oPlayerVisionScript.GetToggleState())
+                m_bFOVToggle.Value = true;
         }
 
-        // if the f key is pressed and the fov state is false
-        else if (Input.GetKeyDown(KeyCode.F) && !m_oPlayerVisionScript.GetToggleState())
+        // If FOV toggle is true
+        if (m_bFOVToggle.Value)
         {
-            // set fov to true
+            // Set the vision and enemy renderer to true
             m_oPlayerVisionScript.ToggleFOV(true);
             m_oEnemyRendererScript.ToggleFOV(true);
+
+            // If this isnt the local player
+            if (!IsLocalPlayer)
+            {
+                // Turn the inner FOV for vison and enemy renderer back to true
+                m_gInnerVisionRenderer.SetActive(true);
+                m_gInnerEnemyRenderer.SetActive(true);
+            }
+        }
+
+        // else if the toggle is false
+        else
+        {
+            // Set the vision and enemy renderer to false
+            m_oPlayerVisionScript.ToggleFOV(false);
+            m_oEnemyRendererScript.ToggleFOV(false);
+
+            // If this isnt the local player
+            if (!IsLocalPlayer)
+            {
+                // Turn the inner FOV for vison and enemy renderer back to false
+                m_gInnerVisionRenderer.SetActive(false);
+                m_gInnerEnemyRenderer.SetActive(false);
+            }
         }
     }
 

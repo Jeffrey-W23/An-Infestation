@@ -47,11 +47,14 @@ public class CameraFollow : NetworkedBehaviour
             transform.GetComponent<Camera>().enabled = false;
         }
 
-        // Set the initial rotation of this camera
-        m_qInitRotation = transform.rotation;
+        else
+        {
+            // Set the initial rotation of this camera
+            m_qInitRotation = transform.rotation;
 
-        // set the offset value.
-        m_v3Offset = transform.position - m_gTarget.transform.position;
+            // set the offset value.
+            m_v3Offset = transform.position - m_gTarget.transform.position;
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -59,14 +62,18 @@ public class CameraFollow : NetworkedBehaviour
     //--------------------------------------------------------------------------------------
     private void LateUpdate()
     {
-        // ensure the camera does not rotate with the parent object.
-        transform.rotation = m_qInitRotation;
+        // Check if current player object is the local player
+        if (IsLocalPlayer)
+        {
+            // ensure the camera does not rotate with the parent object.
+            transform.rotation = m_qInitRotation;
 
-        // Calc the new x and y position of the camera
-        float fNewXPosition = m_gTarget.transform.position.x - m_v3Offset.x;
-        float fNewYPosition = m_gTarget.transform.position.y - m_v3Offset.y;
+            // Calc the new x and y position of the camera
+            float fNewXPosition = m_gTarget.transform.position.x - m_v3Offset.x;
+            float fNewYPosition = m_gTarget.transform.position.y - m_v3Offset.y;
 
-        // Update the postion of the camera.
-        transform.position = new Vector3(fNewXPosition, fNewYPosition, transform.position.z);
+            // Update the postion of the camera.
+            transform.position = new Vector3(fNewXPosition, fNewYPosition, transform.position.z);
+        }
     }
 }

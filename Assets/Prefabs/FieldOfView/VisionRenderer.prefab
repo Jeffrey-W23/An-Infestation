@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3153770963355475767}
   - component: {fileID: 3061461926800952801}
   - component: {fileID: 4209225199016978582}
-  - component: {fileID: 7156686731036199187}
+  - component: {fileID: 6991688544251082769}
   - component: {fileID: 646263061009222530}
   m_Layer: 10
   m_Name: VisionRenderer
@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1667268856978860472}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -57,6 +57,7 @@ MonoBehaviour:
   m_fFOVSmoothing: 4
   m_fCameraSmoothing: 4
   m_fToggleSmoothing: 10
+  m_cMainCamera: {fileID: 0}
 --- !u!33 &3061461926800952801
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -106,7 +107,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7156686731036199187
+--- !u!114 &6991688544251082769
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

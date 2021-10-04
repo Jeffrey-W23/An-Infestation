@@ -12,11 +12,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MLAPI;
 
 //--------------------------------------------------------------------------------------
-// FieldOfView object. Inheriting from MonoBehaviour.
+// FieldOfView object. Inheriting from NetworkedBehaviour.
 //--------------------------------------------------------------------------------------
-public class FieldOfView : MonoBehaviour
+public class FieldOfView : NetworkedBehaviour
 {
     // FOV SETTINGS //
     //--------------------------------------------------------------------------------------
@@ -102,6 +103,9 @@ public class FieldOfView : MonoBehaviour
 
     // private bool for the current toggle of the fov
     private bool m_bFOVToggle = true;
+
+    // private camera representing the main player camera
+    private Camera m_cMainCamera;
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -225,7 +229,8 @@ public class FieldOfView : MonoBehaviour
     private void Update()
     {
         // Set the new camera position with a lerp
-        Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, m_fCurrentCameraSize, Time.deltaTime * m_fCurrentCameraSmoothing);
+        if (m_cMainCamera != null)
+            m_cMainCamera.orthographicSize = Mathf.Lerp(m_cMainCamera.orthographicSize, m_fCurrentCameraSize, Time.deltaTime * m_fCurrentCameraSmoothing);
     }
 
     //--------------------------------------------------------------------------------------
@@ -306,6 +311,15 @@ public class FieldOfView : MonoBehaviour
     {
         // set the member orign
         m_v3Origin = v3Origin;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetMainCamera: Function for setting the main camera of the player.
+    //--------------------------------------------------------------------------------------
+    public void SetMainCamera(Camera cCamera)
+    {
+        // set the passed in camera to main camera
+        m_cMainCamera = cCamera;
     }
 
     //--------------------------------------------------------------------------------------
