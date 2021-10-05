@@ -387,7 +387,7 @@ public class FieldOfView : NetworkedBehaviour
     public Vector3 GetMouseWorldPosition()
     {
         // vector 3 for the mouse position in the world
-        Vector3 v3Vector = GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
+        Vector3 v3Vector = GetMouseWorldPositionWithZ(Input.mousePosition, m_cMainCamera);
 
         // set the z vector to 0
         v3Vector.z = 0.0f;
@@ -405,7 +405,7 @@ public class FieldOfView : NetworkedBehaviour
     public Vector3 GetMouseWorldPositionWithZ()
     {
         // return the mouse pos
-        return GetMouseWorldPositionWithZ(Input.mousePosition, Camera.main);
+        return GetMouseWorldPositionWithZ(Input.mousePosition, m_cMainCamera);
     }
 
     //--------------------------------------------------------------------------------------

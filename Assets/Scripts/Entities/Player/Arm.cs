@@ -77,7 +77,7 @@ public class Arm : NetworkedBehaviour
             if (!m_bFreezeArm)
             {
                 // Get mouse inside camera
-                Vector3 v3Pos = Camera.main.WorldToScreenPoint(transform.position);
+                Vector3 v3Pos = transform.parent.Find("PlayerCamera").GetComponent<Camera>().WorldToScreenPoint(transform.position);
 
                 // update the distance.
                 m_fDistanceBetween = Vector3.Distance(v3Pos, Input.mousePosition);

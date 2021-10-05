@@ -319,7 +319,7 @@ public class Player : NetworkedBehaviour
     private void Rotate()
     {
         // Get mouse inside camera 
-        Vector3 v3Position = Camera.main.WorldToScreenPoint(transform.position);
+        Vector3 v3Position = transform.Find("PlayerCamera").GetComponent<Camera>().WorldToScreenPoint(transform.position);
 
         // Get the  mouse direction.
         Vector3 v3Direction = Input.mousePosition - v3Position;
@@ -357,8 +357,8 @@ public class Player : NetworkedBehaviour
         }
 
         // Set position of the vision cone and enemy renderer
-        m_oPlayerVisionScript.SetOrigin(transform.position);
-        m_oEnemyRendererScript.SetOrigin(transform.position);
+        m_oPlayerVisionScript.SetOrigin(new Vector3(transform.position.x, transform.position.y, 0.4f));
+        m_oEnemyRendererScript.SetOrigin(new Vector3(transform.position.x, transform.position.y, 0.4f));
     }
 
     //--------------------------------------------------------------------------------------

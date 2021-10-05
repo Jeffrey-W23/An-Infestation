@@ -8,7 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2881144281038656980}
+  - component: {fileID: 8136726833386327895}
   - component: {fileID: 2881144281038656982}
   - component: {fileID: 2881144281038656981}
   m_Layer: 0
@@ -18,20 +18,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2881144281038656980
-Transform:
+--- !u!224 &8136726833386327895
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2881144281038657003}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.558243, y: -3.4092221, z: -29.109573}
+  m_LocalPosition: {x: 0, y: 0, z: -29.109573}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -4.558243, y: -3.4092221}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2881144281038656982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DontDestroy: 1
   RunInBackground: 1
-  LogLevel: 1
+  LogLevel: 0
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 2881144281038656981}
@@ -54,10 +59,10 @@ MonoBehaviour:
     - ShootingRange
     AllowRuntimeSceneChanges: 0
     NetworkedPrefabs:
-    - Prefab: {fileID: 4908299202629447578, guid: 67597dbdb9f923044b30c07f3bf387dc, type: 3}
+    - Prefab: {fileID: 9095680410032366930, guid: 7fdd207507fd91049ae64b58267cd707, type: 3}
       PlayerPrefab: 1
     PlayerPrefabHash:
-      Value: 10070878269273344231
+      Value: 1897319656204293034
     CreatePlayerPrefab: 1
     ReceiveTickrate: 64
     MaxReceiveEventsPerTickRate: 500
