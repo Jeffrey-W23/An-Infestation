@@ -443,4 +443,13 @@ public class FieldOfView : NetworkedBehaviour
         // return the mouse pos
         return v3WorldPos;
     }
+
+    //--------------------------------------------------------------------------------------
+    // OnDestroy: Function that will call on this gameObjects destruction.
+    //--------------------------------------------------------------------------------------
+    public void DestroyFOV()
+    {
+        // destory field of view object
+        Destroy(gameObject);
+    }
 }

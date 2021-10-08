@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
 using MLAPI.NetworkedVar;
+using MLAPI.Messaging;
 
 //--------------------------------------------------------------------------------------
 // Player object. Inheriting from MonoBehaviour.
@@ -103,6 +104,9 @@ public class Player : NetworkedBehaviour
     // private gameobject for the players arm object
     private GameObject m_gArm;
 
+    // private sprite renderer for the players body
+    private SpriteRenderer m_srBody;
+
     // private FieldOfView object for player vison FOV
     private FieldOfView m_oPlayerVisionScript;
 
@@ -150,7 +154,11 @@ public class Player : NetworkedBehaviour
     // PRIVATE NETWORKED VARS //
     //--------------------------------------------------------------------------------------
     // new private bool for keeping track of current state of the FOV
-    private NetworkedVarBool m_bFOVToggle = new NetworkedVarBool(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, true);
+    private NetworkedVarBool mn_bFOVToggle = new NetworkedVarBool(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, true);
+
+    // new private network variable for body color, default will be white
+    private NetworkedVarColor mn_cBodyColor = new NetworkedVarColor(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.ServerOnly }, Color.white);
+
     //--------------------------------------------------------------------------------------
 
     // DELEGATES //
@@ -172,6 +180,9 @@ public class Player : NetworkedBehaviour
 
         // get the player arm object.
         m_gArm = transform.Find("Arm").gameObject;
+
+        // Get the sprite renderer for the players body
+        m_srBody = transform.Find("Body").gameObject.GetComponent<SpriteRenderer>();
 
         // set the current speed of the player to walk
         m_fCurrentSpeed = m_fWalkSpeed;
@@ -208,12 +219,13 @@ public class Player : NetworkedBehaviour
         m_oPlayerVisionScript = Instantiate(m_gPlayerVision).GetComponent<FieldOfView>();
         m_oEnemyRendererScript = Instantiate(m_gEnemyRenderer).GetComponent<FieldOfView>();
 
+        // Set the main camera for the FOV renderers
+        m_oPlayerVisionScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
+        m_oEnemyRendererScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
+
         // Find and get the inner renderers for FOV
         m_gInnerVisionRenderer = transform.Find("VisionRenderer").gameObject;
         m_gInnerEnemyRenderer = transform.Find("EnemyRenderer").gameObject;
-
-        // Set the main camera for the FOV renderers
-        m_oPlayerVisionScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());    
     }
 
     //--------------------------------------------------------------------------------------
@@ -387,13 +399,13 @@ public class Player : NetworkedBehaviour
         {
             // Toggle the FOV boolean used for turning FOV off and on
             if (Input.GetKeyDown(KeyCode.F) && m_oPlayerVisionScript.GetToggleState())
-                m_bFOVToggle.Value = false;
+                mn_bFOVToggle.Value = false;
             else if (Input.GetKeyDown(KeyCode.F) && !m_oPlayerVisionScript.GetToggleState())
-                m_bFOVToggle.Value = true;
+                mn_bFOVToggle.Value = true;
         }
 
         // If FOV toggle is true
-        if (m_bFOVToggle.Value)
+        if (mn_bFOVToggle.Value)
         {
             // Set the vision and enemy renderer to true
             m_oPlayerVisionScript.ToggleFOV(true);
@@ -617,5 +629,57 @@ public class Player : NetworkedBehaviour
 
         // Confirm the player hand
         ConfirmPlayerHand();
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnEnable: Function that will call when this gameObject is enabled.
+    //--------------------------------------------------------------------------------------
+    private void OnEnable()
+    {
+        // subscribe to value change event for body color
+        mn_cBodyColor.OnValueChanged += OnBodyColorChange;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnDestroy: Function that will call on this gameObjects destruction.
+    //--------------------------------------------------------------------------------------
+    private void OnDestroy()
+    {
+        // if the player vision scripts are valid
+        if (m_oPlayerVisionScript != null && m_oEnemyRendererScript != null)
+        {
+            // Destory player vison objects in the scene
+            m_oPlayerVisionScript.DestroyFOV();
+            m_oEnemyRendererScript.DestroyFOV();
+        }
+
+        //
+        mn_cBodyColor.OnValueChanged -= OnBodyColorChange;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // SetBodyColorRPC: Set a new color for the players body sprite renderer.
+    //
+    // Param:
+    //      cColor: Color value for setting new body color
+    //--------------------------------------------------------------------------------------
+    [ServerRPC]
+    public void SetBodyColorRPC(Color cColor)
+    {
+        // Change body color and update body renderer
+        mn_cBodyColor.Value = cColor;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // UpdatePlayerColor: Event to update the sprite renderer color for the players body.
+    //--------------------------------------------------------------------------------------
+    private void OnBodyColorChange(Color cOldColor, Color cNewColor)
+    {
+        // Check if player is a client
+        if (!IsClient)
+            return;
+
+        // Set the color of the body sprite renderer to network var for player color
+        m_srBody.color = cNewColor;
     }
 }
