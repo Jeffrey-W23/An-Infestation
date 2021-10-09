@@ -16,7 +16,7 @@ using MLAPI.NetworkedVar;
 using MLAPI.Messaging;
 
 //--------------------------------------------------------------------------------------
-// Player object. Inheriting from MonoBehaviour.
+// Player object. Inheriting from NetworkedBehaviour.
 //--------------------------------------------------------------------------------------
 public class Player : NetworkedBehaviour
 {
@@ -157,8 +157,7 @@ public class Player : NetworkedBehaviour
     private NetworkedVarBool mn_bFOVToggle = new NetworkedVarBool(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, true);
 
     // new private network variable for body color, default will be white
-    private NetworkedVarColor mn_cBodyColor = new NetworkedVarColor(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.ServerOnly }, Color.white);
-
+    private NetworkedVarColor mn_cBodyColor = new NetworkedVarColor(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, Color.white);
     //--------------------------------------------------------------------------------------
 
     // DELEGATES //
@@ -663,9 +662,12 @@ public class Player : NetworkedBehaviour
     // Param:
     //      cColor: Color value for setting new body color
     //--------------------------------------------------------------------------------------
-    [ServerRPC]
-    public void SetBodyColorRPC(Color cColor)
+    public void SetBodyColor(Color cColor)
     {
+        // Check if color is valid
+        if (cColor == null)
+            return;
+
         // Change body color and update body renderer
         mn_cBodyColor.Value = cColor;
     }

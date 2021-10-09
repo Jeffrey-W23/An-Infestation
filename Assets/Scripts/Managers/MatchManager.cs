@@ -1,4 +1,14 @@
-﻿using System.Collections;
+﻿//--------------------------------------------------------------------------------------
+// Purpose: A script for handling various match/game management.
+//
+// Description: The main purpose of this script will be to run the scene/network functions 
+// and variables needed to get a gamemode functioning.
+//
+// Author: Thomas Wiltshire
+//--------------------------------------------------------------------------------------
+
+// Using, etc
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
@@ -10,17 +20,26 @@ using MLAPI.Messaging;
 using MLAPI.NetworkedVar;
 using MLAPI.NetworkedVar.Collections;
 
-public class MatchManager : MonoBehaviour
+//--------------------------------------------------------------------------------------
+// MatchManager object. Inheriting from NetworkedBehaviour.
+//--------------------------------------------------------------------------------------
+public class MatchManager : NetworkedBehaviour
 {
+    // PLAYER CONNECTION SETTINGS //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Player Connection Settings:")]
 
+    // a public list of colors representing all colors available.
+    [LabelOverride("Player Colors")] [Tooltip("A list of all colors the players can spawn as when the server starts.")]
+    public List<Color> m_lcAllPlayerColors;
+    //--------------------------------------------------------------------------------------
 
-
-    public List<Color> AllPlayerColors;
-
-    public NetworkedList<Color> PlayerColors = new NetworkedList<Color>(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.ServerOnly, ReadPermission = NetworkedVarPermission.Everyone });
-
-
-
+    // PRIVATE NETWORKED VARS //
+    //--------------------------------------------------------------------------------------
+    // private network variable for a list of colors, used for setting colors for the different player clients
+    private NetworkedList<Color> mn_lcAvailablePlayerColors = new NetworkedList<Color>(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.Everyone, ReadPermission = NetworkedVarPermission.Everyone });
+    //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
     // Initialization
@@ -33,10 +52,11 @@ public class MatchManager : MonoBehaviour
         NetworkingManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
     }
 
-    // Update is called once per frame
+    //--------------------------------------------------------------------------------------
+    // Update: Function that calls each frame to update game objects.
+    //--------------------------------------------------------------------------------------
     void Update()
     {
-
     }
 
     //--------------------------------------------------------------------------------------
@@ -62,7 +82,8 @@ public class MatchManager : MonoBehaviour
         // if player is a standard client disable panel
         if (ulClientID == NetworkingManager.Singleton.LocalClientId)
         {
-            //SetPlayerColor();
+            // Set the colour of each player picked randomly
+            SetPlayerColor();
         }
     }
 
@@ -86,55 +107,75 @@ public class MatchManager : MonoBehaviour
         // if player is a host client 
         if (NetworkingManager.Singleton.IsHost)
         {
-            //SetAvailableColors();
-            //SetPlayerColor();
+            // Initialize network list of colors based on the public list
+            SetAvailableColors();
+
+            // Set the colour of the host player randomly
+            HandleClientConnected(NetworkingManager.Singleton.LocalClientId);
         }
     }
 
+    // WORK IN PROGRESS, SEEMS TO BE A BUG WITH SERVERRPC AND THESE ALL NEED TO BE
+    // RUN ON THE SERVER WITH THE NETWORK VARIABLE BEING PROTECTED TO SERVER ONLY TOO.
 
-
-
-
-
-    [ServerRPC]
-    public void SetAvailableColors()
+    //-------------// WIP //-------------//
+    private void SetAvailableColors()
     {
-        for (int i = 0; i < AllPlayerColors.Count; i++)
+        for (int i = 0; i < m_lcAllPlayerColors.Count; i++)
         {
-            PlayerColors.Add(AllPlayerColors[i]);
+            mn_lcAvailablePlayerColors.Add(m_lcAllPlayerColors[i]);
         }
     }
 
-    [ServerRPC]
-    public Color GetRandomAvailableColor()
+    private Color GetRandomAvailableColor()
     {
-        return PlayerColors[Random.Range(0, PlayerColors.Count)];
+        return mn_lcAvailablePlayerColors[Random.Range(0, mn_lcAvailablePlayerColors.Count)];
     }
 
-    [ServerRPC]// Maybe add a bool to this function so can add colors back when a player leaves
-    public void UpdateAvailableColors(Color cColor)
+    private void UpdateAvailableColors(Color cColor)
     {
-        for (int i = 0; i < PlayerColors.Count; i++)
+        for (int i = 0; i < mn_lcAvailablePlayerColors.Count; i++)
         {
-            if (PlayerColors[i] == cColor)
-            {
-                PlayerColors.RemoveAt(i);
-            }
+            if (mn_lcAvailablePlayerColors[i] == cColor)
+                mn_lcAvailablePlayerColors.RemoveAt(i);
         }
     }
 
-    public void SetPlayerColor()
+    private void RefreshColors(Color cColor)
     {
-        ulong localclientID = NetworkingManager.Singleton.LocalClientId;
+        mn_lcAvailablePlayerColors.Remove(cColor);
 
-        if (!NetworkingManager.Singleton.ConnectedClients.TryGetValue(localclientID, out NetworkedClient networkClient))
+        for (int i = 0; i < m_lcAllPlayerColors.Count; i++)
+        {
+            mn_lcAvailablePlayerColors.Add(m_lcAllPlayerColors[i]);
+        }
+    }
+
+    private void SetPlayerColor()
+    {
+        ulong ulLocalClientID = NetworkingManager.Singleton.LocalClientId;
+
+        if (!NetworkingManager.Singleton.ConnectedClients.TryGetValue(ulLocalClientID, out NetworkedClient networkClient))
             return;
 
-        if (!networkClient.PlayerObject.TryGetComponent<Player>(out Player player))
+        if (!networkClient.PlayerObject.TryGetComponent<Player>(out Player oPlayer))
             return;
 
-        Color randcolor = GetRandomAvailableColor();
-        UpdateAvailableColors(randcolor);
-        player.SetBodyColorRPC(randcolor);
+        Color cRandomColor = Color.white;
+
+        if (mn_lcAvailablePlayerColors.Count > 1)
+        {
+            cRandomColor = GetRandomAvailableColor();
+            UpdateAvailableColors(cRandomColor);
+        }
+
+        else if (mn_lcAvailablePlayerColors.Count == 1)
+        {
+            cRandomColor = mn_lcAvailablePlayerColors[0];
+            RefreshColors(cRandomColor);
+        }
+
+        oPlayer.SetBodyColor(cRandomColor);
     }
+    //-------------// WIP //-------------//
 }

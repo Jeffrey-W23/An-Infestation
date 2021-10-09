@@ -56,8 +56,10 @@ public class PauseMenu : NetworkedBehaviour
     public void Update()
     {
         // if escape key is pressed enable the menu
-        if (Input.GetKey(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !m_gMenuPanel.activeSelf)
             m_gMenuPanel.SetActive(true);
+        else if (Input.GetKeyDown(KeyCode.Escape) && m_gMenuPanel.activeSelf)
+            m_gMenuPanel.SetActive(false);
     }
 
     //--------------------------------------------------------------------------------------

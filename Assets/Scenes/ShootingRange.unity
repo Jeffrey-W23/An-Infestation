@@ -218,6 +218,23 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4545679935300844255, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
   m_PrefabInstance: {fileID: 4545679935714204066}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &926348948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 926348947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 209037615, guid: 01701b64234b4d523d8045142cbc73fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NetworkedInstanceId: 0
+  PrefabHash: 13494567273885427380
+  PrefabHashGenerator: GameManager
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
 --- !u!114 &926348951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230,13 +247,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffda9c63f781e0f40a3bfaecce9f3fc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AllPlayerColors:
-  - {r: 0.20038268, g: 0.26474953, b: 0.745283, a: 1}
-  - {r: 0.2768774, g: 0.7490196, b: 0.20392157, a: 1}
-  - {r: 0.65387374, g: 0.20392157, b: 0.7490196, a: 1}
-  - {r: 0.7490196, g: 0.25283256, b: 0.20392157, a: 1}
-  - {r: 0.7490196, g: 0.7275492, b: 0.20392157, a: 1}
-  - {r: 0.8584906, g: 0.4545764, b: 0.125534, a: 1}
+  m_lcAllPlayerColors:
+  - {r: 0.8113208, g: 0.15690637, b: 0.15690637, a: 1}
+  - {r: 0.8117647, g: 0.4319338, b: 0.15686274, a: 1}
+  - {r: 0.8117647, g: 0.70679265, b: 0.15686274, a: 1}
+  - {r: 0.5940376, g: 0.8117647, b: 0.15686274, a: 1}
+  - {r: 0.15686274, g: 0.8117647, b: 0.44193462, a: 1}
+  - {r: 0.15686274, g: 0.7581004, b: 0.8117647, a: 1}
+  - {r: 0.15686274, g: 0.33748642, b: 0.8117647, a: 1}
+  - {r: 0.5159073, g: 0.15686274, b: 0.8117647, a: 1}
+  - {r: 0.8117647, g: 0.15686274, b: 0.6791787, a: 1}
+  - {r: 0.1738163, g: 0.5849056, b: 0.5007629, a: 1}
 --- !u!1 &1262714551
 GameObject:
   m_ObjectHideFlags: 0
