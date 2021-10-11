@@ -15,9 +15,9 @@ using UnityEngine;
 using MLAPI;
 
 //--------------------------------------------------------------------------------------
-// FieldOfView object. Inheriting from NetworkedBehaviour.
+// FieldOfView object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class FieldOfView : NetworkedBehaviour
+public class FieldOfView : NetworkBehaviour
 {
     // FOV SETTINGS //
     //--------------------------------------------------------------------------------------

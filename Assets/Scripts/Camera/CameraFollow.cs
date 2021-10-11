@@ -14,9 +14,9 @@ using UnityEngine;
 using MLAPI;
 
 //--------------------------------------------------------------------------------------
-// CameraFollow object. Inheriting from NetworkedBehaviour.
+// CameraFollow object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class CameraFollow : NetworkedBehaviour
+public class CameraFollow : NetworkBehaviour
 {
     // PUBLIC VALUES //
     //--------------------------------------------------------------------------------------

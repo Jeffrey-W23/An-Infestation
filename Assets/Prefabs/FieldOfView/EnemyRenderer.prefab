@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 4095145771555373891}
   - component: {fileID: 7754663934316959064}
   - component: {fileID: 4233075236204945712}
-  - component: {fileID: 659020585627842902}
-  - component: {fileID: -4410070096872849628}
+  - component: {fileID: 4536416462899044491}
+  - component: {fileID: 893924826483502786}
   m_Layer: 11
   m_Name: EnemyRenderer
   m_TagString: Untagged
@@ -76,6 +76,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -106,7 +107,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &659020585627842902
+--- !u!114 &4536416462899044491
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,15 +116,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 3251124548419774163}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 209037615, guid: 01701b64234b4d523d8045142cbc73fa, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkedInstanceId: 0
+  NetworkInstanceId: 0
   PrefabHash: 13595850352119332770
   PrefabHashGenerator: EnemyRenderer
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
---- !u!114 &-4410070096872849628
+--- !u!114 &893924826483502786
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,7 +133,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3251124548419774163}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -410691123, guid: 01701b64234b4d523d8045142cbc73fa, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   FixedSendsPerSecond: 20

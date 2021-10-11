@@ -12,13 +12,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
-using MLAPI.NetworkedVar;
+using MLAPI.NetworkVariable;
 using MLAPI.Messaging;
 
 //--------------------------------------------------------------------------------------
-// Player object. Inheriting from NetworkedBehaviour.
+// Player object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class Player : NetworkedBehaviour
+public class Player : NetworkBehaviour
 {
     // MOVEMENT //
     //--------------------------------------------------------------------------------------
@@ -154,10 +154,10 @@ public class Player : NetworkedBehaviour
     // PRIVATE NETWORKED VARS //
     //--------------------------------------------------------------------------------------
     // new private bool for keeping track of current state of the FOV
-    private NetworkedVarBool mn_bFOVToggle = new NetworkedVarBool(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, true);
+    private NetworkVariableBool mn_bFOVToggle = new NetworkVariableBool(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.OwnerOnly }, true);
 
     // new private network variable for body color, default will be white
-    private NetworkedVarColor mn_cBodyColor = new NetworkedVarColor(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.OwnerOnly }, Color.white);
+    private NetworkVariableColor mn_cBodyColor = new NetworkVariableColor(Color.white);
     //--------------------------------------------------------------------------------------
 
     // DELEGATES //
@@ -657,12 +657,14 @@ public class Player : NetworkedBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // SetBodyColorRPC: Set a new color for the players body sprite renderer.
+    // SetBodyColorRPC: A server function to Set a new color for the players body 
+    // sprite renderer.
     //
     // Param:
     //      cColor: Color value for setting new body color
     //--------------------------------------------------------------------------------------
-    public void SetBodyColor(Color cColor)
+    [ServerRpc (RequireOwnership = false)]
+    public void SetBodyColorServerRpc(Color cColor)
     {
         // Check if color is valid
         if (cColor == null)

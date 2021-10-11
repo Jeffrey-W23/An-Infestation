@@ -17,13 +17,13 @@ using MLAPI.Transports.UNET;
 using System;
 using Random = UnityEngine.Random;
 using MLAPI.Messaging;
-using MLAPI.NetworkedVar;
-using MLAPI.NetworkedVar.Collections;
+using MLAPI.NetworkVariable;
+using MLAPI.NetworkVariable.Collections;
 
 //--------------------------------------------------------------------------------------
-// MatchManager object. Inheriting from NetworkedBehaviour.
+// MatchManager object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class MatchManager : NetworkedBehaviour
+public class MatchManager : NetworkBehaviour
 {
     // PLAYER CONNECTION SETTINGS //
     //--------------------------------------------------------------------------------------
@@ -32,13 +32,13 @@ public class MatchManager : NetworkedBehaviour
 
     // a public list of colors representing all colors available.
     [LabelOverride("Player Colors")] [Tooltip("A list of all colors the players can spawn as when the server starts.")]
-    public List<Color> m_lcAllPlayerColors;
+    public List<Color> m_acAllPlayerColors;
     //--------------------------------------------------------------------------------------
 
     // PRIVATE NETWORKED VARS //
     //--------------------------------------------------------------------------------------
     // private network variable for a list of colors, used for setting colors for the different player clients
-    private NetworkedList<Color> mn_lcAvailablePlayerColors = new NetworkedList<Color>(new NetworkedVarSettings { WritePermission = NetworkedVarPermission.Everyone, ReadPermission = NetworkedVarPermission.Everyone });
+    private NetworkList<Color> mn_acAvailablePlayerColors = new NetworkList<Color>(new NetworkVariableSettings { SendTickrate = 0 });
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -47,9 +47,9 @@ public class MatchManager : NetworkedBehaviour
     private void Start()
     {
         // Subscribe to network manager events for connection and disconnection
-        NetworkingManager.Singleton.OnServerStarted += HandleServerStarted;
-        NetworkingManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
-        NetworkingManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
+        NetworkManager.Singleton.OnServerStarted += HandleServerStarted;
+        NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
     }
 
     //--------------------------------------------------------------------------------------
@@ -65,37 +65,42 @@ public class MatchManager : NetworkedBehaviour
     private void OnDestroy()
     {
         // if the network manager is valid
-        if (NetworkingManager.Singleton == null)
+        if (NetworkManager.Singleton == null)
             return;
 
         // Unsubscribe to network manager events
-        NetworkingManager.Singleton.OnServerStarted -= HandleServerStarted;
-        NetworkingManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
-        NetworkingManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
+        NetworkManager.Singleton.OnServerStarted -= HandleServerStarted;
+        NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
     }
 
     //--------------------------------------------------------------------------------------
     // HandleClientConnected: Event when a client is connected to a server
+    //
+    // Params:
+    //      ulClientID: ulong value for the connected client
     //--------------------------------------------------------------------------------------
     private void HandleClientConnected(ulong ulClientID)
     {
         // if player is a standard client disable panel
-        if (ulClientID == NetworkingManager.Singleton.LocalClientId)
+        if (ulClientID == NetworkManager.Singleton.LocalClientId)
         {
             // Set the colour of each player picked randomly
-            SetPlayerColor();
+            AssignPlayerColorServerRpc(ulClientID);
         }
     }
 
     //--------------------------------------------------------------------------------------
     // HandleClientDisconnected: Event when a client is disconnected from a server
+    //
+    // Params:
+    //      ulClientID: ulong value for the disconnecting client
     //--------------------------------------------------------------------------------------
     private void HandleClientDisconnected(ulong ulClientID)
     {
         // if player is a standard client enable panel
-        if (ulClientID == NetworkingManager.Singleton.LocalClientId)
+        if (ulClientID == NetworkManager.Singleton.LocalClientId)
         {
-
         }
     }
 
@@ -105,77 +110,91 @@ public class MatchManager : NetworkedBehaviour
     private void HandleServerStarted()
     {
         // if player is a host client 
-        if (NetworkingManager.Singleton.IsHost)
+        if (NetworkManager.Singleton.IsHost)
         {
             // Initialize network list of colors based on the public list
-            SetAvailableColors();
+            InitializeAvailablePlayerColorsServerRpc();
 
             // Set the colour of the host player randomly
-            HandleClientConnected(NetworkingManager.Singleton.LocalClientId);
+            HandleClientConnected(NetworkManager.Singleton.LocalClientId);
         }
     }
 
-    // WORK IN PROGRESS, SEEMS TO BE A BUG WITH SERVERRPC AND THESE ALL NEED TO BE
-    // RUN ON THE SERVER WITH THE NETWORK VARIABLE BEING PROTECTED TO SERVER ONLY TOO.
-
-    //-------------// WIP //-------------//
-    private void SetAvailableColors()
+    //--------------------------------------------------------------------------------------
+    // InitializeAvailablePlayerColorsServerRpc: Server function for initializing the
+    // mn_acAvailablePlayerColors variable on ServerStart.
+    //--------------------------------------------------------------------------------------
+    [ServerRpc]
+    private void InitializeAvailablePlayerColorsServerRpc()
     {
-        for (int i = 0; i < m_lcAllPlayerColors.Count; i++)
+        // loop through all colors and initalize the available colors array.
+        for (int i = 0; i < m_acAllPlayerColors.Count; i++)
         {
-            mn_lcAvailablePlayerColors.Add(m_lcAllPlayerColors[i]);
+            mn_acAvailablePlayerColors.Add(m_acAllPlayerColors[i]);
         }
     }
 
-    private Color GetRandomAvailableColor()
+    //--------------------------------------------------------------------------------------
+    // AssignPlayerColorServerRpc: A server function for assigning a random color to a
+    // newly connected player/client.
+    //
+    // Params:
+    //      ulClientID: ulong value for client requesting player color change.
+    //--------------------------------------------------------------------------------------
+    [ServerRpc (RequireOwnership = false)]
+    private void AssignPlayerColorServerRpc(ulong ulClientID)
     {
-        return mn_lcAvailablePlayerColors[Random.Range(0, mn_lcAvailablePlayerColors.Count)];
-    }
-
-    private void UpdateAvailableColors(Color cColor)
-    {
-        for (int i = 0; i < mn_lcAvailablePlayerColors.Count; i++)
-        {
-            if (mn_lcAvailablePlayerColors[i] == cColor)
-                mn_lcAvailablePlayerColors.RemoveAt(i);
-        }
-    }
-
-    private void RefreshColors(Color cColor)
-    {
-        mn_lcAvailablePlayerColors.Remove(cColor);
-
-        for (int i = 0; i < m_lcAllPlayerColors.Count; i++)
-        {
-            mn_lcAvailablePlayerColors.Add(m_lcAllPlayerColors[i]);
-        }
-    }
-
-    private void SetPlayerColor()
-    {
-        ulong ulLocalClientID = NetworkingManager.Singleton.LocalClientId;
-
-        if (!NetworkingManager.Singleton.ConnectedClients.TryGetValue(ulLocalClientID, out NetworkedClient networkClient))
+        // Get the clients network object, return if not valid.
+        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(ulClientID, out NetworkClient ncClient))
             return;
 
-        if (!networkClient.PlayerObject.TryGetComponent<Player>(out Player oPlayer))
+        // Get the clients player object, return if not valid
+        if (!ncClient.PlayerObject.TryGetComponent<Player>(out Player oPlayer))
             return;
 
+        // new color variable for assigning random color
         Color cRandomColor = Color.white;
 
-        if (mn_lcAvailablePlayerColors.Count > 1)
+        // if mn_acAvailablePlayerColors count is at least 2
+        if (mn_acAvailablePlayerColors.Count > 1)
         {
-            cRandomColor = GetRandomAvailableColor();
-            UpdateAvailableColors(cRandomColor);
+            // Get a random color and assign to color variable
+            cRandomColor = mn_acAvailablePlayerColors[Random.Range(0, mn_acAvailablePlayerColors.Count)];
+
+            // loop through mn_acAvailablePlayerColors array
+            for (int i = 0; i < mn_acAvailablePlayerColors.Count; i++)
+            {
+                // if the random color is in the array remove it
+                if (mn_acAvailablePlayerColors[i] == cRandomColor)
+                    mn_acAvailablePlayerColors.RemoveAt(i);
+            }
         }
 
-        else if (mn_lcAvailablePlayerColors.Count == 1)
+        // if only one value is left in mn_acAvailablePlayerColors
+        else if (mn_acAvailablePlayerColors.Count == 1)
         {
-            cRandomColor = mn_lcAvailablePlayerColors[0];
-            RefreshColors(cRandomColor);
+            // Assign last color in array to the color variable
+            cRandomColor = mn_acAvailablePlayerColors[0];
+
+            // Remove the final value from the array, making it empty
+            mn_acAvailablePlayerColors.Remove(cRandomColor);
+
+            // Loop through all colors and re-initialize mn_acAvailablePlayerColors array
+            for (int i = 0; i < m_acAllPlayerColors.Count; i++)
+            {
+                mn_acAvailablePlayerColors.Add(m_acAllPlayerColors[i]);
+            }
         }
 
-        oPlayer.SetBodyColor(cRandomColor);
+        // else if the mn_acAvailablePlayerColors count is 0
+        else
+        {
+            // Print error message, change color of player to black to make it clear there is a problem
+            Debug.Log("Error: mn_acAvailablePlayerColors is Empty?");
+            cRandomColor = Color.black;
+        }
+
+        // Send color to player object
+        oPlayer.SetBodyColorServerRpc(cRandomColor);
     }
-    //-------------// WIP //-------------//
 }

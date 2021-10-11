@@ -11,9 +11,9 @@ using UnityEngine;
 using MLAPI;
 
 //--------------------------------------------------------------------------------------
-// Arm object. Inheriting from NetworkedBehaviour.
+// Arm object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class Arm : NetworkedBehaviour
+public class Arm : NetworkBehaviour
 {
     // WEAPON SETTINGS //
     //--------------------------------------------------------------------------------------

@@ -17,9 +17,9 @@ using UnityEngine.UI;
 using System.Text;
 
 //--------------------------------------------------------------------------------------
-// PauseMenu object. Inheriting from MonoBehaviour.
+// PauseMenu object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class PauseMenu : NetworkedBehaviour
+public class PauseMenu : NetworkBehaviour
 {
     // Menu Settings //
     //--------------------------------------------------------------------------------------
@@ -45,9 +45,9 @@ public class PauseMenu : NetworkedBehaviour
     private void Start()
     {
         // Subscribe to network manager events for connection and disconnection
-        NetworkingManager.Singleton.OnServerStarted += HandleServerStarted;
-        NetworkingManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
-        NetworkingManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
+        NetworkManager.Singleton.OnServerStarted += HandleServerStarted;
+        NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
     }
 
     //--------------------------------------------------------------------------------------
@@ -68,32 +68,38 @@ public class PauseMenu : NetworkedBehaviour
     private void OnDestroy()
     {
         // if the network manager is valid
-        if (NetworkingManager.Singleton == null)
+        if (NetworkManager.Singleton == null)
             return;
 
         // Unsubscribe to network manager events
-        NetworkingManager.Singleton.OnServerStarted -= HandleServerStarted;
-        NetworkingManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
-        NetworkingManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
+        NetworkManager.Singleton.OnServerStarted -= HandleServerStarted;
+        NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
     }
 
     //--------------------------------------------------------------------------------------
     // HandleClientConnected: Event when a client is connected to a server
+    //
+    // Params:
+    //      ulClientID: ulong value for the connected client
     //--------------------------------------------------------------------------------------
     private void HandleClientConnected(ulong ulClientID)
     {
         // if player is a standard client disable panel
-        if (ulClientID == NetworkingManager.Singleton.LocalClientId)
+        if (ulClientID == NetworkManager.Singleton.LocalClientId)
             m_gMenuPanel.SetActive(false);
     }
 
     //--------------------------------------------------------------------------------------
     // HandleClientDisconnected: Event when a client is disconnected from a server
+    //
+    // Params:
+    //      ulClientID: ulong value for the disconnecting client
     //--------------------------------------------------------------------------------------
     private void HandleClientDisconnected(ulong ulClientID)
     {
         // if player is a standard client enable panel
-        if (ulClientID == NetworkingManager.Singleton.LocalClientId)
+        if (ulClientID == NetworkManager.Singleton.LocalClientId)
             m_gMenuPanel.SetActive(true);
     }
 
@@ -103,10 +109,10 @@ public class PauseMenu : NetworkedBehaviour
     private void HandleServerStarted()
     {
         // if player is a host client 
-        if (NetworkingManager.Singleton.IsHost)
+        if (NetworkManager.Singleton.IsHost)
         {
             // Run handle client connected event
-            HandleClientConnected(NetworkingManager.Singleton.LocalClientId);
+            HandleClientConnected(NetworkManager.Singleton.LocalClientId);
         }
     }
 
@@ -118,7 +124,7 @@ public class PauseMenu : NetworkedBehaviour
     //      ulClientID: A ulong for Client ID
     //      Callback: A NetworkingManager.ConnectionApprovedDelegate for setting callback delegate.
     //--------------------------------------------------------------------------------------
-    private void ApprovalCheck(byte[] baConnectionData, ulong ulClientID, NetworkingManager.ConnectionApprovedDelegate Callback)
+    private void ApprovalCheck(byte[] baConnectionData, ulong ulClientID, NetworkManager.ConnectionApprovedDelegate Callback)
     {
         // New string for internal server password
         string strPassword = Encoding.ASCII.GetString(baConnectionData);
@@ -131,7 +137,7 @@ public class PauseMenu : NetworkedBehaviour
         Quaternion qSpawnRot = Quaternion.identity;
 
         // Switch through each connected client (Other than host)
-        switch (NetworkingManager.Singleton.ConnectedClients.Count)
+        switch (NetworkManager.Singleton.ConnectedClients.Count)
         {
             // Set spawn pos of next connected player
             case 1:
@@ -156,10 +162,10 @@ public class PauseMenu : NetworkedBehaviour
     public void HostButton()
     {
         // subscribe network manager connection approve event
-        NetworkingManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
+        NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
 
         // Get Networking Mananger singleton and start hosting server / set spawn pos of host player
-        NetworkingManager.Singleton.StartHost(new Vector2(-5f, 0f), Quaternion.Euler(0f, 0f, 0f));
+        NetworkManager.Singleton.StartHost(new Vector2(-5f, 0f), Quaternion.Euler(0f, 0f, 0f));
     }
 
     //--------------------------------------------------------------------------------------
@@ -168,17 +174,17 @@ public class PauseMenu : NetworkedBehaviour
     public void JoinButton()
     {
         // Check to see if password entered is correct
-        NetworkingManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(m_ifPassword.text);
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(m_ifPassword.text);
 
         // if no ip is entered use default local address for networking manager connect address
         // otherwise use IP address from the Input field variable.
         if (m_ifIPAddress.text.Length <= 0)
-            NetworkingManager.Singleton.GetComponent<UnetTransport>().ConnectAddress = "127.0.0.1";
+            NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectAddress = "127.0.0.1";
         else
-            NetworkingManager.Singleton.GetComponent<UnetTransport>().ConnectAddress = m_ifIPAddress.text;
+            NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectAddress = m_ifIPAddress.text;
 
         // Get networking manager singleton and connect to client
-        NetworkingManager.Singleton.StartClient();
+        NetworkManager.Singleton.StartClient();
     }
 
     //--------------------------------------------------------------------------------------
@@ -187,16 +193,16 @@ public class PauseMenu : NetworkedBehaviour
     public void LeaveButton()
     {
         // If the client leaving is the host
-        if (NetworkingManager.Singleton.IsHost)
+        if (NetworkManager.Singleton.IsHost)
         {
             // Stop hosting session and unsubscribe from approval check event
-            NetworkingManager.Singleton.StopHost();
-            NetworkingManager.Singleton.ConnectionApprovalCallback -= ApprovalCheck;
+            NetworkManager.Singleton.StopHost();
+            NetworkManager.Singleton.ConnectionApprovalCallback -= ApprovalCheck;
         }
 
         // else if the player is just a standard client disconnect them
-        else if (NetworkingManager.Singleton.IsClient)
-            NetworkingManager.Singleton.StopClient();
+        else if (NetworkManager.Singleton.IsClient)
+            NetworkManager.Singleton.StopClient();
 
         // Turn off menu panel
         m_gMenuPanel.SetActive(true);

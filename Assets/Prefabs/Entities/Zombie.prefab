@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4908299202629447581}
   - component: {fileID: 4908299202629447580}
   - component: {fileID: 4908299202629447579}
-  - component: {fileID: 6597510650590946443}
   m_Layer: 12
   m_Name: Zombie
   m_TagString: Untagged
@@ -44,6 +43,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -100,20 +100,3 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.14, y: 0.19}
   m_Direction: 0
---- !u!114 &6597510650590946443
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4908299202629447578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 209037615, guid: 01701b64234b4d523d8045142cbc73fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  NetworkedInstanceId: 0
-  PrefabHash: 10070878269273344231
-  PrefabHashGenerator: Zombie
-  AlwaysReplicateAsRoot: 0
-  DontDestroyWithOwner: 0

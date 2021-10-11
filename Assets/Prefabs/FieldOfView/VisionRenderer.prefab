@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 3153770963355475767}
   - component: {fileID: 3061461926800952801}
   - component: {fileID: 4209225199016978582}
-  - component: {fileID: 6991688544251082769}
-  - component: {fileID: 646263061009222530}
+  - component: {fileID: 8037463327427764097}
+  - component: {fileID: 629013934125901803}
   m_Layer: 10
   m_Name: VisionRenderer
   m_TagString: Untagged
@@ -76,6 +76,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -106,7 +107,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6991688544251082769
+--- !u!114 &8037463327427764097
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,15 +116,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1667268856978860472}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 209037615, guid: 01701b64234b4d523d8045142cbc73fa, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkedInstanceId: 0
+  NetworkInstanceId: 0
   PrefabHash: 10403155323508716444
   PrefabHashGenerator: VisionRenderer
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
---- !u!114 &646263061009222530
+--- !u!114 &629013934125901803
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,7 +133,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1667268856978860472}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -410691123, guid: 01701b64234b4d523d8045142cbc73fa, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   FixedSendsPerSecond: 20
