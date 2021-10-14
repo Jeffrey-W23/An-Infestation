@@ -144,7 +144,7 @@ public class FieldOfView : NetworkBehaviour
         m_fCurrentCameraSize = m_fCameraSize;
 
         // set the current camera smoothing to default
-        m_fCurrentCameraSmoothing = m_fCameraSmoothing;    
+        m_fCurrentCameraSmoothing = m_fCameraSmoothing;
     }
 
     //--------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ public class FieldOfView : NetworkBehaviour
         
         // set up[ triangles 
         int[] anTriangles = new int[nRayCount * 3];
-        av3Vertices[0] = m_v3Origin;
+        av3Vertices[0] = Vector3.zero;
         
         // set up indexs
         int nVertexIndex = 1;
@@ -196,8 +196,8 @@ public class FieldOfView : NetworkBehaviour
                 v3Vertex = rcRaycastHit2D.point;
             }
 
-            // add new vertex to vertices
-            av3Vertices[nVertexIndex] = v3Vertex;
+            // add new vertex to vertices, make sure to inverse to local space
+            av3Vertices[nVertexIndex] = transform.InverseTransformPoint(v3Vertex);
 
             // If not the first ray
             if (i > 0)

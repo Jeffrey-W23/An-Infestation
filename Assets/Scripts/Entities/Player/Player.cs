@@ -54,6 +54,14 @@ public class Player : NetworkBehaviour
     [LabelOverride("Enemy Renderer")] [Tooltip("The gameobject for the players enemy renderer field of view object.")]
     public GameObject m_gEnemyRenderer;
 
+    // public gameobject for the inner vision renderer
+    [LabelOverride("Inner Vision Renderer")] [Tooltip("The gameobject for the players inner field of view object.")]
+    public GameObject m_gInnerVisionRenderer;
+
+    // public gameobject for the inner enemy renderer
+    [LabelOverride("Inner Enemy Renderer")] [Tooltip("The gameobject for the players inner enemy renderer field of view object.")]
+    public GameObject m_gInnerEnemyRenderer;
+
     // Leave a space in the inspector.
     [Space]
     //--------------------------------------------------------------------------------------
@@ -143,12 +151,6 @@ public class Player : NetworkBehaviour
 
     // private int for the current postion of the weapon selection.
     private int m_nWeaponSelectorPos = 0;
-
-    // private gameobject for the inner vision renderer
-    private GameObject m_gInnerVisionRenderer;
-
-    // private gameobject for the inner enemy renderer
-    private GameObject m_gInnerEnemyRenderer;
     //--------------------------------------------------------------------------------------
 
     // PRIVATE NETWORKED VARS //
@@ -214,17 +216,13 @@ public class Player : NetworkBehaviour
             m_akWeaponSelectorControls[i] = m_akInitWeaponSelectorControls[i];
         }
 
-        // Instantiate and get fov components
-        m_oPlayerVisionScript = Instantiate(m_gPlayerVision).GetComponent<FieldOfView>();
-        m_oEnemyRendererScript = Instantiate(m_gEnemyRenderer).GetComponent<FieldOfView>();
+        // get fov components
+        m_oPlayerVisionScript = m_gPlayerVision.GetComponent<FieldOfView>();
+        m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
 
         // Set the main camera for the FOV renderers
         m_oPlayerVisionScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
         m_oEnemyRendererScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
-
-        // Find and get the inner renderers for FOV
-        m_gInnerVisionRenderer = transform.Find("VisionRenderer").gameObject;
-        m_gInnerEnemyRenderer = transform.Find("EnemyRenderer").gameObject;
     }
 
     //--------------------------------------------------------------------------------------
@@ -347,29 +345,17 @@ public class Player : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     private void RotateFieldOfView()
     {
-        // Check if current player object is the local player
-        if (IsLocalPlayer)
-        {
-            // Calculate direction and rotation of player vision / enemy renderer
-            Vector3 v3Target = m_oPlayerVisionScript.GetMouseWorldPosition();
-            Vector3 v3AimDirection = (v3Target - transform.position).normalized;
-
-            // Send calculations to player vision and enemy renderer
-            m_oPlayerVisionScript.SetAimDirection(v3AimDirection);
-            m_oEnemyRendererScript.SetAimDirection(v3AimDirection);
-        }
-
-        // if not the current player
-        else
-        {
-            // Send calculations to player vision and enemy renderer
-            m_oPlayerVisionScript.SetAimDirection(transform.right);
-            m_oEnemyRendererScript.SetAimDirection(transform.right);
-        }
+        // Send aim direction to player vision and enemy renderer
+        m_oPlayerVisionScript.SetAimDirection(transform.right);
+        m_oEnemyRendererScript.SetAimDirection(transform.right);
 
         // Set position of the vision cone and enemy renderer
-        m_oPlayerVisionScript.SetOrigin(new Vector3(transform.position.x, transform.position.y, 0.4f));
-        m_oEnemyRendererScript.SetOrigin(new Vector3(transform.position.x, transform.position.y, 0.4f));
+        m_oPlayerVisionScript.SetOrigin(transform.position);
+        m_oEnemyRendererScript.SetOrigin(transform.position);
+
+        // Set the origin of the inner vision objects
+        m_gInnerVisionRenderer.GetComponent<FieldOfView>().SetOrigin(transform.position);
+        m_gInnerEnemyRenderer.GetComponent<FieldOfView>().SetOrigin(transform.position);
     }
 
     //--------------------------------------------------------------------------------------
@@ -644,15 +630,7 @@ public class Player : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     private void OnDestroy()
     {
-        // if the player vision scripts are valid
-        if (m_oPlayerVisionScript != null && m_oEnemyRendererScript != null)
-        {
-            // Destory player vison objects in the scene
-            m_oPlayerVisionScript.DestroyFOV();
-            m_oEnemyRendererScript.DestroyFOV();
-        }
-
-        //
+        // Unsubscribe from body colors on change event
         mn_cBodyColor.OnValueChanged -= OnBodyColorChange;
     }
 

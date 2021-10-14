@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3251124548419774163
+--- !u!1 &7768714116612010360
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,26 +8,26 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2450527528961595271}
-  - component: {fileID: 4095145771555373891}
-  - component: {fileID: 7754663934316959064}
-  - component: {fileID: 4233075236204945712}
-  - component: {fileID: 4536416462899044491}
-  - component: {fileID: 893924826483502786}
-  m_Layer: 11
-  m_Name: EnemyRenderer
+  - component: {fileID: 8711196452182421488}
+  - component: {fileID: 6284528769299236855}
+  - component: {fileID: 6237255702338458913}
+  - component: {fileID: 5087234011763634262}
+  - component: {fileID: 4636464514991395942}
+  - component: {fileID: -7047377919218103305}
+  m_Layer: 10
+  m_Name: InnerVisionRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2450527528961595271
+--- !u!4 &8711196452182421488
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3251124548419774163}
+  m_GameObject: {fileID: 7768714116612010360}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -35,13 +35,13 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4095145771555373891
+--- !u!114 &6284528769299236855
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3251124548419774163}
+  m_GameObject: {fileID: 7768714116612010360}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3247023b6881f942ab51513c7eb9ac9, type: 3}
@@ -50,28 +50,28 @@ MonoBehaviour:
   m_lmEffectLayers:
     serializedVersion: 2
     m_Bits: 512
-  m_fFOV: 80
-  m_fViewDistance: 15
+  m_fFOV: 360
+  m_fViewDistance: 1.6
   m_fCameraSize: 8
   m_fToggleCameraSize: 6
   m_fFOVSmoothing: 4
   m_fCameraSmoothing: 4
   m_fToggleSmoothing: 10
---- !u!33 &7754663934316959064
+--- !u!33 &6237255702338458913
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3251124548419774163}
+  m_GameObject: {fileID: 7768714116612010360}
   m_Mesh: {fileID: 0}
---- !u!23 &4233075236204945712
+--- !u!23 &5087234011763634262
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3251124548419774163}
+  m_GameObject: {fileID: 7768714116612010360}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -85,7 +85,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 42f76f0ce9f1bdd41a5f3ddc7d9b3132, type: 2}
+  - {fileID: 2100000, guid: 1e7c6cfeb1b2c0e4787f05df1fefc2c6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -107,30 +107,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4536416462899044491
+--- !u!114 &4636464514991395942
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3251124548419774163}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  NetworkInstanceId: 0
-  PrefabHash: 13595850352119332770
-  PrefabHashGenerator: EnemyRenderer
-  AlwaysReplicateAsRoot: 0
-  DontDestroyWithOwner: 0
---- !u!114 &893924826483502786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3251124548419774163}
+  m_GameObject: {fileID: 7768714116612010360}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
@@ -172,3 +155,20 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-7047377919218103305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7768714116612010360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NetworkInstanceId: 0
+  PrefabHash: 9730920371390455546
+  PrefabHashGenerator: InnerVisionRenderer
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
