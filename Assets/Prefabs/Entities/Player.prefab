@@ -443,10 +443,10 @@ Transform:
   - {fileID: 2053501903586065431}
   - {fileID: 9095680409634975339}
   - {fileID: 4008629422669992185}
-  - {fileID: 5001917094751736501}
   - {fileID: 2986679227382832552}
-  - {fileID: 9221673131079949933}
+  - {fileID: 5001917094751736501}
   - {fileID: 8204090955788634750}
+  - {fileID: 9221673131079949933}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -639,6 +639,14 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 9095680410032366935}
+    - target: {fileID: 6284528769299236855, guid: de441a7038440d240a414f4c8abc305c, type: 3}
+      propertyPath: m_matDefault
+      value: 
+      objectReference: {fileID: 2100000, guid: 8da053a1e8673b84f90df2968615d1e6, type: 2}
+    - target: {fileID: 6284528769299236855, guid: de441a7038440d240a414f4c8abc305c, type: 3}
+      propertyPath: m_bVisionRenderer
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7768714116612010360, guid: de441a7038440d240a414f4c8abc305c, type: 3}
       propertyPath: m_Name
       value: InnerVisionRenderer
@@ -649,7 +657,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8711196452182421488, guid: de441a7038440d240a414f4c8abc305c, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8711196452182421488, guid: de441a7038440d240a414f4c8abc305c, type: 3}
       propertyPath: m_LocalScale.x
@@ -721,7 +729,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 294760795735766832, guid: 0673700b6bec1eb4a87efbd6bcbedffc, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 294760795735766832, guid: 0673700b6bec1eb4a87efbd6bcbedffc, type: 3}
       propertyPath: m_LocalScale.x
@@ -783,6 +791,14 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 9095680410032366935}
+    - target: {fileID: 3153770963355475767, guid: 0673700b6bec1eb4a87efbd6bcbedffc, type: 3}
+      propertyPath: m_matDefault
+      value: 
+      objectReference: {fileID: 2100000, guid: 8da053a1e8673b84f90df2968615d1e6, type: 2}
+    - target: {fileID: 3153770963355475767, guid: 0673700b6bec1eb4a87efbd6bcbedffc, type: 3}
+      propertyPath: m_bVisionRenderer
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8037463327427764097, guid: 0673700b6bec1eb4a87efbd6bcbedffc, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 0673700b6bec1eb4a87efbd6bcbedffc, type: 3}
@@ -805,7 +821,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2450527528961595271, guid: 6fd5fcf164793bb488fec03852de0d52, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2450527528961595271, guid: 6fd5fcf164793bb488fec03852de0d52, type: 3}
       propertyPath: m_LocalScale.x
@@ -867,6 +883,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 9095680410032366935}
+    - target: {fileID: 4095145771555373891, guid: 6fd5fcf164793bb488fec03852de0d52, type: 3}
+      propertyPath: m_matDefault
+      value: 
+      objectReference: {fileID: 2100000, guid: 8da053a1e8673b84f90df2968615d1e6, type: 2}
     m_RemovedComponents:
     - {fileID: 4536416462899044491, guid: 6fd5fcf164793bb488fec03852de0d52, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 6fd5fcf164793bb488fec03852de0d52, type: 3}
@@ -889,7 +909,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 80818470848723350, guid: 61f0ba6e52e14c742a790d2e4c29b8e7, type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 80818470848723350, guid: 61f0ba6e52e14c742a790d2e4c29b8e7, type: 3}
       propertyPath: m_LocalScale.x
@@ -951,6 +971,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 9095680410032366935}
+    - target: {fileID: 2002407850007620946, guid: 61f0ba6e52e14c742a790d2e4c29b8e7, type: 3}
+      propertyPath: m_matDefault
+      value: 
+      objectReference: {fileID: 2100000, guid: 8da053a1e8673b84f90df2968615d1e6, type: 2}
     m_RemovedComponents:
     - {fileID: -8345541323664690872, guid: 61f0ba6e52e14c742a790d2e4c29b8e7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 61f0ba6e52e14c742a790d2e4c29b8e7, type: 3}

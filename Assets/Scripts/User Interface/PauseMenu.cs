@@ -132,6 +132,8 @@ public class PauseMenu : NetworkBehaviour
         // Check if the password matches
         bool bApproveConnection = strPassword == m_ifPassword.text;
 
+        ////////////////// TEMP: MOVE TO MATCH MANAGER LATER AND SPAWN RANDOMLY //////////////////
+
         // new variables for spawn position of players
         Vector2 v2SpawnPos = Vector2.zero;
         Quaternion qSpawnRot = Quaternion.identity;
@@ -151,6 +153,8 @@ public class PauseMenu : NetworkBehaviour
                 qSpawnRot = Quaternion.Euler(0f, 0f, 0f);
                 break;
         }
+
+        ////////////////// TEMP: MOVE TO MATCH MANAGER LATER AND SPAWN RANDOMLY //////////////////
 
         // Run approval callback
         Callback(true, null, bApproveConnection, v2SpawnPos, qSpawnRot);

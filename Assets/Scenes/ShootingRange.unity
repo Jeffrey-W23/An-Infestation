@@ -871,6 +871,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FOWCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 4979715739514779773, guid: a8f5d18fd007d774da4edd112cfd53c9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a8f5d18fd007d774da4edd112cfd53c9, type: 3}
 --- !u!1001 &6825439784771168092
@@ -1370,6 +1374,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FogCamera
       objectReference: {fileID: 0}
+    - target: {fileID: 8587690773845001735, guid: ca8fff7f74332ac41972635569ab3424, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ca8fff7f74332ac41972635569ab3424, type: 3}
 --- !u!1001 &8822383884897501518
@@ -1379,6 +1387,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8822383883277725370, guid: c698dc359e2ba4c4fa26ddde35a884c1, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 17408
+      objectReference: {fileID: 0}
     - target: {fileID: 8822383883277725371, guid: c698dc359e2ba4c4fa26ddde35a884c1, type: 3}
       propertyPath: m_RootOrder
       value: 9

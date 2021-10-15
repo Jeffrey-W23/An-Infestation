@@ -223,6 +223,14 @@ public class Player : NetworkBehaviour
         // Set the main camera for the FOV renderers
         m_oPlayerVisionScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
         m_oEnemyRendererScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
+
+        // If this player is a connecting client
+        if (!IsLocalPlayer)
+        {
+            // Disable Fog Of War for all connected clients
+            m_oPlayerVisionScript.DisableFogOfWar(true);
+            m_gInnerVisionRenderer.GetComponent<FieldOfView>().DisableFogOfWar(true);
+        }
     }
 
     //--------------------------------------------------------------------------------------

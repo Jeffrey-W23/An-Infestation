@@ -43,8 +43,7 @@ public class CameraFollow : NetworkBehaviour
         if (!IsLocalPlayer)
         {
             // turn off any camera object that is not the local player
-            transform.GetComponent<AudioListener>().enabled = false;
-            transform.GetComponent<Camera>().enabled = false;
+            gameObject.SetActive(false);
         }
 
         else

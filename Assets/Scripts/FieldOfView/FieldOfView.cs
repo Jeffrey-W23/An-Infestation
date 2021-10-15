@@ -104,6 +104,9 @@ public class FieldOfView : NetworkBehaviour
     // private bool for the current toggle of the fov
     private bool m_bFOVToggle = true;
 
+    // private bool for disabling the fog of war
+    private bool m_bDisableFog = false;
+
     // private camera representing the main player camera
     private Camera m_cMainCamera;
     //--------------------------------------------------------------------------------------
@@ -145,6 +148,24 @@ public class FieldOfView : NetworkBehaviour
 
         // set the current camera smoothing to default
         m_fCurrentCameraSmoothing = m_fCameraSmoothing;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // initialization
+    //--------------------------------------------------------------------------------------
+    private void Start()
+    {
+        // If the fog of war is disaable
+        if (m_bDisableFog)
+        {
+            // Set current materials of the MeshRenderer to null
+            Material[] mats = GetComponent<MeshRenderer>().materials;
+            mats[0] = null;
+            GetComponent<MeshRenderer>().materials = mats;
+            
+            // Set the gameobject layer to PlayerVisionClient Layer
+            gameObject.layer = 14;
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -299,6 +320,18 @@ public class FieldOfView : NetworkBehaviour
     public bool GetToggleState()
     {
         return m_bFOVToggle;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // DisableFogOfWar: Set the state of the Fog Of War system. 
+    //
+    // Params:
+    //      bState: bool for if the fog is disable or not
+    //--------------------------------------------------------------------------------------
+    public void DisableFogOfWar(bool bState)
+    {
+        // Set new state for fog
+        m_bDisableFog = bState;
     }
 
     //--------------------------------------------------------------------------------------
