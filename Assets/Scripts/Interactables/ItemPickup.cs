@@ -8,6 +8,9 @@
 //--------------------------------------------------------------------------------------
 
 // using, etc
+using MLAPI;
+using MLAPI.Connection;
+using MLAPI.Messaging;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -71,49 +74,38 @@ public class ItemPickup : Interactable
         // get the inventory instance
         m_oInventoryManger = InventoryManager.m_oInstance;
 
-        // if the pickup item is going to use a custom sprite
+        // if the pickup item is going to use a custom sprite set it as such.
         if (m_bCustomSprite)
-        {
-            // set the sprite to the custom sprite
             m_srSpriteRenderer.sprite = m_sCustomSprite;
-        }
 
-        // else if the sprite is staying the same as item icon
+        // otherwise use the default item icon.
         else
-        {
-            // set the sprite of the pick up item to the inventory iten icon
             m_srSpriteRenderer.sprite = m_oItem.m_sIcon;
-        }
     }
 
     //--------------------------------------------------------------------------------------
     // PickupItem: virtual function for picking up an item and adding to an inventory.
     //--------------------------------------------------------------------------------------
-    protected virtual void PickupItem()
+    protected virtual void PickupItem(Player oPlayer)
     {
-        // bool for if the item can be added
-        bool bItemAdded = false;
-
-        // Atempt to add item to inventory
-        bItemAdded = m_oPlayerObject.GetInventory().AddItem(new ItemStack(m_oItem, m_nItemCount));
-
+        // Atempt to add item to inventory.
         // remove the object from the world if a pick up is succesful
-        if (bItemAdded)
-            Object.Destroy(gameObject);
-
+        if (oPlayer.GetInventory().AddItem(new ItemStack(m_oItem, m_nItemCount)) && m_nbInteractableCollected != null)
+            m_nbInteractableCollected.Value = true;
     }
 
     //--------------------------------------------------------------------------------------
-    // InteractedWith: override function from base class for what Interactable objects do 
-    // once they have been interacted with.
+    // InitiateInteractionServerRpc: Virtual function for what Interactable objects 
+    // do once they have been interacted with.
     //--------------------------------------------------------------------------------------
-    protected override void InteractedWith()
+    protected override void InitiateInteraction(Player oPlayer)
     {
         // Run the base interactedWith function.
-        base.InteractedWith();
+        base.InitiateInteraction(oPlayer);
 
-        //
-        PickupItem();
+        // Run pick up item script, if it hasn't already been picked up
+        if (!m_nbInteractableCollected.Value)
+            PickupItem(oPlayer);
 
         // enabled interaction again
         m_bInteracted = false;

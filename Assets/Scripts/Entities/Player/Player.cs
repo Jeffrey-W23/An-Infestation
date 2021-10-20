@@ -115,6 +115,9 @@ public class Player : NetworkBehaviour
     // private sprite renderer for the players body
     private SpriteRenderer m_srBody;
 
+    // private camera for the players camera object
+    private Camera m_cPlayerCamera;
+
     // private FieldOfView object for player vison FOV
     private FieldOfView m_oPlayerVisionScript;
 
@@ -134,6 +137,9 @@ public class Player : NetworkBehaviour
     private KeyCode[] m_akInitWeaponSelectorControls = new KeyCode[] { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3,
         KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9 };
 
+    // private quaternion for setting the cameras inital rotation
+    private Quaternion m_qInitRotation;
+
     // private array of needed keycodes for selecting weapon index. 
     private KeyCode[] m_akWeaponSelectorControls;
 
@@ -143,14 +149,14 @@ public class Player : NetworkBehaviour
     // private flkoat for the current exhaust level of the player.
     private float m_fRunCurrentExhaust = 0.0f;
 
+    // private int for the current postion of the weapon selection.
+    private int m_nWeaponSelectorPos = 0;
+
     // private bool for if ther player can run or not
     private bool m_bExhausted = false;
 
     // private bool for freezing the player
     private bool m_bFreezePlayer = false;
-
-    // private int for the current postion of the weapon selection.
-    private int m_nWeaponSelectorPos = 0;
     //--------------------------------------------------------------------------------------
 
     // PRIVATE NETWORKED VARS //
@@ -165,7 +171,7 @@ public class Player : NetworkBehaviour
     // DELEGATES //
     //--------------------------------------------------------------------------------------
     // Create a new Delegate for handling the interaction functions.
-    public delegate void InteractionEventHandler();
+    public delegate void InteractionEventHandler(Player oPlayer);
 
     // Create an event for the delegate for extra protection. 
     public InteractionEventHandler InteractionCallback;
@@ -184,6 +190,9 @@ public class Player : NetworkBehaviour
 
         // Get the sprite renderer for the players body
         m_srBody = transform.Find("Body").gameObject.GetComponent<SpriteRenderer>();
+
+        // Get the camera object of the player
+        m_cPlayerCamera = transform.Find("PlayerCamera").GetComponent<Camera>();
 
         // set the current speed of the player to walk
         m_fCurrentSpeed = m_fWalkSpeed;
@@ -221,8 +230,8 @@ public class Player : NetworkBehaviour
         m_oEnemyRendererScript = m_gEnemyRenderer.GetComponent<FieldOfView>();
 
         // Set the main camera for the FOV renderers
-        m_oPlayerVisionScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
-        m_oEnemyRendererScript.SetMainCamera(transform.Find("PlayerCamera").GetComponent<Camera>());
+        m_oPlayerVisionScript.SetMainCamera(m_cPlayerCamera);
+        m_oEnemyRendererScript.SetMainCamera(m_cPlayerCamera);
 
         // If this player is a connecting client
         if (!IsLocalPlayer)
@@ -230,7 +239,13 @@ public class Player : NetworkBehaviour
             // Disable Fog Of War for all connected clients
             m_oPlayerVisionScript.DisableFogOfWar(true);
             m_gInnerVisionRenderer.GetComponent<FieldOfView>().DisableFogOfWar(true);
+
+            // turn off any camera object that is not the local player
+            m_cPlayerCamera.gameObject.SetActive(false);
         }
+
+        // Set the initial rotation of this camera
+        m_qInitRotation = m_cPlayerCamera.transform.rotation;
     }
 
     //--------------------------------------------------------------------------------------
@@ -280,6 +295,16 @@ public class Player : NetworkBehaviour
 
         // rotate fov based on mouse position.
         RotateFieldOfView();
+    }
+
+    //--------------------------------------------------------------------------------------
+    // LateUpdate: Function that calls each frame to update game objects.
+    //--------------------------------------------------------------------------------------
+    private void LateUpdate()
+    {
+        // ensure the camera does not rotate with the parent object, if it is the local player
+        if (IsLocalPlayer)
+            m_cPlayerCamera.transform.rotation = m_qInitRotation;
     }
 
     //--------------------------------------------------------------------------------------
@@ -617,7 +642,7 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyUp(KeyCode.E) && InteractionCallback != null)
         {
             // Run interaction delegate.
-            InteractionCallback();
+            InteractionCallback(gameObject.GetComponent<Player>());
         }
 
         // Confirm the player hand
@@ -662,6 +687,10 @@ public class Player : NetworkBehaviour
 
     //--------------------------------------------------------------------------------------
     // UpdatePlayerColor: Event to update the sprite renderer color for the players body.
+    //
+    // Params:
+    //      cOldColor: The previous color before the change event triggered.
+    //      cNewColor: The new color that triggered the change event.
     //--------------------------------------------------------------------------------------
     private void OnBodyColorChange(Color cOldColor, Color cNewColor)
     {

@@ -5,6 +5,9 @@
 //--------------------------------------------------------------------------------------
 
 // using, etc
+using MLAPI;
+using MLAPI.Connection;
+using MLAPI.Messaging;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,16 +38,11 @@ public class GunPickup : ItemPickup
     //--------------------------------------------------------------------------------------
     // PickupItem: virtual function for picking up an item and adding to an inventory.
     //--------------------------------------------------------------------------------------
-    protected override void PickupItem()
+    protected override void PickupItem(Player oPlayer)
     {
-        // bool for if the item can be added
-        bool bItemAdded = false;
-
-        // Atempt to add item to inventory
-        bItemAdded = m_oPlayerObject.GetWeapons().AddItem(new ItemStack(m_oItem, m_nItemCount));
-
+        // Atempt to add item to inventory.
         // remove the object from the world if a pick up is succesful
-        if (bItemAdded)
-            Object.Destroy(gameObject);
+        if (oPlayer.GetWeapons().AddItem(new ItemStack(m_oItem, m_nItemCount)) && m_nbInteractableCollected != null)
+            m_nbInteractableCollected.Value = true;
     }
 }
