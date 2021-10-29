@@ -9,6 +9,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
+using MLAPI.Messaging;
+using MLAPI.Spawning;
+using MLAPI.NetworkVariable;
 
 //--------------------------------------------------------------------------------------
 // Arm object. Inheriting from NetworkBehaviour.
@@ -49,6 +52,9 @@ public class Arm : NetworkBehaviour
     // private bool for freezing the arm
     private bool m_bFreezeArm = false;
 
+    // private inventory manager for the inventory manager instance
+    private InventoryManager m_oInventoryManger;
+
     // private itemstack for the current hands item
     private ItemStack m_oInHandItemStack;
 
@@ -56,10 +62,48 @@ public class Arm : NetworkBehaviour
     private GameObject m_gInHand;
     //--------------------------------------------------------------------------------------
 
+
+
+
+
+
+
+    //
+    private NetworkVariableInt mn_nItemIndex = new NetworkVariableInt(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.OwnerOnly }, 0);
+
+    //
+    private NetworkVariableBool mn_bIsHoldingItem = new NetworkVariableBool(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.OwnerOnly }, false);
+
+
+
+
+
+
+    // GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type bool for Freeze Arm value
+    public bool GetFreezeArm() { return m_bFreezeArm; }
+
+    // Getter of type ItemStack for In Hand Item Stack value
+    public ItemStack GetInHandItemStack() { return m_oInHandItemStack; }
+
+    // Setter of type bool for Freeze Arm value
+    public void SetFreezeArm(bool bFreeze) { m_bFreezeArm = bFreeze; }
+    //--------------------------------------------------------------------------------------
+
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
-    void Awake()
+    private void Start()
+    {
+        // get the inventory manager instance
+        m_oInventoryManger = InventoryManager.m_oInstance;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // initialization
+    //--------------------------------------------------------------------------------------
+    private void Awake()
     {
         // set the in hand stack to empty.
         m_oInHandItemStack = ItemStack.m_oEmpty;
@@ -68,7 +112,7 @@ public class Arm : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     // LateUpdate: Function that calls each frame to update game objects.
     //--------------------------------------------------------------------------------------
-    void LateUpdate()
+    private void LateUpdate()
     {
         // Check if current player object is the local player
         if (IsLocalPlayer)
@@ -100,42 +144,60 @@ public class Arm : NetworkBehaviour
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
     //--------------------------------------------------------------------------------------
-    // GetFreezeArm: Get the current freeze status of the arm. 
-    //
-    // Return:
-    //      bool: the current freeze staus of the arm.
+    // OnEnable: Function that will call when this gameObject is enabled.
     //--------------------------------------------------------------------------------------
-    public bool GetFreezeArm()
+    private void OnEnable()
     {
-        // get the arm freeze bool
-        return m_bFreezeArm;
+        // subscribe to value change event for body color // CHANGE
+        mn_bIsHoldingItem.OnValueChanged += OnHoldingItemChange;
     }
 
     //--------------------------------------------------------------------------------------
-    // SetFreezeArm: Set the freeze status of the arm object. Used for ensuring the
-    // arm stays still, good for open menus or possibly cut scenes, etc.
-    //
-    // Param:
-    //      bFreeze: bool for setting the freeze status.
+    // OnDestroy: Function that will call on this gameObjects destruction.
     //--------------------------------------------------------------------------------------
-    public void SetFreezeArm(bool bFreeze)
+    private void OnDestroy()
     {
-        // set the arm freeze bool
-        m_bFreezeArm = bFreeze;
+        // Unsubscribe from body colors on change event // CHANGE
+        mn_bIsHoldingItem.OnValueChanged -= OnHoldingItemChange;
     }
 
     //--------------------------------------------------------------------------------------
-    // GetInHandItemStack: Get the current in hand item stack.
+    // OnHoldingItemChange: Event function for on Holding Item bool change.
     //
-    // Return:
-    //      ItemStack: The item stack in hand
+    // Params:
+    //      bOldState: The previous bool state before the change event triggered.
+    //      bNewState: The new bool state that triggered the event change.
     //--------------------------------------------------------------------------------------
-    public ItemStack GetInHandItemStack()
+    private void OnHoldingItemChange(bool bOldState, bool bNewState)
     {
-        // return the in hand item stack
-        return m_oInHandItemStack;
+        //
+        if (!bNewState)
+        {
+            //
+            //if (m_gInHand != null)
+                //Destroy(m_gInHand);
+
+            //
+            UnequipItemServerRpc();
+        }
     }
+
+
+
+
+
 
     //--------------------------------------------------------------------------------------
     // SetInHandItemStack: Set the in hand item stack.
@@ -145,49 +207,104 @@ public class Arm : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     public void SetInHandItemStack(ItemStack oItem)
     {
-        // if the item is not empty
-        if (oItem != ItemStack.m_oEmpty)
-        {
-            // set in the hand item stack to the passed in item
-            m_oInHandItemStack = oItem;
+        //
+        m_oInHandItemStack = oItem;
 
-            // set the in hand item to the hand
-            SetInHandObject(m_oInHandItemStack.GetItem().m_gSceneObject);
+        //
+        foreach (var i in m_oInventoryManger.GetItemDatabase())
+        {
+            //
+            if (i.Value == oItem.GetItem())
+                mn_nItemIndex.Value = i.Key;
         }
 
-        // else if the item is empty
+        //
+        if (!oItem.IsStackEmpty() && oItem.GetItem().m_gSceneObject != null)
+        {
+            //
+            mn_bIsHoldingItem.Value = true;
+
+            //
+            EquipItemServerRpc(NetworkManager.Singleton.LocalClientId);
+        }
+
+        //
         else
         {
-            // set in the hand item stack to the passed in item
-            m_oInHandItemStack = oItem;
-
-            // set the in hand item to null
-            SetInHandObject(null);
+            //
+            mn_bIsHoldingItem.Value = false;
         }
     }
 
     //--------------------------------------------------------------------------------------
-    // SetInHand: Set the current in hand object.
+    // EquippedItemServerRpc:
+    //--------------------------------------------------------------------------------------
+    [ServerRpc]
+    private void EquipItemServerRpc(ulong ulClientID)
+    {
+        //
+        GameObject gItemObject = null;
+
+        //
+        foreach (var i in m_oInventoryManger.GetItemDatabase())
+        {
+            //
+            if (i.Key == mn_nItemIndex.Value)
+                gItemObject = i.Value.m_gSceneObject;
+        }
+
+        //
+        GameObject oEquippingItem = Instantiate(gItemObject);
+        oEquippingItem.GetComponent<NetworkObject>().SpawnWithOwnership(ulClientID);
+
+        //
+        ulong ulObjectNetworkID = oEquippingItem.GetComponent<NetworkObject>().NetworkObjectId;
+
+        //
+        EquipItemClientRpc(ulObjectNetworkID);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // EquippedItemClientRpc:
     //
     // Param:
-    //      gObject: The object to set to the hand.
+    //      ulObjectNetworkID: 
     //--------------------------------------------------------------------------------------
-    private void SetInHandObject(GameObject gObject)
+    [ClientRpc]
+    private void EquipItemClientRpc(ulong ulObjectNetworkID)
     {
-        // destroy the object currently in hand
-        Object.Destroy(m_gInHand);
+        //
+        NetworkObject noObject = NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID];
 
-        // if the passed in object is not null
-        if (gObject != null)
-        {
-            // set the in hand to the passed in object and instantiate
-            m_gInHand = gObject;
-            m_gInHand = Instantiate(m_gInHand);
+        //
+        m_gInHand = noObject.gameObject;
 
-            // Set the transform of the in hand item
-            m_gInHand.transform.parent = transform;
-            m_gInHand.transform.position = m_gInHandSpawn.transform.position;
-            m_gInHand.transform.rotation = transform.rotation;
-        }
+        // Set the transform of the in hand item
+        m_gInHand.transform.parent = transform;
+        m_gInHand.transform.position = m_gInHandSpawn.transform.position;
+        m_gInHand.transform.rotation = transform.rotation;
+
+        //
+        m_gInHand.GetComponent<SpriteRenderer>().enabled = true;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // UnequipItemServerRpc:
+    //--------------------------------------------------------------------------------------
+    [ServerRpc(RequireOwnership = false)]
+    private void UnequipItemServerRpc()
+    {
+        //
+        UnequipItemClientRpc();
+    }
+
+    //--------------------------------------------------------------------------------------
+    // UnequipItemClientRpc:
+    //--------------------------------------------------------------------------------------
+    [ClientRpc]
+    private void UnequipItemClientRpc()
+    {
+        if (m_gInHand != null)
+            Destroy(m_gInHand);
     }
 }

@@ -8,14 +8,15 @@
 //--------------------------------------------------------------------------------------
 
 // Using, etc
+using MLAPI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 //--------------------------------------------------------------------------------------
-// Bullet object. Inheriting from MonoBehaviour.
+// Bullet object. Inheriting from NetworkBehaviour.
 //--------------------------------------------------------------------------------------
-public class Bullet : MonoBehaviour
+public class Bullet : NetworkBehaviour
 {
     // BULLET SETTINGS //
     //--------------------------------------------------------------------------------------

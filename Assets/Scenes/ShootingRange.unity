@@ -211,7 +211,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &573821185 stripped
 GameObject:
@@ -442,6 +442,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67597dbdb9f923044b30c07f3bf387dc, type: 3}
+--- !u!1 &2127009502
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2127009503}
+  m_Layer: 0
+  m_Name: TestSpawn (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2127009503
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2127009502}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.11, y: 0.93, z: 0.12}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 18
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &865946169742223576
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -593,11 +623,11 @@ PrefabInstance:
       objectReference: {fileID: 107532627}
     - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
       propertyPath: m_anoSpawnObjects.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
       propertyPath: m_atSpawnLocations.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
       propertyPath: m_tPistolBulletSpawnPosition2
@@ -616,6 +646,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1203837752, guid: 1742301106463c346809f18278ce90fa, type: 3}
     - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
+      propertyPath: m_anoSpawnObjects.Array.data[2]
+      value: 
+      objectReference: {fileID: 1203837752, guid: 1742301106463c346809f18278ce90fa, type: 3}
+    - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
       propertyPath: m_atSpawnLocations.Array.data[0]
       value: 
       objectReference: {fileID: 107532627}
@@ -623,6 +657,10 @@ PrefabInstance:
       propertyPath: m_atSpawnLocations.Array.data[1]
       value: 
       objectReference: {fileID: 1857316289}
+    - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
+      propertyPath: m_atSpawnLocations.Array.data[2]
+      value: 
+      objectReference: {fileID: 2127009503}
     - target: {fileID: 926348951, guid: 1040f1be24bcc8944a1619561e8c354c, type: 3}
       propertyPath: m_acAllPlayerColors.Array.data[0].a
       value: 1
@@ -1032,7 +1070,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 901763349, guid: 56c8f7936f7d9894babeae5a8d145b93, type: 3}
       propertyPath: NetworkConfig.NetworkPrefabs.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 901763349, guid: 56c8f7936f7d9894babeae5a8d145b93, type: 3}
       propertyPath: NetworkConfig.NetworkPrefabs.Array.data[0].Prefab
@@ -1046,6 +1084,10 @@ PrefabInstance:
       propertyPath: NetworkConfig.NetworkPrefabs.Array.data[2].Prefab
       value: 
       objectReference: {fileID: 8489697154923447271, guid: 1742301106463c346809f18278ce90fa, type: 3}
+    - target: {fileID: 901763349, guid: 56c8f7936f7d9894babeae5a8d145b93, type: 3}
+      propertyPath: NetworkConfig.NetworkPrefabs.Array.data[3].Prefab
+      value: 
+      objectReference: {fileID: 1234878131351067050, guid: 965bb2c683bd2fb4fa36e1f865c38d35, type: 3}
     - target: {fileID: 901763349, guid: 56c8f7936f7d9894babeae5a8d145b93, type: 3}
       propertyPath: NetworkConfig.NetworkPrefabs.Array.data[0].PlayerPrefab
       value: 1

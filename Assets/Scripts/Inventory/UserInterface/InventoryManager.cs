@@ -11,6 +11,7 @@
 // using, etc
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 //--------------------------------------------------------------------------------------
@@ -51,9 +52,49 @@ public class InventoryManager : MonoBehaviour
     // private tooltip for the seting tooltip
     private Tooltip m_oToolTip;
 
+    // private Dictionary of int keys and Item values, for a database of all Items in the project
+    private Dictionary<int, Item> m_dictItemDatabase = new Dictionary<int, Item>();
+
     // private bool for if an inventory is open or not.
     private bool m_bIsInventoryOpen = false;
     //--------------------------------------------------------------------------------------
+
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type Dictionary (int as key, Item as value) for Item Database value
+    public Dictionary<int, Item> GetItemDatabase() { return m_dictItemDatabase; }
+
+    // Getter of type Container for the currently open container value
+    public Container GetCurrentlyOpenContainer() { return m_oCurrentOpenContainer; }
+
+    // Getter of type bool for the Is Inventory Open value
+    public bool IsInventoryOpen() { return m_bIsInventoryOpen; }
+
+    // Getter of type ItemStack for the current Selected Stack value
+    public ItemStack GetSelectedStack() { return m_oCurrentSelectedStack; }
+
+    // Setter for resetting the current inventory status
+    public void ResetInventoryStatus() { m_bIsInventoryOpen = false; }
+
+    // Setter for type string for setting the tooltip
+    public void ActivateToolTip(string strTitle) { m_oToolTip.SetTooltip(strTitle); }
+    //--------------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------------
+    // Initialization.
+    //--------------------------------------------------------------------------------------
+    private void Start()
+    {
+        // Load all item objects in the items resource folder
+        var vItems = Resources.LoadAll("Items", typeof(Item)).Cast<Item>().ToArray();
+
+        // Loop through all the item objects
+        for (int i = 0; i < vItems.Length; i++)
+        {
+            // Add the item objects to the item database
+            m_dictItemDatabase.Add(i, vItems[i]);
+        }
+    }
 
     //--------------------------------------------------------------------------------------
     // Initialization.
@@ -157,51 +198,6 @@ public class InventoryManager : MonoBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // GetCurrentlyOpenContainer: Get the currently opened container.
-    //
-    // Return:
-    //      Container: Return a container type.
-    //--------------------------------------------------------------------------------------
-    public Container GetCurrentlyOpenContainer()
-    {
-        // return the current open container
-        return m_oCurrentOpenContainer;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // IsInventoryOpen: Check if a container is currently opened.
-    //
-    // Return:
-    //      bool: return true or false.
-    //--------------------------------------------------------------------------------------
-    public bool IsInventoryOpen()
-    {
-        // return if the inventory is open
-        return m_bIsInventoryOpen;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // ResetInventoryStatus: Reset the current status of the inventory mananger.
-    //--------------------------------------------------------------------------------------
-    public void ResetInventoryStatus()
-    {
-        // reset the inventory open status back to false
-        m_bIsInventoryOpen = false;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetSelectedStack: Get the currently selected item stack object.
-    //
-    // Return:
-    //      ItemStack: returns the item stack currently selected.
-    //--------------------------------------------------------------------------------------
-    public ItemStack GetSelectedStack()
-    {
-        // return the currently selected stack
-        return m_oCurrentSelectedStack;
-    }
-
-    //--------------------------------------------------------------------------------------
     // SetSelectedStack: Set the currently selected item stack.
     //
     // Param:
@@ -220,18 +216,6 @@ public class InventoryManager : MonoBehaviour
             m_oSelectedStack.SetOriginInventory(oOrigin);
             m_oSelectedStack.SetOriginSlot(nSlotOrigin);
         }
-    }
-
-    //--------------------------------------------------------------------------------------
-    // ActivateToolTip: Activate the tooltip object for an item stack.
-    //
-    // Param:
-    //      strTitle: Takes in a string for which tooltip to display.
-    //--------------------------------------------------------------------------------------
-    public void ActivateToolTip(string strTitle)
-    {
-        // set the tooltip
-        m_oToolTip.SetTooltip(strTitle);
     }
 }
 

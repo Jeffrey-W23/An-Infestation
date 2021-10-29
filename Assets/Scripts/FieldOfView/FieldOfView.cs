@@ -111,6 +111,21 @@ public class FieldOfView : NetworkBehaviour
     private Camera m_cMainCamera;
     //--------------------------------------------------------------------------------------
 
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type Bool for FOV Toggle.
+    public bool GetToggleState() { return m_bFOVToggle; }
+
+    // Setter for setting the Disable Fog bool.
+    public void DisableFogOfWar(bool bState) { m_bDisableFog = bState; }
+
+    // Setter for setting the origin vector3 value
+    public void SetOrigin(Vector3 v3Origin) { m_v3Origin = v3Origin; }
+
+    // Setter for setting the Main Camera value
+    public void SetMainCamera(Camera cCamera) { m_cMainCamera = cCamera; }
+    //--------------------------------------------------------------------------------------
+
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
@@ -255,6 +270,15 @@ public class FieldOfView : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
+    // DestroyFOV: Function that will call on this gameObjects destruction.
+    //--------------------------------------------------------------------------------------
+    public void DestroyFOV()
+    {
+        // destory field of view object
+        Destroy(gameObject);
+    }
+
+    //--------------------------------------------------------------------------------------
     // ToggleFOV: Toggle the Field Of View values from Default to Nothing.
     //
     // Param:
@@ -309,50 +333,6 @@ public class FieldOfView : NetworkBehaviour
         m_fCurrentCameraSize = m_fCameraSize;
         m_fCurrentFOVSmoothing = m_fFOVSmoothing;
         m_fCurrentCameraSmoothing = m_fCameraSmoothing;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetToggleState: Get the current status of the Field Of View.
-    //
-    // Returns:
-    //      bool: a bool representing if the fOV is toggled or not.
-    //--------------------------------------------------------------------------------------
-    public bool GetToggleState()
-    {
-        return m_bFOVToggle;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // DisableFogOfWar: Set the state of the Fog Of War system. 
-    //
-    // Params:
-    //      bState: bool for if the fog is disable or not
-    //--------------------------------------------------------------------------------------
-    public void DisableFogOfWar(bool bState)
-    {
-        // Set new state for fog
-        m_bDisableFog = bState;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetOrigin: Set the origin of the field of view.
-    //
-    // Param:
-    //      v3Origin: A vector 3 value to set to the orign value.
-    //--------------------------------------------------------------------------------------
-    public void SetOrigin(Vector3 v3Origin)
-    {
-        // set the member orign
-        m_v3Origin = v3Origin;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetMainCamera: Function for setting the main camera of the player.
-    //--------------------------------------------------------------------------------------
-    public void SetMainCamera(Camera cCamera)
-    {
-        // set the passed in camera to main camera
-        m_cMainCamera = cCamera;
     }
 
     //--------------------------------------------------------------------------------------
@@ -475,14 +455,5 @@ public class FieldOfView : NetworkBehaviour
 
         // return the mouse pos
         return v3WorldPos;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // OnDestroy: Function that will call on this gameObjects destruction.
-    //--------------------------------------------------------------------------------------
-    public void DestroyFOV()
-    {
-        // destory field of view object
-        Destroy(gameObject);
     }
 }

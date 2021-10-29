@@ -345,6 +345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_gInHandSpawn: {fileID: 7816347119135386744}
   m_nArmBend: 120
+  TestObject: {fileID: 1842614981975674257, guid: 965bb2c683bd2fb4fa36e1f865c38d35, type: 3}
 --- !u!114 &848666310834587152
 MonoBehaviour:
   m_ObjectHideFlags: 0

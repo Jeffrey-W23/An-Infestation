@@ -50,6 +50,24 @@ public class CustomCursor : MonoBehaviour
     private Texture2D m_tPreviousCursor;
     //--------------------------------------------------------------------------------------
 
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Setter for setting the default cursor
+    public void SetDefaultCursor() { SetCustomCursor(m_tCursor); }
+
+    // Setter for setting the default crosshair
+    public void SetCrosshair() { SetCustomCursor(m_tCrosshair); }
+
+    // Setter for setting the previous cursor
+    public void SetPreviousCursor() { SetCustomCursor(m_tPreviousCursor); }
+
+    // Getter of type Texture2D for Current Cursor value
+    public Texture2D GetCurrentCursor() { return m_tCurrentCursor; }
+
+    // Getter of type Texture2D for the Previous Cursor value
+    public Texture2D GetPreviousCursor() { return m_tPreviousCursor; }
+    //--------------------------------------------------------------------------------------
+
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
@@ -85,56 +103,5 @@ public class CustomCursor : MonoBehaviour
 
         // set the current cursor
         m_tCurrentCursor = tCursor;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetDefaultCursor: Sets the current cursor of the scene to the public default.
-    //--------------------------------------------------------------------------------------
-    public void SetDefaultCursor()
-    {
-        // Set the cursor to the desfault
-        SetCustomCursor(m_tCursor);
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetDefaultCursor: Sets the current cursor of the scene to the public default.
-    //--------------------------------------------------------------------------------------
-    public void SetCrosshair()
-    {
-        // Set the cursor to the desfault
-        SetCustomCursor(m_tCrosshair);
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetPrevious: Set the cursor to the previously used cursor.
-    //--------------------------------------------------------------------------------------
-    public void SetPreviousCursor()
-    {
-        // set the custom cursor to previous cursor
-        SetCustomCursor(m_tPreviousCursor);
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetCurrentCursor: Get the currently selected cursor.
-    //
-    // Return:
-    //      Texture2D: returns the current cursor as a texture2D
-    //--------------------------------------------------------------------------------------
-    public Texture2D GetCurrentCursor()
-    {
-        // return the current cursor
-        return m_tCurrentCursor;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetPreviousCursor: Get the previously selected cursor.
-    //
-    // Return:
-    //      Texture2D: returns the previous cursor as a texture2D
-    //--------------------------------------------------------------------------------------
-    public Texture2D GetPreviousCursor()
-    {
-        // return the current cursor
-        return m_tPreviousCursor;
     }
 }

@@ -161,7 +161,7 @@ public class Player : NetworkBehaviour
 
     // PRIVATE NETWORKED VARS //
     //--------------------------------------------------------------------------------------
-    // new private bool for keeping track of current state of the FOV
+    // new private network bool for keeping track of current state of the FOV
     private NetworkVariableBool mn_bFOVToggle = new NetworkVariableBool(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.OwnerOnly }, true);
 
     // new private network variable for body color, default will be white
@@ -175,6 +175,24 @@ public class Player : NetworkBehaviour
 
     // Create an event for the delegate for extra protection. 
     public InteractionEventHandler InteractionCallback;
+    //--------------------------------------------------------------------------------------
+
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type FieldOfView for Player Vision Script
+    public FieldOfView GetPlayerVisionScript() { return m_oPlayerVisionScript; }
+
+    // Getter of type FieldOfView for Enemy Renderer Script
+    public FieldOfView GetEnemyRendererScript() { return m_oEnemyRendererScript; }
+
+    // Getter of type Inventory for Player Inventory
+    public Inventory GetInventory() { return m_oInventory; }
+
+    // Getter of type Inventory for Player Weapons
+    public Inventory GetWeapons() { return m_oWeapons; }
+
+    // Getter for type Bool for the Freeze Player value.
+    public bool GetFreezePlayer() { return m_bFreezePlayer; }
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -259,7 +277,7 @@ public class Player : NetworkBehaviour
             // if the player is not frozen
             if (!m_bFreezePlayer)
             {
-                // Run the interaction function
+                // run the interaction function
                 Interaction();
 
                 // Update the in hand object of player
@@ -270,8 +288,9 @@ public class Player : NetworkBehaviour
             OpenCloseInventory();
         }
 
-        // Toggle the fov on and off
-        ToggleFOV();
+        // if the player is not frozen toggle the fov on and off
+        if (!m_bFreezePlayer)
+            ToggleFOV();
     }
 
     //--------------------------------------------------------------------------------------
@@ -305,6 +324,24 @@ public class Player : NetworkBehaviour
         // ensure the camera does not rotate with the parent object, if it is the local player
         if (IsLocalPlayer)
             m_cPlayerCamera.transform.rotation = m_qInitRotation;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnEnable: Function that will call when this gameObject is enabled.
+    //--------------------------------------------------------------------------------------
+    private void OnEnable()
+    {
+        // subscribe to value change event for body color
+        mn_cBodyColor.OnValueChanged += OnBodyColorChange;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnDestroy: Function that will call on this gameObjects destruction.
+    //--------------------------------------------------------------------------------------
+    private void OnDestroy()
+    {
+        // Unsubscribe from body colors on change event
+        mn_cBodyColor.OnValueChanged -= OnBodyColorChange;
     }
 
     //--------------------------------------------------------------------------------------
@@ -399,10 +436,8 @@ public class Player : NetworkBehaviour
         // if the toggle state is true
         if (m_oPlayerVisionScript.GetToggleState())
         {
-            // set the fov, distance and lerp smoothing of the player vision
+            // set the fov, distance and lerp smoothing of the player vision and enemy renederer
             m_oPlayerVisionScript.SetFOVDefault();
-
-            // set the fov, distance and lerp smoothing of the enemy renderer
             m_oEnemyRendererScript.SetFOVDefault();
         }
     }
@@ -487,7 +522,7 @@ public class Player : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     // UpdateInHand: Update the current object in the player hand on key press.
     //--------------------------------------------------------------------------------------
-    public void UpdateInHand()
+    private void UpdateInHand()
     {
         // loop through the weapon selector keys
         for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
@@ -495,11 +530,15 @@ public class Player : NetworkBehaviour
             // if a number key corresponds with a weapon slot
             if (Input.GetKeyDown(m_akWeaponSelectorControls[i]))
             {
-                // move the weapon selector pos
-                m_nWeaponSelectorPos = i;
+                // Confirm that it is indeed a change in selection
+                if (m_nWeaponSelectorPos != i)
+                {
+                    // move the weapon selector pos
+                    m_nWeaponSelectorPos = i;
 
-                // change the weapon in the hand of the player
-                ChangeWeaponInHand(m_nWeaponSelectorPos);
+                    // change the weapon in the hand of the player
+                    ChangeItemInHand(m_nWeaponSelectorPos);
+                }
             }
         }
     }
@@ -510,7 +549,7 @@ public class Player : NetworkBehaviour
     // Param:
     //      nIndex: The index to corresponding weapon item stack.
     //--------------------------------------------------------------------------------------
-    public void ChangeWeaponInHand(int nIndex)
+    private void ChangeItemInHand(int nIndex)
     {
         // Set the fov back to default
         SetFOVDefault();
@@ -536,79 +575,20 @@ public class Player : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     // ConfirmPlayerHand: Confirm the object in hand matches the current selection.
     //--------------------------------------------------------------------------------------
-    public void ConfirmPlayerHand()
+    private void ConfirmPlayerHand()
     {
-        // loop through the possible weapon selections
-        for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
-        {
-            // if the item in hand matches the weapons inventory
-            if (m_oWeapons.GetStackInSlot(i).GetItem() == m_gArm.GetComponent<Arm>().GetInHandItemStack().GetItem())
-            {
-                // if the weapon selction does not match what is in hand, change the in hand item to the correct selection.
-                if (i != m_nWeaponSelectorPos)
-                    ChangeWeaponInHand(m_nWeaponSelectorPos);
-            }
-        }
-    }
+        // get the item that is currently selected on the hotbar
+        ItemStack oItem = m_oWeapons.GetStackInSlot(m_nWeaponSelectorPos);
 
-    //--------------------------------------------------------------------------------------
-    // GetPlayerVisionScript: Getter for PlayerVisionScript object.
-    //
-    // Return:
-    //      FieldOfView: return the Player vision script component.
-    //--------------------------------------------------------------------------------------
-    public FieldOfView GetPlayerVisionScript()
-    {
-        // return script component
-        return m_oPlayerVisionScript;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetEnemyRendererScript: Getter for EnemyRenderer object.
-    //
-    // Return:
-    //      FieldOfView: return the enemy renderer script component.
-    //--------------------------------------------------------------------------------------
-    public FieldOfView GetEnemyRendererScript()
-    {
-        // return script component
-        return m_oEnemyRendererScript;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetInventory: Get the inventory of the player object.
-    //
-    // Return:
-    //      Inventory: the inventory of the player object.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetInventory()
-    {
-        // return the player inventory
-        return m_oInventory;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetWeapons: Get the weapon inventory of the player object.
-    //
-    // Return:
-    //      Inventory: the inventory of the weapons slot.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetWeapons()
-    {
-        // return the weapons inventory
-        return m_oWeapons;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetFreezePlayer: Get the current freeze status of the player. 
-    //
-    // Return:
-    //      bool: the current freeze staus of the player.
-    //--------------------------------------------------------------------------------------
-    public bool GetFreezePlayer()
-    {
-        // get the player freeze bool
-        return m_bFreezePlayer;
+        // Is the currently selected item current in the players hand?
+        // if not put the item in the player hand
+        if (oItem != m_gArm.GetComponent<Arm>().GetInHandItemStack())
+            ChangeItemInHand(m_nWeaponSelectorPos);
+        
+        // else if the currently selected item is empty but the item in the players hand is not empty then 
+        // the hand needs updating to remove incorrect selection.
+        else if (oItem.IsStackEmpty() && m_gArm.GetComponent<Arm>().GetInHandItemStack().IsStackEmpty())
+            ChangeItemInHand(m_nWeaponSelectorPos);
     }
 
     //--------------------------------------------------------------------------------------
@@ -636,35 +616,17 @@ public class Player : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     // Interaction: Function interacts on button press with interactables objects.
     //--------------------------------------------------------------------------------------
-    public void Interaction()
+    private void Interaction()
     {
         // If the interaction button is pressed.
         if (Input.GetKeyUp(KeyCode.E) && InteractionCallback != null)
         {
             // Run interaction delegate.
             InteractionCallback(gameObject.GetComponent<Player>());
+
+            // Confirm the player hand
+            ConfirmPlayerHand();
         }
-
-        // Confirm the player hand
-        ConfirmPlayerHand();
-    }
-
-    //--------------------------------------------------------------------------------------
-    // OnEnable: Function that will call when this gameObject is enabled.
-    //--------------------------------------------------------------------------------------
-    private void OnEnable()
-    {
-        // subscribe to value change event for body color
-        mn_cBodyColor.OnValueChanged += OnBodyColorChange;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // OnDestroy: Function that will call on this gameObjects destruction.
-    //--------------------------------------------------------------------------------------
-    private void OnDestroy()
-    {
-        // Unsubscribe from body colors on change event
-        mn_cBodyColor.OnValueChanged -= OnBodyColorChange;
     }
 
     //--------------------------------------------------------------------------------------

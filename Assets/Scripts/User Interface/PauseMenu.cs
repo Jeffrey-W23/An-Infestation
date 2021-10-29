@@ -15,6 +15,7 @@ using MLAPI;
 using MLAPI.Transports.UNET;
 using UnityEngine.UI;
 using System.Text;
+using UnityEngine.SceneManagement;
 
 //--------------------------------------------------------------------------------------
 // PauseMenu object. Inheriting from NetworkBehaviour.
@@ -55,11 +56,28 @@ public class PauseMenu : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     public void Update()
     {
-        // if escape key is pressed enable the menu
-        if (Input.GetKeyDown(KeyCode.Escape) && !m_gMenuPanel.activeSelf)
-            m_gMenuPanel.SetActive(true);
-        else if (Input.GetKeyDown(KeyCode.Escape) && m_gMenuPanel.activeSelf)
-            m_gMenuPanel.SetActive(false);
+        // Check to make sure there is no inventory container open
+        if (!InventoryManager.m_oInstance.IsInventoryOpen())
+        {
+            // if escape key is pressed enable the menu
+            if (Input.GetKeyDown(KeyCode.Escape) && !m_gMenuPanel.activeSelf)
+            {
+                // Set cursor back to default
+                CustomCursor.m_oInstance.SetDefaultCursor();
+
+                // enable the menu
+                m_gMenuPanel.SetActive(true);
+            }
+
+            else if (Input.GetKeyDown(KeyCode.Escape) && m_gMenuPanel.activeSelf)
+            {
+                // Set cursor back to previous
+                CustomCursor.m_oInstance.SetPreviousCursor();
+
+                // disable the menu
+                m_gMenuPanel.SetActive(false);
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -98,9 +116,15 @@ public class PauseMenu : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     private void HandleClientDisconnected(ulong ulClientID)
     {
-        // if player is a standard client enable panel
+        // if player is a standard client
         if (ulClientID == NetworkManager.Singleton.LocalClientId)
+        {
+            // Set cursor back to default
+            CustomCursor.m_oInstance.SetDefaultCursor();
+
+            //  enable pause panel
             m_gMenuPanel.SetActive(true);
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -202,13 +226,25 @@ public class PauseMenu : NetworkBehaviour
             // Stop hosting session and unsubscribe from approval check event
             NetworkManager.Singleton.StopHost();
             NetworkManager.Singleton.ConnectionApprovalCallback -= ApprovalCheck;
+
+            // Reset the scene ready for reconnection
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
-        // else if the player is just a standard client disconnect them
+        // else if the player is just a standard client
         else if (NetworkManager.Singleton.IsClient)
+        {
+            // disconnect said client
             NetworkManager.Singleton.StopClient();
+
+            // Reset the scene ready for reconnection
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
 
         // Turn off menu panel
         m_gMenuPanel.SetActive(true);
+
+        // Set cursor back to default
+        CustomCursor.m_oInstance.SetPreviousCursor();
     }
 }
