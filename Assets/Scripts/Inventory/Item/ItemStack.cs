@@ -27,7 +27,7 @@ public class ItemStack
     // public int for the count of this item stack
     public int m_nItemCount;
 
-    // public int for the slot if of this item stack
+    // public int for the slot ID of this item stack
     public int m_nSlotId;
 
     //--------------------------------------------------------------------------------------

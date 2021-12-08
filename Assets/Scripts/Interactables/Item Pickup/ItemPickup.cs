@@ -11,6 +11,7 @@
 using MLAPI;
 using MLAPI.Connection;
 using MLAPI.Messaging;
+using MLAPI.NetworkVariable;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -54,6 +55,18 @@ public class ItemPickup : Interactable
     protected InventoryManager m_oInventoryManger;
     //--------------------------------------------------------------------------------------
 
+    // PRIVATE NETWORKED VARS //
+    //--------------------------------------------------------------------------------------
+    // Network variable int for setting the current itemstack count.
+    protected NetworkVariableInt mn_nCurrentItemCount = new NetworkVariableInt(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.Everyone }, 1);
+    //--------------------------------------------------------------------------------------
+
+    // GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Setter of type int for setting the count of the itemstack.
+    public void SetItemCount(int nCount) { mn_nCurrentItemCount.Value = nCount; }
+    //--------------------------------------------------------------------------------------
+
     //--------------------------------------------------------------------------------------
     // initialization.
     //--------------------------------------------------------------------------------------
@@ -86,12 +99,21 @@ public class ItemPickup : Interactable
     //--------------------------------------------------------------------------------------
     // PickupItem: virtual function for picking up an item and adding to an inventory.
     //--------------------------------------------------------------------------------------
-    protected virtual void PickupItem(Player oPlayer)
+    protected virtual bool PickupItem(Player oPlayer)
     {
         // Atempt to add item to inventory.
         // remove the object from the world if a pick up is succesful
-        if (oPlayer.GetInventory().AddItem(new ItemStack(m_oItem, m_nItemCount)) && m_nbInteractableCollected != null)
+        if (oPlayer.GetInventory().AddItem(new ItemStack(m_oItem, mn_nCurrentItemCount.Value)) && m_nbInteractableCollected != null)
+        {
+            // Set collected status to true
             m_nbInteractableCollected.Value = true;
+
+            // return true for success
+            return true;
+        }
+
+        // item wasn't added to inventory, return false
+        return false;
     }
 
     //--------------------------------------------------------------------------------------

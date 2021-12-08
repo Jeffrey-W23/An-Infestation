@@ -16,4 +16,4 @@ MonoBehaviour:
   m_sIcon: {fileID: 21300000, guid: 16a27e9301e5af94182d399746fc175d, type: 3}
   m_nMaxStackSize: 1
   m_eItemType: 16
-  m_gSceneObject: {fileID: 0}
+  m_gSceneObject: {fileID: 2164284244640725696, guid: c0500ac01f4ab424997f2549b263de2a, type: 3}

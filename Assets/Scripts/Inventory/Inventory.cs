@@ -29,19 +29,63 @@ public enum EItemType
 //--------------------------------------------------------------------------------------
 public class Inventory
 {
+    // PUBLIC VALUES //
+    //--------------------------------------------------------------------------------------
+    // public list of enums for incompatible items in an inventory
+    public List<EItemType> m_aeIncompatibleItems = new List<EItemType>();
+    //--------------------------------------------------------------------------------------
+
+    // PRIVATE VALUES //
+    //--------------------------------------------------------------------------------------
     // private List of item stack: the inventory array.
     private List<ItemStack> m_aoItems = new List<ItemStack>();
 
-    // private list of enums for incompatible items in an inventory
-    public List<EItemType> m_aeIncompatibleItems = new List<EItemType>();
+    // private gameobject for the owner of this inventory
+    private GameObject m_gPlayerObject;
+    //--------------------------------------------------------------------------------------
+
+    // DELEGATES //
+    //--------------------------------------------------------------------------------------
+    // Create a new Delegate for handling the what happens when the inventory is updated.
+    public delegate void ItemUpdatedEventHandler(int nIndex);
+
+    // ItemStack Added event callback 
+    public event ItemUpdatedEventHandler OnItemStackAddedCallback;
+
+    // ItemStack Updated event callback
+    public event ItemUpdatedEventHandler OnItemStackUpdatedCallback;
+
+    // ItemStack Removed event callback
+    public event ItemUpdatedEventHandler OnItemStackRemovedCallback;
+    //--------------------------------------------------------------------------------------
+
+    // GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type GameObject for getting the player gameobject.
+    public GameObject GetPlayerObject() { return m_gPlayerObject; }
+
+    // Getter of type ItemStack for the getting an inventory item by index
+    public ItemStack GetStackInSlot(int nIndex) { return m_aoItems[nIndex]; }
+
+    // Getter of type ItemStack List for getting the inventory array
+    public List<ItemStack> GetArray() { return m_aoItems; }
+
+    // Getter of type EItemType List for getting the incompatible items
+    public List<EItemType> GetIncompatibleItems() { return m_aeIncompatibleItems; }
+
+    // Setter of type EItemType List for setting the incompatible items
+    public void SetIncompatibleItems(List<EItemType> aeItems) { m_aeIncompatibleItems = aeItems; }
+    //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
     // Default Constructor.
     //
     // Param:
     //      nSize: An int for the size of the inventory system to create.
+    //      aeIncompatibleItems: An array of ItemType enums for incompatible items.
+    //      gPlayer: A gameobject for the player object who owns this inventory.
     //--------------------------------------------------------------------------------------
-    public Inventory(int nSize, List<EItemType> aeIncompatibleItems)
+    public Inventory(int nSize, List<EItemType> aeIncompatibleItems, GameObject gPlayer)
     {
         // loop through the inventory size
         for (int i = 0; i < nSize; i++)
@@ -52,6 +96,9 @@ public class Inventory
 
         // set the incompatible and compatible items of this inventory
         SetIncompatibleItems(aeIncompatibleItems);
+
+        // Set the player object of this inventory
+        m_gPlayerObject = gPlayer;
     }
 
     //--------------------------------------------------------------------------------------
@@ -73,26 +120,36 @@ public class Inventory
         }
 
         // loop through each item stack in the inventory
-        foreach (ItemStack i in m_aoItems)
+        for (int i = 0; i < m_aoItems.Count; i++)
         {
             // is the stack empty
-            if (i.IsStackEmpty())
+            if (m_aoItems[i].IsStackEmpty())
             {
                 // set the stack to passed in stack
-                i.SetStack(oStack);
+                m_aoItems[i].SetStack(oStack);
+
+                // Call Item Stack Added Callback and pass 
+                // in item that is being added to the inventory
+                if (OnItemStackAddedCallback != null)
+                    OnItemStackAddedCallback(i);
 
                 // return true, item added
                 return true;
             }
 
             // is the stack equal to passed in stack
-            if (ItemStack.AreItemsEqual(oStack, i))
+            if (ItemStack.AreItemsEqual(oStack, m_aoItems[i]))
             {
                 // is it possible to add items to this stack
-                if (i.IsItemAddable(oStack.GetItemCount()))
+                if (m_aoItems[i].IsItemAddable(oStack.GetItemCount()))
                 {
                     // increase the stack count
-                    i.IncreaseStack(oStack.GetItemCount());
+                    m_aoItems[i].IncreaseStack(oStack.GetItemCount());
+
+                    // Call Item Stack Updated Callback and pass 
+                    // in item that is being updated in the inventory
+                    if (OnItemStackUpdatedCallback != null)
+                        OnItemStackUpdatedCallback(i);
 
                     // return true, item added
                     return true;
@@ -102,13 +159,18 @@ public class Inventory
                 else
                 {
                     // new int var, get the difference between passed in stack and current stack
-                    int nDifference = (i.GetItemCount() + oStack.GetItemCount()) - i.GetItem().m_nMaxStackSize;
+                    int nDifference = (m_aoItems[i].GetItemCount() + oStack.GetItemCount()) - m_aoItems[i].GetItem().m_nMaxStackSize;
 
                     // set the count of the stack to the max stack size of the stacks item
-                    i.SetItemCount(i.GetItem().m_nMaxStackSize);
+                    m_aoItems[i].SetItemCount(m_aoItems[i].GetItem().m_nMaxStackSize);
 
                     // set the count of the passed in stack to the stack differnce
                     oStack.SetItemCount(nDifference);
+
+                    // Call Item Stack Updated Callback and pass 
+                    // in item that is being updated in the inventory
+                    if (OnItemStackUpdatedCallback != null)
+                        OnItemStackUpdatedCallback(i);
                 }
             }
         }
@@ -142,6 +204,11 @@ public class Inventory
             // set the stack to passed in stack
             m_aoItems[nIndex].SetStack(oStack);
 
+            // Call Item Stack Added Callback and pass 
+            // in item that is being added to the inventory
+            if (OnItemStackAddedCallback != null)
+                OnItemStackAddedCallback(nIndex);
+
             // return true, item added
             return true;
         }
@@ -154,6 +221,11 @@ public class Inventory
             {
                 // increase the stack count
                 m_aoItems[nIndex].IncreaseStack(oStack.GetItemCount());
+
+                // Call Item Stack Updated Callback and pass 
+                // in item that is being updated in the inventory
+                if (OnItemStackUpdatedCallback != null)
+                    OnItemStackUpdatedCallback(nIndex);
 
                 // return true, item added
                 return true;
@@ -170,6 +242,11 @@ public class Inventory
 
                 // set the count of the passed in stack to the stack differnce
                 oStack.SetItemCount(nDifference);
+
+                // Call Item Stack Updated Callback and pass 
+                // in item that is being updated in the inventory
+                if (OnItemStackUpdatedCallback != null)
+                    OnItemStackUpdatedCallback(nIndex);
             }
         }
 
@@ -178,54 +255,20 @@ public class Inventory
     }
 
     //--------------------------------------------------------------------------------------
-    // GetStackInSlot: Get the stack in the requested inventory slot.
+    // RemoveItemAtPosition: Remove an item in the inventory system from a set position.
     //
-    // Param:
-    //      nIndex: An int for which slot to select.
-    //
-    // Return:
-    //      ItemStack: Return the item stack from that index in the inventory
+    // Params:
+    //      nIndex: The position in the inventory to remove the item.
     //--------------------------------------------------------------------------------------
-    public ItemStack GetStackInSlot(int nIndex)
+    public void RemoveItemAtPosition(int nIndex)
     {
-        // return stack from index
-        return m_aoItems[nIndex];
-    }
+        // Call Item Stack Removed Callback and pass 
+        // in item that is being remove from inventory
+        if (OnItemStackRemovedCallback != null)
+            OnItemStackRemovedCallback(nIndex);
 
-    //--------------------------------------------------------------------------------------
-    // GetArray: Get the inventory list.
-    //
-    // Return:
-    //      List<ItemStack>: return the inventory list.
-    //--------------------------------------------------------------------------------------
-    public List<ItemStack> GetArray()
-    {
-        // return the inventory
-        return m_aoItems;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetIncompatibleItems: Set the incompatible item list.
-    //
-    // Param:
-    //      aeItems: The items to set to the incompatible items list.
-    //--------------------------------------------------------------------------------------
-    public void SetIncompatibleItems(List<EItemType> aeItems)
-    {
-        // set the incompatible items
-        m_aeIncompatibleItems = aeItems;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetIncompatibleItems: Get the list of incompatible items
-    //
-    // Return:
-    //      List<EItemType>: return the list of incompatible items
-    //--------------------------------------------------------------------------------------
-    public List<EItemType> GetIncompatibleItems()
-    {
-        // return incompatible items
-        return m_aeIncompatibleItems;
+        // Set the stack at the current index to empty
+        m_aoItems[nIndex].SetStack(ItemStack.m_oEmpty);
     }
 
     //--------------------------------------------------------------------------------------

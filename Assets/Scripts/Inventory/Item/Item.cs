@@ -39,5 +39,9 @@ public class Item : ScriptableObject
     // public gameobject for this items scene object.
     [LabelOverride("Object in Scene")] [Tooltip("The gameobject that will represent this item in the unity scene.")]
     public GameObject m_gSceneObject;
+
+    // public gameobject for this items pickup object
+    [LabelOverride("Pickup Object")] [Tooltip("The gameobject that will represent this item as a pickup item.")]
+    public GameObject m_gPickUpObject;
     //--------------------------------------------------------------------------------------
 }

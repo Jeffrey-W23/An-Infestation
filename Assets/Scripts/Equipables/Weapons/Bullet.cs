@@ -9,6 +9,7 @@
 
 // Using, etc
 using MLAPI;
+using MLAPI.NetworkVariable;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,6 +31,19 @@ public class Bullet : NetworkBehaviour
     // public float for the max travel distance of the bullet
     [LabelOverride("Max Travel Distance")] [Tooltip("The max travel distance of the bullet before despawn.")]
     public float m_fTravelDistance = 50;
+
+    // Leave a space in the inspector.
+    [Space]
+    //--------------------------------------------------------------------------------------
+
+    // INVENTORY SETTINGS //
+    //--------------------------------------------------------------------------------------
+    // Title for this section of public values.
+    [Header("Inventory Settings:")]
+
+    // public item value for assigning the item that represents this object in the inventory system
+    [LabelOverride("Item In Inventory")] [Tooltip("The item that represents this item in the inventory system.")]
+    public Item m_oItemInInventory;
 
     // Leave a space in the inspector.
     [Space]
@@ -108,12 +122,12 @@ public class Bullet : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // OnCollisionEnter2D: When this object collides with another object call this function.
+    // OnTriggerEnter2D: Function is called when the Collider cObject enters the trigger.
     //
     // Param:
-    //      cObject: a Collision2D for what object has had a collision.
+    //      cObject: The other Collider invloved in the collision.
     //--------------------------------------------------------------------------------------
-    private void OnCollisionEnter2D(Collision2D cObject)
+    private void OnTriggerEnter2D(Collider2D cObject)
     {
         // Set to inactive on collision.
         gameObject.SetActive(false);

@@ -345,7 +345,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_gInHandSpawn: {fileID: 7816347119135386744}
   m_nArmBend: 120
-  TestObject: {fileID: 1842614981975674257, guid: 965bb2c683bd2fb4fa36e1f865c38d35, type: 3}
 --- !u!114 &848666310834587152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -509,10 +508,10 @@ MonoBehaviour:
   m_gInnerVisionRenderer: {fileID: 7128826648245802230}
   m_gInnerEnemyRenderer: {fileID: 8135088184905592633}
   m_nInventorySize: 6
-  m_nWeaponSlots: 3
+  m_nEquipableItemSlots: 3
   m_aeIncompatibleInventoryItems: 04000000
-  m_aeIncompatibleWeapons: 0800000010000000
-  m_bDebugMode: 0
+  m_aeIncompatibleEquipableItems: 08000000
+  m_bDebugMode: 1
 --- !u!70 &6538493046891335424
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

@@ -188,6 +188,10 @@ public class FieldOfView : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     private void LateUpdate()
     {
+        // Set the new camera position with a lerp
+        if (m_cMainCamera != null)
+            m_cMainCamera.orthographicSize = Mathf.Lerp(m_cMainCamera.orthographicSize, m_fCurrentCameraSize, Time.deltaTime * m_fCurrentCameraSmoothing);
+
         // Check if there is any changes to the current fov and view distance. if there is lerp to the new value.
         m_fCurrentFOV = Mathf.Lerp(m_fCurrentFOV, m_fLerpFOV, Time.deltaTime * m_fCurrentFOVSmoothing);
         m_fCurrentViewDistance = Mathf.Lerp(m_fCurrentViewDistance, m_fLerpViewDistance, Time.deltaTime * m_fCurrentFOVSmoothing);
@@ -257,16 +261,6 @@ public class FieldOfView : NetworkBehaviour
 
         // ensure mesh renderers outside of camera view
         m_meshVisionCone.RecalculateBounds();
-    }
-
-    //--------------------------------------------------------------------------------------
-    // Update: Function that calls each frame to update game objects.
-    //--------------------------------------------------------------------------------------
-    private void Update()
-    {
-        // Set the new camera position with a lerp
-        if (m_cMainCamera != null)
-            m_cMainCamera.orthographicSize = Mathf.Lerp(m_cMainCamera.orthographicSize, m_fCurrentCameraSize, Time.deltaTime * m_fCurrentCameraSmoothing);
     }
 
     //--------------------------------------------------------------------------------------

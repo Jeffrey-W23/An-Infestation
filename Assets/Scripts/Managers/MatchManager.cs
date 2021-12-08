@@ -38,20 +38,6 @@ public class MatchManager : NetworkBehaviour
     [Space]
     //--------------------------------------------------------------------------------------
 
-    // NETWORK OBJECT SPAWN SETTINGS //
-    //--------------------------------------------------------------------------------------
-    // Title for this section of public values.
-    [Header("Network Object Spawn Settings:")]
-
-    // public array of network objects for objects to spawn on the server
-    [LabelOverride("Objects to Spawn")] [Tooltip("A list of objects to spawn on the server.")]
-    public List<NetworkObject> m_anoSpawnObjects;
-
-    // public array of transforms for the locations to spawn the items on server
-    [LabelOverride("Spawn Locations")] [Tooltip("A list of transforms for the spawn locations of server objects.")]
-    public List<Transform> m_atSpawnLocations;
-    //--------------------------------------------------------------------------------------
-
     // PRIVATE NETWORKED VARS //
     //--------------------------------------------------------------------------------------
     // private network variable for a list of colors, used for setting colors for the different player clients
@@ -124,9 +110,6 @@ public class MatchManager : NetworkBehaviour
         {
             // Initialize network list of colors based on the public list
             InitializeAvailablePlayerColorsServerRpc();
-
-            // Spawn items on the server
-            SpawnItemsServerRpc();
 
             // Set the colour of the host player randomly
             HandleClientConnected(NetworkManager.Singleton.LocalClientId);
@@ -209,22 +192,5 @@ public class MatchManager : NetworkBehaviour
 
         // Send color to player object
         oPlayer.SetBodyColorServerRpc(cRandomColor);
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SpawnItemsServerRpc: A server function for spawning items for all the clients.
-    //--------------------------------------------------------------------------------------
-    [ServerRpc]
-    private void SpawnItemsServerRpc()
-    {
-        // Loop through all the objects to spawn
-        for (int i = 0; i < m_anoSpawnObjects.Count; i++)
-        {
-            // Instantiate network objects in the scene
-            NetworkObject noSpawnObject = Instantiate(m_anoSpawnObjects[i], m_atSpawnLocations[i].position, Quaternion.identity);
-
-            // Spawn instantiated object on the server
-            noSpawnObject.Spawn();
-        }
     }
 }

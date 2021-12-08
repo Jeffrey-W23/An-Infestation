@@ -17,3 +17,4 @@ MonoBehaviour:
   m_nMaxStackSize: 20
   m_eItemType: 8
   m_gSceneObject: {fileID: 7604746321527292191, guid: e81265babb2361049873b8aa2436f4d5, type: 3}
+  m_gPickUpObject: {fileID: 6825439783681189514, guid: f5d98d72799aecf4594c90155ab4eb6f, type: 3}

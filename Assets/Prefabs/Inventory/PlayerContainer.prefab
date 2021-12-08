@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1201874086}
   - component: {fileID: 1201874085}
   m_Layer: 5
-  m_Name: Weapon Slots
+  m_Name: Equipables
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -50,45 +50,43 @@ public class Arm : NetworkBehaviour
     private float m_fDistanceBetween;
 
     // private bool for freezing the arm
-    private bool m_bFreezeArm = false;
+    private bool m_bFrozenStatus = false;
+
+    // private bool for debug menu toggle
+    private bool m_bDebugMode = false;
 
     // private inventory manager for the inventory manager instance
     private InventoryManager m_oInventoryManger;
 
     // private itemstack for the current hands item
-    private ItemStack m_oInHandItemStack;
+    private ItemStack m_oEquippedItemStack;
 
     // private gameobject for the item in player hand
-    private GameObject m_gInHand;
+    private GameObject m_gEquippedItem;
     //--------------------------------------------------------------------------------------
 
+    // PRIVATE NETWORKED VARS //
+    //--------------------------------------------------------------------------------------
+    // new private network bool for keeping track of if an item is currently equipped.
+    private NetworkVariableBool mn_bIsItemEquipped = new NetworkVariableBool(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.Everyone }, false);
 
-
-
-
-
-
-    //
-    private NetworkVariableInt mn_nItemIndex = new NetworkVariableInt(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.OwnerOnly }, 0);
-
-    //
-    private NetworkVariableBool mn_bIsHoldingItem = new NetworkVariableBool(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.OwnerOnly }, false);
-
-
-
-
-
+    // new private network variable ulong for keeping track of the current equipped items network ID
+    private NetworkVariableULong mn_ulEquippedItemNetworkID = new NetworkVariableULong(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.Everyone }, 0);
+    //--------------------------------------------------------------------------------------
 
     // GETTERS / SETTERS //
     //--------------------------------------------------------------------------------------
-    // Getter of type bool for Freeze Arm value
-    public bool GetFreezeArm() { return m_bFreezeArm; }
+    // Getter of type bool for Frozen Arm status value
+    public bool GetFrozenStatus() { return m_bFrozenStatus; }
 
-    // Getter of type ItemStack for In Hand Item Stack value
-    public ItemStack GetInHandItemStack() { return m_oInHandItemStack; }
+    // Getter of type ItemStack for In Equipped Item Stack value
+    public ItemStack GetEquippedItemStack() { return m_oEquippedItemStack; }
 
-    // Setter of type bool for Freeze Arm value
-    public void SetFreezeArm(bool bFreeze) { m_bFreezeArm = bFreeze; }
+    // Setter of type bool for Frozen Arm status value
+    public void SetFrozenStatus(bool bStatus) { m_bFrozenStatus = bStatus; }
+
+    // Setter of type bool for setting the debug mode status
+    public void SetDebugMode(bool bStatus) { m_bDebugMode = bStatus; }
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -98,6 +96,18 @@ public class Arm : NetworkBehaviour
     {
         // get the inventory manager instance
         m_oInventoryManger = InventoryManager.m_oInstance;
+
+        // Check if it is the local player connecting
+        if (mn_ulEquippedItemNetworkID.Value != 0)
+        {
+            // Ensure the equipped item is set as the same one as the server before unequipping, 
+            // important for when players join the game session late.
+            m_gEquippedItem = NetworkSpawnManager.SpawnedObjects[mn_ulEquippedItemNetworkID.Value].gameObject;
+
+            // Check if the item is currently equipped, if it isnt make sure it is set to inactive.
+            if (!mn_bIsItemEquipped.Value)
+                m_gEquippedItem.SetActive(false);
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -105,8 +115,8 @@ public class Arm : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     private void Awake()
     {
-        // set the in hand stack to empty.
-        m_oInHandItemStack = ItemStack.m_oEmpty;
+        // set the equipped item stack to empty.
+        m_oEquippedItemStack = ItemStack.m_oEmpty;
     }
 
     //--------------------------------------------------------------------------------------
@@ -118,7 +128,7 @@ public class Arm : NetworkBehaviour
         if (IsLocalPlayer)
         {
             // if arm is not frozen
-            if (!m_bFreezeArm)
+            if (!m_bFrozenStatus)
             {
                 // Get mouse inside camera
                 Vector3 v3Pos = transform.parent.Find("PlayerCamera").GetComponent<Camera>().WorldToScreenPoint(transform.position);
@@ -144,167 +154,163 @@ public class Arm : NetworkBehaviour
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
     //--------------------------------------------------------------------------------------
-    // OnEnable: Function that will call when this gameObject is enabled.
-    //--------------------------------------------------------------------------------------
-    private void OnEnable()
-    {
-        // subscribe to value change event for body color // CHANGE
-        mn_bIsHoldingItem.OnValueChanged += OnHoldingItemChange;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // OnDestroy: Function that will call on this gameObjects destruction.
-    //--------------------------------------------------------------------------------------
-    private void OnDestroy()
-    {
-        // Unsubscribe from body colors on change event // CHANGE
-        mn_bIsHoldingItem.OnValueChanged -= OnHoldingItemChange;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // OnHoldingItemChange: Event function for on Holding Item bool change.
-    //
-    // Params:
-    //      bOldState: The previous bool state before the change event triggered.
-    //      bNewState: The new bool state that triggered the event change.
-    //--------------------------------------------------------------------------------------
-    private void OnHoldingItemChange(bool bOldState, bool bNewState)
-    {
-        //
-        if (!bNewState)
-        {
-            //
-            //if (m_gInHand != null)
-                //Destroy(m_gInHand);
-
-            //
-            UnequipItemServerRpc();
-        }
-    }
-
-
-
-
-
-
-    //--------------------------------------------------------------------------------------
-    // SetInHandItemStack: Set the in hand item stack.
+    // EquipItem: Function for equipping and unequipping items for the player on the game 
+    // server using server and client functions.
     //
     // Param:
-    //      oItem: The item to set to the in hand item stack.
+    //      oItem: ItemStack value for the item to be equipped.
     //--------------------------------------------------------------------------------------
-    public void SetInHandItemStack(ItemStack oItem)
+    public void EquipItem(ItemStack oItem)
     {
-        //
-        m_oInHandItemStack = oItem;
+        // Send debug message to console
+        if (m_bDebugMode)
+            Debug.Log("EquipItem function call started!");
 
-        //
+        // new int value for the item ID of the equipped item
+        int nItemID = -1;
+
+        // Loop through the inventory item database
         foreach (var i in m_oInventoryManger.GetItemDatabase())
         {
-            //
+            // Set the item ID based on the passed in item object
             if (i.Value == oItem.GetItem())
-                mn_nItemIndex.Value = i.Key;
+                nItemID = i.Key;
         }
 
-        //
+        // If the item is valid for equipping
         if (!oItem.IsStackEmpty() && oItem.GetItem().m_gSceneObject != null)
         {
-            //
-            mn_bIsHoldingItem.Value = true;
+            // If the status of the equipped item is true,
+            // Run server rpc to unequip item on each of the clients
+            if (mn_bIsItemEquipped.Value)
+                UnequipItemServerRpc();
+            
+            // Set the equipped item stack to the passed in item
+            m_oEquippedItemStack = oItem;
 
-            //
-            EquipItemServerRpc(NetworkManager.Singleton.LocalClientId);
+            // Run server rpc to equip item on each of the clients
+            // passing in players current client ID and itemID
+            EquipItemServerRpc(NetworkManager.Singleton.LocalClientId, nItemID);
+
+            // Send debug message to console
+            if (m_bDebugMode)
+                Debug.Log("EquipItem function call finished with Equip Server Call!");
         }
 
-        //
-        else
+        // else if not a valid item for equipping
+        else if (mn_bIsItemEquipped.Value)
         {
-            //
-            mn_bIsHoldingItem.Value = false;
+            // Set the equipped item stack to empty
+            m_oEquippedItemStack = ItemStack.m_oEmpty;
+
+            // Run server rpc to unequip item on each of the clients
+            UnequipItemServerRpc();
+
+            // Send debug message to console
+            if (m_bDebugMode)
+                Debug.Log("EquipItem function call finished with Unequip Server Call!");
         }
     }
 
     //--------------------------------------------------------------------------------------
-    // EquippedItemServerRpc:
+    // EquippedItemServerRpc: Server function for initating an equip event for all the clients
+    //
+    // Param:
+    //      ulClientID: ulong value for the players client ID
+    //      nItemID: int value for the nItemID in the inventory item database
     //--------------------------------------------------------------------------------------
     [ServerRpc]
-    private void EquipItemServerRpc(ulong ulClientID)
+    private void EquipItemServerRpc(ulong ulClientID, int nItemID)
     {
-        //
+        // Send debug message to console
+        if (m_bDebugMode)
+            Debug.Log("ServerRpc for EquipItem Called!");
+
+        // New null gameobject for the item to be equipped
         GameObject gItemObject = null;
 
-        //
+        // Loop through the inventory item database
         foreach (var i in m_oInventoryManger.GetItemDatabase())
         {
-            //
-            if (i.Key == mn_nItemIndex.Value)
+            // Get the gameobject to be spawned on the server
+            if (i.Key == nItemID)
                 gItemObject = i.Value.m_gSceneObject;
         }
 
-        //
+        // Spawn object on the server intended to be used as the equipped item
         GameObject oEquippingItem = Instantiate(gItemObject);
+        oEquippingItem.transform.position = m_gInHandSpawn.transform.position;
         oEquippingItem.GetComponent<NetworkObject>().SpawnWithOwnership(ulClientID);
 
-        //
-        ulong ulObjectNetworkID = oEquippingItem.GetComponent<NetworkObject>().NetworkObjectId;
+        // Get the network object ID for the spawned object to be equipped
+        mn_ulEquippedItemNetworkID.Value = oEquippingItem.GetComponent<NetworkObject>().NetworkObjectId;
 
-        //
-        EquipItemClientRpc(ulObjectNetworkID);
+        // Run client rpc to equip item on each of the clients
+        EquipItemClientRpc(mn_ulEquippedItemNetworkID.Value);
+
+        // Set the status of equipped item to true
+        mn_bIsItemEquipped.Value = true;
     }
 
     //--------------------------------------------------------------------------------------
-    // EquippedItemClientRpc:
+    // EquipItemClientRpc: Client function for equipping items for each client on the server.
     //
     // Param:
-    //      ulObjectNetworkID: 
+    //      ulObjectNetworkID: ulong value for ID of the spawned network object.
     //--------------------------------------------------------------------------------------
     [ClientRpc]
     private void EquipItemClientRpc(ulong ulObjectNetworkID)
     {
-        //
-        NetworkObject noObject = NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID];
+        // Send debug message to console
+        if (m_bDebugMode)
+            Debug.Log("ClientRpc for EquipItem Called!");
 
-        //
-        m_gInHand = noObject.gameObject;
+        // Destroy the previous equipped item
+        Destroy(m_gEquippedItem);
 
-        // Set the transform of the in hand item
-        m_gInHand.transform.parent = transform;
-        m_gInHand.transform.position = m_gInHandSpawn.transform.position;
-        m_gInHand.transform.rotation = transform.rotation;
+        // Get the equipped item from the list of spawned network objects
+        m_gEquippedItem = NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID].gameObject;
 
-        //
-        m_gInHand.GetComponent<SpriteRenderer>().enabled = true;
+        // Set up equipped item for usage, setting parent, pos, rotation and player object
+        m_gEquippedItem.GetComponent<Equipable>().SetPlayerScript(transform.parent.GetComponent<Player>());
+        m_gEquippedItem.transform.parent = transform;
+        m_gEquippedItem.transform.position = m_gInHandSpawn.transform.position;
+        m_gEquippedItem.transform.rotation = transform.rotation;
+
+        // Enabled the sprite renderer once everything is ready
+        m_gEquippedItem.gameObject.GetComponent<SpriteRenderer>().enabled = true;
     }
 
     //--------------------------------------------------------------------------------------
-    // UnequipItemServerRpc:
+    // UnequipItemServerRpc: Server function for initating an unequip event for all the clients
     //--------------------------------------------------------------------------------------
-    [ServerRpc(RequireOwnership = false)]
+    [ServerRpc]
     private void UnequipItemServerRpc()
     {
-        //
+        // Send debug message to console
+        if (m_bDebugMode)
+            Debug.Log("ServerRpc for UnequipItem Called!");
+
+        // Run client rpc for unequipping on each client
         UnequipItemClientRpc();
+
+        // Set the status of equipped item to false
+        mn_bIsItemEquipped.Value = false;
     }
 
     //--------------------------------------------------------------------------------------
-    // UnequipItemClientRpc:
+    // UnequipItemClientRpc: Client function for unequipping items for each client on the server.
     //--------------------------------------------------------------------------------------
     [ClientRpc]
     private void UnequipItemClientRpc()
     {
-        if (m_gInHand != null)
-            Destroy(m_gInHand);
+        // Send debug message to console
+        if (m_bDebugMode)
+            Debug.Log("ClientRpc for UnequipItem Called!");
+
+        // if the equipped item isnt null set it to inactive
+        if (m_gEquippedItem != null)
+            m_gEquippedItem.SetActive(false);
     }
 }

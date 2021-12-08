@@ -31,11 +31,11 @@ public class PlayerContainer : Container
             AddSlot(oPlayerInventory, i, m_gPrefab.GetComponentInChildren<Transform>().Find("Inventory").transform);
         }
 
-        // loop through each slot in the weapons inventory
+        // loop through each slot in the Equipable Items inventory
         for (int i = 0; i < oInventory.GetArray().Count; i++)
         {
             // build the inventory slots
-            AddSlot(oInventory, i, m_gPrefab.GetComponentInChildren<Transform>().Find("Weapon Slots").transform);
+            AddSlot(oInventory, i, m_gPrefab.GetComponentInChildren<Transform>().Find("Equipables").transform);
         }
     }
 

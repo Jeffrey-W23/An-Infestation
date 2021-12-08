@@ -5,6 +5,8 @@
 //--------------------------------------------------------------------------------------
 
 // using, etc
+using MLAPI;
+using MLAPI.Messaging;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +16,7 @@ using UnityEngine.UI;
 //--------------------------------------------------------------------------------------
 // ItemSlot object. Inheriting from MonoBehaviour.
 //--------------------------------------------------------------------------------------
-public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler // Get handlers for mouse ui methods.
+public class ItemSlot : NetworkBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler // Get handlers for mouse ui methods.
 {
     // SLOT //
     //--------------------------------------------------------------------------------------
@@ -187,6 +189,13 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
         {
             // run the right click method
             OnRightClick(oCurrentSelectedStack, oCurrentStackCopy);
+        }
+
+        // if the mouse is right click
+        if (eventData.pointerId == -3)
+        {
+            // run the right click method
+            OnMiddleClick(oCurrentSelectedStack, oCurrentStackCopy);
         }
     }
 
@@ -423,5 +432,51 @@ public class ItemSlot : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
                 }
             }
         }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnMiddleClick: What the item slot will do on a middle click.
+    //
+    // Param:
+    //      oCurrentSelectedStack: an ItemStack of the currently selected stack.
+    //      oCurrentStackCopy: an ItemStack of the copy of the item stack.
+    //--------------------------------------------------------------------------------------
+    private void OnMiddleClick(ItemStack oCurrentSelectedStack, ItemStack oCurrentStackCopy)
+    {
+        // if the current stack is not empty and the selected stack is empty
+        if (!m_oCurrentStack.IsStackEmpty() && oCurrentSelectedStack.IsStackEmpty())
+        {
+            // Initiate item drop
+            DropItem(oCurrentStackCopy);
+
+            // Set the slot content to empty
+            SetSlotContent(ItemStack.m_oEmpty);
+
+            // deactivate the tooltip
+            SetTooltip(string.Empty);
+        }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // DropItem: Drop an itemstack and remove it from the inventory.
+    //
+    // Param:
+    //      oItemStackToDrop: The ItemStack that is being dropped/remove from the inventory.
+    //--------------------------------------------------------------------------------------
+    private void DropItem(ItemStack oItemStackToDrop)
+    {
+        // new int value for the item ID of the equipped item
+        int nItemID = -1;
+
+        // Loop through the inventory item database
+        foreach (var i in m_oInventoryManger.GetItemDatabase())
+        {
+            // Set the item ID based on the passed in item object
+            if (i.Value == oItemStackToDrop.GetItem())
+                nItemID = i.Key;
+        }
+
+        // Run server command to spawn dropped item on server
+        SpawnManager.m_oInstance.SpawnItemServerRpc(nItemID, oItemStackToDrop.m_nItemCount, m_oInventory.GetPlayerObject().GetComponent<Player>().OwnerClientId);
     }
 }

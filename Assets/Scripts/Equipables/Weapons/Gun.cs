@@ -9,60 +9,29 @@
 
 // Using, etc
 using MLAPI;
+using MLAPI.Messaging;
+using MLAPI.Spawning;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 //--------------------------------------------------------------------------------------
-// Gun object. Inheriting from NetworkBehaviour.
+// Gun object. Inheriting from Equipable.
 //--------------------------------------------------------------------------------------
-public class Gun : NetworkBehaviour
+public class Gun : Equipable
 {
     // BULLET SETUP //
     //--------------------------------------------------------------------------------------
     // Title for this section of public values.
     [Header("Bullet Setup:")]
 
-    // Public item for bullet object.
-    [LabelOverride("Bullet Item")] [Tooltip("The bullet item that this gun will fire.")]
-    public Item m_oBulletBlueprint;
-
     // Public gameobject for where to spawn the bullet
     [LabelOverride("Bullet Spawn Location")] [Tooltip("A Gameobject for where to exactly spawn the bullet.")]
     public GameObject m_gBulletSpawn;
 
-    // public int for pool size.
-    [LabelOverride("Pool Size")] [Tooltip("How many bullets allowed on screen at one time.")]
-    public int m_nPoolSize;
-
-    // Leave a space in the inspector.
-    [Space]
-    //--------------------------------------------------------------------------------------
-
-    // DOWN SIGHTS //
-    //--------------------------------------------------------------------------------------
-    // Title for this section of public values.
-    [Header("Down Sight Settings:")]
-
-    //  public float for smoothing the lerp for fov
-    [LabelOverride("FOV Transition Smoothing")] [Tooltip("Smoothing value for transitioning the fov in down sights action.")]
-    public float m_fDownSightsFOVSmoothing = 4.0f;
-
-    // public float for smoothing the lerp for the camera
-    [LabelOverride("Camera Transition Smoothing")] [Tooltip("Smoothing value for transitioning the camera in down sights action.")]
-    public float m_fDownSightsCameraSmoothing = 4.0f;
-
-    // public float for the distance to set when down sights
-    [LabelOverride("Distance")] [Tooltip("The distance of the field of view when down sights.")]
-    public float m_fDownSightsDistance = 20.0f;
-
-    // public float for the field of view when down sights
-    [LabelOverride("Field Of View")] [Tooltip("The width of the field of view when down sights.")]
-    public float m_fDownSightsFOV = 30.0f;
-
-    // public float for the zoom of the camera when down sights
-    [LabelOverride("Zoom")] [Tooltip("The zoom of the camera when down sights.")]
-    public float m_fDownSightsZoom = 10.0f;
+    // Public item for bullet object.
+    [LabelOverride("Bullet Item")] [Tooltip("The bullet item that this gun will fire.")]
+    public Item m_oBulletBlueprint;
 
     // Leave a space in the inspector.
     [Space]
@@ -85,30 +54,8 @@ public class Gun : NetworkBehaviour
     [Space]
     //--------------------------------------------------------------------------------------
 
-    // OTHER SETTINGS //
-    //--------------------------------------------------------------------------------------
-    // Title for this section of public values.
-    [Header("Other Settings:")]
-
-    // public texture2d for the guns crosshair
-    [LabelOverride("Gun Crosshair")] [Tooltip("The cursor to use for the guns crosshair.")]
-    public Texture2D m_tCrosshair;
-
-    // Leave a space in the inspector.
-    [Space]
-    //--------------------------------------------------------------------------------------
-
     // PROTECTED VALUES //
     //--------------------------------------------------------------------------------------
-    // An Array of GameObjects for bullets.
-    protected GameObject[] m_agBulletList;
-
-    // playber object for getting player script
-    protected Player m_oPlayer;
-
-    // bool for if the gun is down sights
-    protected bool m_bDownSights = false;
-
     // float for when the bullet can fire next
     protected float m_fNextfire = 0.0f;
 
@@ -125,53 +72,23 @@ public class Gun : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
-    protected void Awake()
+    protected new void Awake()
     {
-        // Get the player object
-        m_oPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-
-        // set the crosshair of the gun
-        CustomCursor.m_oInstance.SetCustomCursor(m_tCrosshair);
-
-        // initialize bullet list with size.
-        m_agBulletList = new GameObject[m_nPoolSize];
-
-        // Go through each bullet.
-        for (int i = 0; i < m_nPoolSize; ++i)
-        {
-            // Instantiate and set active state.
-            m_agBulletList[i] = Instantiate(m_oBulletBlueprint.m_gSceneObject);
-            m_agBulletList[i].SetActive(false);
-        }
-    }
-
-    //--------------------------------------------------------------------------------------
-    // initialization
-    //--------------------------------------------------------------------------------------
-    protected void Start()
-    {
-        // Check current ammo
-        CheckCurrentAmmo();
+        // Run the base awake
+        base.Awake();
     }
 
     //--------------------------------------------------------------------------------------
     // Update: Function that calls each frame to update game objects.
     //--------------------------------------------------------------------------------------
-    protected void Update()
+    protected new void Update()
     {
-        // is player allowed to move
-        if (!m_oPlayer.GetFreezePlayer())
-        {
-            // Shoot the bullet
+        // Run the base update
+        base.Update();
+
+        // is player allowed to move and not null, shoot the bullet
+        if (m_oPlayer != null && !m_oPlayer.GetFrozenStatus())
             ShootBullet();
-
-            // if the fov is off set down sights to false
-            if (!m_oPlayer.GetPlayerVisionScript().GetToggleState())
-                m_bDownSights = false;
-
-            // Aim down sights
-            AimDownSights();
-        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -191,49 +108,13 @@ public class Gun : NetworkBehaviour
                 // set the bullet as fired
                 m_fNextfire = m_fFireRateTimer + m_fFireRate;
 
-                // Allocate a bullet from the pool.
-                GameObject gBullet = AllocateBullet();
-
-                // if a valid bullet and not null.
-                if (gBullet)
-                {
-                    // Update the postion, rotation and set direction of the bullet, as well as pass on the spawn pos.
-                    gBullet.transform.position = m_gBulletSpawn.transform.position;
-                    gBullet.transform.rotation = m_gBulletSpawn.transform.rotation;
-                    gBullet.GetComponent<Bullet>().SetDirection(transform.right);
-                    gBullet.GetComponent<Bullet>().SetSpawnPosition(m_gBulletSpawn.transform.position);
-                }
+                // Shoot a bullet on the server
+                FireBulletServerRpc();
 
                 // update the current ammo of the gun
                 UpdateCurrentAmmo(m_nAmmoUsage);
             }
         }
-    }
-
-    //--------------------------------------------------------------------------------------
-    // Allocate: Allocate bullets to the pool.
-    //
-    // Return:
-    //      GameObject: Current gameobject in the pool.
-    //--------------------------------------------------------------------------------------
-    protected GameObject AllocateBullet()
-    {
-        // For each in the pool.
-        for (int i = 0; i < m_nPoolSize; ++i)
-        {
-            // Check if active.
-            if (!m_agBulletList[i].activeInHierarchy)
-            {
-                // Set active state.
-                m_agBulletList[i].SetActive(true);
-
-                // return the bullet.
-                return m_agBulletList[i];
-            }
-        }
-
-        // if all fail return null.
-        return null;
     }
 
     //--------------------------------------------------------------------------------------
@@ -322,49 +203,40 @@ public class Gun : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // AimDownSights: Aim in and out of sights on right click.
+    // ActivateBullet: Grab a bullet from the object pool and prepare it for fire.
     //--------------------------------------------------------------------------------------
-    protected void AimDownSights()
+    private void ActivateBullet()
     {
-        // If the mouse right is pressed
-        if (Input.GetMouseButtonDown(1))
-        {
-            // Toggle the fov back to true
-            m_oPlayer.GetPlayerVisionScript().ToggleFOV(true);
-            m_oPlayer.GetEnemyRendererScript().ToggleFOV(true);
+        // Grab a bullet from the spawm managers bullet pool
+        GameObject gBullet = SpawnManager.m_oInstance.GetBulletFromPool();
 
-            // toggle the down sight bool
-            m_bDownSights = !m_bDownSights;
+        // Prepare bullet for firing
+        gBullet.transform.position = m_gBulletSpawn.transform.position;
+        gBullet.transform.rotation = m_gBulletSpawn.transform.rotation;
+        gBullet.GetComponent<Bullet>().SetDirection(transform.right);
+        gBullet.GetComponent<Bullet>().SetSpawnPosition(m_gBulletSpawn.transform.position);
 
-            // if aimming down sights
-            if (m_bDownSights)
-            {
-                // set the fov, distance and lerp smoothing of the player vision
-                m_oPlayer.GetPlayerVisionScript().AdjustFOV(m_fDownSightsDistance, m_fDownSightsFOV, m_fDownSightsZoom, m_fDownSightsFOVSmoothing, m_fDownSightsCameraSmoothing);
-
-                // set the fov, distance and lerp smoothing of the enemy renderer
-                m_oPlayer.GetEnemyRendererScript().AdjustFOV(m_fDownSightsDistance, m_fDownSightsFOV, m_fDownSightsZoom, m_fDownSightsFOVSmoothing, m_fDownSightsCameraSmoothing);
-            }
-
-            // else if not down sights
-            else
-            {
-                // Set the player fov back to default
-                m_oPlayer.SetFOVDefault();
-            }
-        }
+        // Set the bullet to active
+        gBullet.SetActive(true);
     }
 
     //--------------------------------------------------------------------------------------
-    // OnDestroy: Function that runs on the destroy of a game object.
+    // FireBulletServerRpc: A Server function for initating bullet fire.
     //--------------------------------------------------------------------------------------
-    private void OnDestroy()
+    [ServerRpc]
+    private void FireBulletServerRpc()
     {
-        // Go through each bullet.
-        for (int i = 0; i < m_nPoolSize; ++i)
-        {
-            // Destory the bullet list
-            Object.Destroy(m_agBulletList[i]);
-        }
+        // Tell the clients that this player wishes to fire
+        FireBulletClientRpc();
+    }
+
+    //--------------------------------------------------------------------------------------
+    // FireBulletClientRpc: A Client function for initating bullet fire.
+    //--------------------------------------------------------------------------------------
+    [ClientRpc]
+    private void FireBulletClientRpc()
+    {
+        // Activate a bullet on all the clients
+        ActivateBullet();
     }
 }

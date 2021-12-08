@@ -27,15 +27,15 @@ public class Player : NetworkBehaviour
 
     // public float value for the walking speed.
     [LabelOverride("Walking Speed")] [Tooltip("The speed of which the player will walk in float value.")]
-    public float m_fWalkSpeed = 5.0f;
+    public float m_fWalkSpeed = 10.0f;
 
     // public float value for the walking speed.
     [LabelOverride("Running Speed")] [Tooltip("The speed of which the player will run in float value.")]
-    public float m_fRunSpeed = 7.0f;
+    public float m_fRunSpeed = 15.0f;
 
     // public float value for max exhaust level.
     [LabelOverride("Running Exhaust")] [Tooltip("The max level of exhaustion the player can handle before running is false.")]
-    public float m_fRunExhaust = 3.0f;
+    public float m_fRunExhaust = 5.0f;
 
     // Leave a space in the inspector.
     [Space]
@@ -76,16 +76,16 @@ public class Player : NetworkBehaviour
     public int m_nInventorySize = 6;
 
     // public int for the weapon inventory size
-    [LabelOverride("Weapons Solts")] [Tooltip("The amount of solts available for weapon pickups.")]
-    public int m_nWeaponSlots = 3;
+    [LabelOverride("Equipable Item Solts")] [Tooltip("The amount of solts available for equipable pickups.")]
+    public int m_nEquipableItemSlots = 3;
 
     // public list of item type enums for incompatible inventory items
-    [LabelOverride("Incompatible Items")] [Tooltip("Items that are incompatible with the player inventory.")]
+    [LabelOverride("Incompatible Inventory Items")] [Tooltip("Items that are incompatible with the player inventory.")]
     public List<EItemType> m_aeIncompatibleInventoryItems;
 
     // public list of item type enums for incompatible weapons
-    [LabelOverride("Incompatible Weapons")] [Tooltip("Weapons incompatible with the weapons slot.")]
-    public List<EItemType> m_aeIncompatibleWeapons;
+    [LabelOverride("Incompatible Equipable Items")] [Tooltip("Items incompatible with the equipable item slots.")]
+    public List<EItemType> m_aeIncompatibleEquipableItems;
 
     // Leave a space in the inspector.
     [Space]
@@ -127,36 +127,36 @@ public class Player : NetworkBehaviour
     // private inventory for the player object
     private Inventory m_oInventory;
 
-    // private inventory for the players current weapons
-    private Inventory m_oWeapons;
+    // private inventory for the players current equipable items
+    private Inventory m_oEquipableItems;
 
     // private inventory manager for the inventory manager instance
     private InventoryManager m_oInventoryManger;
 
-    // private array of initial keycodes for selecting weapon index.
-    private KeyCode[] m_akInitWeaponSelectorControls = new KeyCode[] { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3,
+    // private array of initial keycodes for selecting equipable items index.
+    private KeyCode[] m_akInitEquipableItemSelectorControls = new KeyCode[] { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3,
         KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9 };
 
     // private quaternion for setting the cameras inital rotation
-    private Quaternion m_qInitRotation;
+    private Quaternion m_qInitCameraRotation;
 
-    // private array of needed keycodes for selecting weapon index. 
-    private KeyCode[] m_akWeaponSelectorControls;
+    // private array of needed keycodes for selecting equipable items. 
+    private KeyCode[] m_akEquipableItemSelectorControls;
 
     // private float for the current speed of the player.
-    private float m_fCurrentSpeed;
+    private float m_fCurrentMovementSpeed;
 
-    // private flkoat for the current exhaust level of the player.
-    private float m_fRunCurrentExhaust = 0.0f;
+    // private float for the current exhaust level of the player.
+    private float m_fCurrentRunExhaust = 0.0f;
 
-    // private int for the current postion of the weapon selection.
-    private int m_nWeaponSelectorPos = 0;
+    // private int for the current postion of the equipable item selection.
+    private int m_nEquipableItemSelectorPos = 0;
 
     // private bool for if ther player can run or not
-    private bool m_bExhausted = false;
+    private bool m_bRunExhausted = false;
 
     // private bool for freezing the player
-    private bool m_bFreezePlayer = false;
+    private bool m_bFrozenStatus = false;
     //--------------------------------------------------------------------------------------
 
     // PRIVATE NETWORKED VARS //
@@ -173,8 +173,8 @@ public class Player : NetworkBehaviour
     // Create a new Delegate for handling the interaction functions.
     public delegate void InteractionEventHandler(Player oPlayer);
 
-    // Create an event for the delegate for extra protection. 
-    public InteractionEventHandler InteractionCallback;
+    // Interaction Triggered event callback
+    public InteractionEventHandler OnInteractionCallback;
     //--------------------------------------------------------------------------------------
 
     // STANDARD GETTERS / SETTERS //
@@ -188,11 +188,14 @@ public class Player : NetworkBehaviour
     // Getter of type Inventory for Player Inventory
     public Inventory GetInventory() { return m_oInventory; }
 
-    // Getter of type Inventory for Player Weapons
-    public Inventory GetWeapons() { return m_oWeapons; }
+    // Getter of type Inventory for Equipable Items
+    public Inventory GetEquipableItems() { return m_oEquipableItems; }
 
-    // Getter for type Bool for the Freeze Player value.
-    public bool GetFreezePlayer() { return m_bFreezePlayer; }
+    // Getter of type Arm for the player equippment arm
+    public Arm GetArm() { return m_gArm.GetComponent<Arm>(); }
+
+    // Getter of type bool for Frozen Player status value
+    public bool GetFrozenStatus() { return m_bFrozenStatus; }
     //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
@@ -206,6 +209,9 @@ public class Player : NetworkBehaviour
         // get the player arm object.
         m_gArm = transform.Find("Arm").gameObject;
 
+        // Set the current status of debug mode for the arm
+        m_gArm.GetComponent<Arm>().SetDebugMode(m_bDebugMode);
+
         // Get the sprite renderer for the players body
         m_srBody = transform.Find("Body").gameObject.GetComponent<SpriteRenderer>();
 
@@ -213,13 +219,13 @@ public class Player : NetworkBehaviour
         m_cPlayerCamera = transform.Find("PlayerCamera").GetComponent<Camera>();
 
         // set the current speed of the player to walk
-        m_fCurrentSpeed = m_fWalkSpeed;
+        m_fCurrentMovementSpeed = m_fWalkSpeed;
 
         // set the inventory of the player
-        m_oInventory = new Inventory(m_nInventorySize, m_aeIncompatibleInventoryItems);
+        m_oInventory = new Inventory(m_nInventorySize, m_aeIncompatibleInventoryItems, gameObject);
 
-        // set the weapons inventory of the player
-        m_oWeapons = new Inventory(m_nWeaponSlots, m_aeIncompatibleWeapons);
+        // set the equipable item inventory of the player
+        m_oEquipableItems = new Inventory(m_nEquipableItemSlots, m_aeIncompatibleEquipableItems, gameObject);
     }
 
     //--------------------------------------------------------------------------------------
@@ -233,14 +239,14 @@ public class Player : NetworkBehaviour
         // Ensure inventory isnt open when game starts
         m_oInventoryManger.ResetInventoryStatus();
 
-        // set the count of the keyboard controls to the size of the weapon inventory
-        m_akWeaponSelectorControls = new KeyCode[m_oWeapons.GetArray().Count];
+        // set the count of the keyboard controls to the size of the Equipable Items inventory
+        m_akEquipableItemSelectorControls = new KeyCode[m_oEquipableItems.GetArray().Count];
 
         // loop through the keyboard controls
-        for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
+        for (int i = 0; i < m_akEquipableItemSelectorControls.Length; i++)
         {
-            // Set the keyboard controls avalible for weapon selection.
-            m_akWeaponSelectorControls[i] = m_akInitWeaponSelectorControls[i];
+            // Set the keyboard controls avalible for Equipable Item selection.
+            m_akEquipableItemSelectorControls[i] = m_akInitEquipableItemSelectorControls[i];
         }
 
         // get fov components
@@ -263,7 +269,7 @@ public class Player : NetworkBehaviour
         }
 
         // Set the initial rotation of this camera
-        m_qInitRotation = m_cPlayerCamera.transform.rotation;
+        m_qInitCameraRotation = m_cPlayerCamera.transform.rotation;
     }
 
     //--------------------------------------------------------------------------------------
@@ -275,22 +281,22 @@ public class Player : NetworkBehaviour
         if (IsLocalPlayer)
         {
             // if the player is not frozen
-            if (!m_bFreezePlayer)
+            if (!m_bFrozenStatus)
             {
                 // run the interaction function
-                Interaction();
+                InitiateInteraction();
 
                 // Update the in hand object of player
-                UpdateInHand();
+                UpdateCurrentEquipableItem();
             }
 
             // Open and close the inventory system
-            OpenCloseInventory();
+            ToggleInventoryMenu();
         }
 
         // if the player is not frozen toggle the fov on and off
-        if (!m_bFreezePlayer)
-            ToggleFOV();
+        if (!m_bFrozenStatus)
+            ToggleFieldOfView();
     }
 
     //--------------------------------------------------------------------------------------
@@ -302,7 +308,7 @@ public class Player : NetworkBehaviour
         if (IsLocalPlayer)
         {
             // is player allowed to move
-            if (!m_bFreezePlayer)
+            if (!m_bFrozenStatus)
             {
                 // rotate player based on mouse postion.
                 Rotate();
@@ -323,7 +329,7 @@ public class Player : NetworkBehaviour
     {
         // ensure the camera does not rotate with the parent object, if it is the local player
         if (IsLocalPlayer)
-            m_cPlayerCamera.transform.rotation = m_qInitRotation;
+            m_cPlayerCamera.transform.rotation = m_qInitCameraRotation;
     }
 
     //--------------------------------------------------------------------------------------
@@ -353,23 +359,23 @@ public class Player : NetworkBehaviour
         Vector3 v2MovementDirection = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0.0f).normalized;
 
         // Move the player
-        m_rbRigidBody.MovePosition(transform.position + v2MovementDirection * m_fCurrentSpeed * Time.fixedDeltaTime);
+        m_rbRigidBody.MovePosition(transform.position + v2MovementDirection * m_fCurrentMovementSpeed * Time.fixedDeltaTime);
 
         // if the players holds down left shift
-        if (Input.GetKey(KeyCode.LeftShift) && !m_bExhausted)
+        if (Input.GetKey(KeyCode.LeftShift) && !m_bRunExhausted)
         {
             // current player speed equals run speed
-            m_fCurrentSpeed = m_fRunSpeed;
+            m_fCurrentMovementSpeed = m_fRunSpeed;
 
             // tick the current exhaust level up 
-            m_fRunCurrentExhaust += Time.deltaTime;
+            m_fCurrentRunExhaust += Time.deltaTime;
 
             // if the current exhaust is above the max
-            if (m_fRunCurrentExhaust > m_fRunExhaust)
+            if (m_fCurrentRunExhaust > m_fRunExhaust)
             {
                 // player is exhausted and speed is now walking.
-                m_bExhausted = true;
-                m_fCurrentSpeed = m_fWalkSpeed;
+                m_bRunExhausted = true;
+                m_fCurrentMovementSpeed = m_fWalkSpeed;
             }
         }
 
@@ -377,18 +383,18 @@ public class Player : NetworkBehaviour
         else if (!Input.GetKey(KeyCode.LeftShift))
         {
             // current speed is walking speed.
-            m_fCurrentSpeed = m_fWalkSpeed;
+            m_fCurrentMovementSpeed = m_fWalkSpeed;
 
             // tick the current exhaust level down 
-            m_fRunCurrentExhaust -= Time.deltaTime;
+            m_fCurrentRunExhaust -= Time.deltaTime;
 
             // if the current exhaust is below 0 keep at 0
-            if (m_fRunCurrentExhaust < 0.0f)
-                m_fRunCurrentExhaust = 0.0f;
+            if (m_fCurrentRunExhaust < 0.0f)
+                m_fCurrentRunExhaust = 0.0f;
 
             // if the current exhaust is below the max then exhausted false
-            if (m_fRunCurrentExhaust < m_fRunExhaust)
-                m_bExhausted = false;
+            if (m_fCurrentRunExhaust < m_fRunExhaust)
+                m_bRunExhausted = false;
         }
     }
 
@@ -443,9 +449,9 @@ public class Player : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // ToggleFOV: Switch the FOV on or off with keyboard press
+    // ToggleFieldOfView: Switch the FOV on or off with keyboard press
     //--------------------------------------------------------------------------------------
-    private void ToggleFOV()
+    private void ToggleFieldOfView()
     {
         // Check if current player object is the local player
         if (IsLocalPlayer)
@@ -491,18 +497,18 @@ public class Player : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // OpenCloseInventory: Open/Close the Inventory container of the player object.
+    // ToggleInventoryMenu: Open/Close the Inventory container of the player object.
     //--------------------------------------------------------------------------------------
-    private void OpenCloseInventory()
+    private void ToggleInventoryMenu()
     {
         // if the i key is down and the inventory is closed
         if (Input.GetKeyDown(KeyCode.I) && !m_oInventoryManger.IsInventoryOpen())
         {
             // Open the player inventory
-            m_oInventoryManger.OpenContainer(new PlayerContainer(m_oWeapons, m_oInventory, m_nInventorySize));
+            m_oInventoryManger.OpenContainer(new PlayerContainer(m_oEquipableItems, m_oInventory, m_nInventorySize));
 
             // freeze the player
-            SetFreezePlayer(true);
+            SetFrozenStatus(true);
         }
 
         // if the i key is down and the inventory is open
@@ -512,60 +518,60 @@ public class Player : NetworkBehaviour
             m_oInventoryManger.CloseContainer();
 
             // confirm the in hand item is correct
-            ConfirmPlayerHand();
+            ConfirmCurrentEquipableItem();
 
             // unfreeze the player
-            SetFreezePlayer(false);
+            SetFrozenStatus(false);
         }
     }
 
     //--------------------------------------------------------------------------------------
-    // UpdateInHand: Update the current object in the player hand on key press.
+    // UpdateCurrentEquipableItem: Update the current object in the player hand on key press.
     //--------------------------------------------------------------------------------------
-    private void UpdateInHand()
+    private void UpdateCurrentEquipableItem()
     {
-        // loop through the weapon selector keys
-        for (int i = 0; i < m_akWeaponSelectorControls.Length; i++)
+        // loop through the Equipable Items selector keys
+        for (int i = 0; i < m_akEquipableItemSelectorControls.Length; i++)
         {
-            // if a number key corresponds with a weapon slot
-            if (Input.GetKeyDown(m_akWeaponSelectorControls[i]))
+            // if a number key corresponds with an Equipable Item slot
+            if (Input.GetKeyDown(m_akEquipableItemSelectorControls[i]))
             {
                 // Confirm that it is indeed a change in selection
-                if (m_nWeaponSelectorPos != i)
+                if (m_nEquipableItemSelectorPos != i)
                 {
-                    // move the weapon selector pos
-                    m_nWeaponSelectorPos = i;
+                    // move the Equipable Item selector pos
+                    m_nEquipableItemSelectorPos = i;
 
-                    // change the weapon in the hand of the player
-                    ChangeItemInHand(m_nWeaponSelectorPos);
+                    // change the Equipable Item in the hand of the player
+                    ChangeEquipableItem(m_nEquipableItemSelectorPos);
                 }
             }
         }
     }
 
     //--------------------------------------------------------------------------------------
-    // ChangeWeaponInHand: Change the weapon object in the player hand.
+    // ChangeEquipableItem: Change the current object in the player hand.
     //
     // Param:
-    //      nIndex: The index to corresponding weapon item stack.
+    //      nIndex: The index to corresponding item stack.
     //--------------------------------------------------------------------------------------
-    private void ChangeItemInHand(int nIndex)
+    private void ChangeEquipableItem(int nIndex)
     {
         // Set the fov back to default
         SetFOVDefault();
 
-        // get the item from weapons inventory based on passed in index
-        ItemStack oItem = m_oWeapons.GetStackInSlot(nIndex);
+        // get the item from the Equipable Item inventory based on passed in index
+        ItemStack oItem = m_oEquipableItems.GetStackInSlot(nIndex);
 
         // if item stack is not empty, set the item to in hand
         if (!oItem.IsStackEmpty())
-            m_gArm.GetComponent<Arm>().SetInHandItemStack(oItem);
+            m_gArm.GetComponent<Arm>().EquipItem(oItem);
 
         // if item is empty
         if (oItem.IsStackEmpty())
         {
             // Set the in hand item stack to empty
-            m_gArm.GetComponent<Arm>().SetInHandItemStack(ItemStack.m_oEmpty);
+            m_gArm.GetComponent<Arm>().EquipItem(ItemStack.m_oEmpty);
 
             // Set the cursor back to default
             CustomCursor.m_oInstance.SetDefaultCursor();
@@ -573,59 +579,59 @@ public class Player : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
-    // ConfirmPlayerHand: Confirm the object in hand matches the current selection.
+    // ConfirmCurrentEquipableItem: Confirm the object in hand matches the current selection.
     //--------------------------------------------------------------------------------------
-    private void ConfirmPlayerHand()
+    private void ConfirmCurrentEquipableItem()
     {
         // get the item that is currently selected on the hotbar
-        ItemStack oItem = m_oWeapons.GetStackInSlot(m_nWeaponSelectorPos);
+        ItemStack oItem = m_oEquipableItems.GetStackInSlot(m_nEquipableItemSelectorPos);
 
         // Is the currently selected item current in the players hand?
         // if not put the item in the player hand
-        if (oItem != m_gArm.GetComponent<Arm>().GetInHandItemStack())
-            ChangeItemInHand(m_nWeaponSelectorPos);
-        
+        if (oItem != m_gArm.GetComponent<Arm>().GetEquippedItemStack())
+            ChangeEquipableItem(m_nEquipableItemSelectorPos);
+
         // else if the currently selected item is empty but the item in the players hand is not empty then 
         // the hand needs updating to remove incorrect selection.
-        else if (oItem.IsStackEmpty() && m_gArm.GetComponent<Arm>().GetInHandItemStack().IsStackEmpty())
-            ChangeItemInHand(m_nWeaponSelectorPos);
+        else if (oItem.IsStackEmpty() && m_gArm.GetComponent<Arm>().GetEquippedItemStack().IsStackEmpty())
+            ChangeEquipableItem(m_nEquipableItemSelectorPos);
     }
 
     //--------------------------------------------------------------------------------------
-    // SetFreezePlayer: Set the freeze status of the player object. Used for ensuring the
+    // SetFrozenStatus: Set the freeze status of the player object. Used for ensuring the
     // player stays still, good for open menus or possibly cut scenes, etc.
     //
     // Param:
     //      bFreeze: bool for setting the freeze status.
     //--------------------------------------------------------------------------------------
-    public void SetFreezePlayer(bool bFreeze)
+    public void SetFrozenStatus(bool bStatus)
     {
         // set the player freeze bool
-        m_bFreezePlayer = bFreeze;
+        m_bFrozenStatus = bStatus;
 
         // make sure the player is forzen further by constricting ridgidbody
-        if (bFreeze)
+        if (bStatus)
             m_rbRigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
-        else if (!bFreeze)
+        else if (!bStatus)
             m_rbRigidBody.constraints = RigidbodyConstraints2D.None;
 
         // freeze the player arm
-        m_gArm.GetComponent<Arm>().SetFreezeArm(bFreeze);
+        m_gArm.GetComponent<Arm>().SetFrozenStatus(bStatus);
     }
 
     //--------------------------------------------------------------------------------------
-    // Interaction: Function interacts on button press with interactables objects.
+    // InitiateInteraction: Function interacts on button press with interactables objects.
     //--------------------------------------------------------------------------------------
-    private void Interaction()
+    private void InitiateInteraction()
     {
         // If the interaction button is pressed.
-        if (Input.GetKeyUp(KeyCode.E) && InteractionCallback != null)
+        if (Input.GetKeyUp(KeyCode.E) && OnInteractionCallback != null)
         {
             // Run interaction delegate.
-            InteractionCallback(gameObject.GetComponent<Player>());
+            OnInteractionCallback(gameObject.GetComponent<Player>());
 
             // Confirm the player hand
-            ConfirmPlayerHand();
+            ConfirmCurrentEquipableItem();
         }
     }
 
@@ -636,7 +642,7 @@ public class Player : NetworkBehaviour
     // Param:
     //      cColor: Color value for setting new body color
     //--------------------------------------------------------------------------------------
-    [ServerRpc (RequireOwnership = false)]
+    [ServerRpc(RequireOwnership = false)]
     public void SetBodyColorServerRpc(Color cColor)
     {
         // Check if color is valid

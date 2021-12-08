@@ -212,7 +212,7 @@ public class Interactable : NetworkBehaviour
                     Debug.Log(oPlayer + ": Subscribed for Interaction");
 
                 // Subscribe the function InteractedWith with the InteractionEvent delegate event
-                oPlayer.InteractionCallback += InitiateInteraction;
+                oPlayer.OnInteractionCallback += InitiateInteraction;
 
                 // activate gameobject for visual indicator
                 m_tmpBtnVisual.gameObject.SetActive(true);
@@ -240,14 +240,14 @@ public class Interactable : NetworkBehaviour
                 Debug.Log("Exited Interactable Trigger");
 
             // if callback is not null
-            if (oPlayer.InteractionCallback != null)
+            if (oPlayer.OnInteractionCallback != null)
             {
                 // Display debug message showing interaction.
                 if (oPlayer.m_bDebugMode)
                     Debug.Log("Unsubscribed for Interaction");
 
                 // Unsubscribe the function InteractedWith with the InteractionEvent delegate event
-                oPlayer.InteractionCallback -= InitiateInteraction;
+                oPlayer.OnInteractionCallback -= InitiateInteraction;
 
                 // deactivate gameobject for visual indicator
                 m_tmpBtnVisual.gameObject.SetActive(false);
@@ -295,7 +295,7 @@ public class Interactable : NetworkBehaviour
             m_bInteractUsed = true;
 
             // Make sure that the function is being unsubscribed from the delegate.
-            oPlayer.InteractionCallback -= InitiateInteraction;
+            oPlayer.OnInteractionCallback -= InitiateInteraction;
 
             // deactivate and destory gameobject for visual indicator
             Destroy(m_tmpBtnVisual);
