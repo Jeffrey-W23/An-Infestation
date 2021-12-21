@@ -478,5 +478,9 @@ public class ItemSlot : NetworkBehaviour, IPointerDownHandler, IPointerEnterHand
 
         // Run server command to spawn dropped item on server
         SpawnManager.m_oInstance.SpawnItemServerRpc(nItemID, oItemStackToDrop.m_nItemCount, m_oInventory.GetPlayerObject().GetComponent<Player>().OwnerClientId);
+
+        // If the item is equipable. Remove the item from the hand of the player, despawn scene object from server
+        if (oItemStackToDrop.m_oItem.m_bIsEquipable)
+            m_oInventory.GetPlayerObject().GetComponent<Player>().GetArm().DropItem(oItemStackToDrop.GetSceneObjectNetworkID());
     }
 }

@@ -21,7 +21,7 @@ public class GunItemPickup : EquipableItemPickup
     //--------------------------------------------------------------------------------------
     // initialization.
     //--------------------------------------------------------------------------------------
-    new void Awake()
+    protected new void Awake()
     {
         // Run the base awake
         base.Awake();
@@ -30,7 +30,7 @@ public class GunItemPickup : EquipableItemPickup
     //--------------------------------------------------------------------------------------
     // initialization.
     //--------------------------------------------------------------------------------------
-    new void Start()
+    protected new void Start()
     {
         // run the base awake
         base.Start();

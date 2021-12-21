@@ -12,6 +12,7 @@ using MLAPI;
 using MLAPI.Messaging;
 using MLAPI.Spawning;
 using MLAPI.NetworkVariable;
+using MLAPI.NetworkVariable.Collections;
 
 //--------------------------------------------------------------------------------------
 // Arm object. Inheriting from NetworkBehaviour.
@@ -72,6 +73,9 @@ public class Arm : NetworkBehaviour
 
     // new private network variable ulong for keeping track of the current equipped items network ID
     private NetworkVariableULong mn_ulEquippedItemNetworkID = new NetworkVariableULong(new NetworkVariableSettings { WritePermission = NetworkVariablePermission.Everyone }, 0);
+
+    // new private network list of ulong for keeping track of a list of current equipable items for this player
+    private NetworkList<ulong> mn_aulEquipableItemIDs = new NetworkList<ulong>(new NetworkVariableSettings { SendTickrate = 0 });
     //--------------------------------------------------------------------------------------
 
     // GETTERS / SETTERS //
@@ -92,12 +96,32 @@ public class Arm : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
+    private void Awake()
+    {
+        // set the equipped item stack to empty.
+        m_oEquippedItemStack = ItemStack.m_oEmpty;
+
+        // if this is the local player
+        if (IsLocalPlayer)
+        {
+            // Initialize the equipable item ID list based on the slots of the inventory
+            for (int i = 0; i < GetComponentInParent<Player>().m_nEquipableItemSlots - 1; i++)
+            {
+                // Insert 0 in each position required
+                mn_aulEquipableItemIDs.Insert(i, 0);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------
+    // initialization
+    //--------------------------------------------------------------------------------------
     private void Start()
     {
         // get the inventory manager instance
         m_oInventoryManger = InventoryManager.m_oInstance;
 
-        // Check if it is the local player connecting
+        // Ensure equipped item network id value is not 0
         if (mn_ulEquippedItemNetworkID.Value != 0)
         {
             // Ensure the equipped item is set as the same one as the server before unequipping, 
@@ -108,15 +132,6 @@ public class Arm : NetworkBehaviour
             if (!mn_bIsItemEquipped.Value)
                 m_gEquippedItem.SetActive(false);
         }
-    }
-
-    //--------------------------------------------------------------------------------------
-    // initialization
-    //--------------------------------------------------------------------------------------
-    private void Awake()
-    {
-        // set the equipped item stack to empty.
-        m_oEquippedItemStack = ItemStack.m_oEmpty;
     }
 
     //--------------------------------------------------------------------------------------
@@ -155,6 +170,72 @@ public class Arm : NetworkBehaviour
     }
 
     //--------------------------------------------------------------------------------------
+    // InitalizeEquippableItem: Function for preparing an equipable item ready for usage 
+    // after item pickup.
+    //
+    // Param:
+    //      ulObjectNetworkID: ulong value for the Items network ID
+    //--------------------------------------------------------------------------------------
+    public void InitalizeEquipableItem(ulong ulObjectNetworkID)
+    {
+        // Loop through the list of equipable item IDs
+        for (int i = 0; i < mn_aulEquipableItemIDs.Count; i++)
+        {
+            // Check if the equipable ID at this position is valid
+            if (mn_aulEquipableItemIDs[i] == 0)
+            {
+                // Assign passed in object network ID to this section of the list
+                mn_aulEquipableItemIDs[i] = ulObjectNetworkID;
+
+                // Break for loop and continue
+                break;
+            }
+        }
+
+        // Run server function to finalize preparation of the equipable item
+        InitalizeEquipableItemServerRpc(NetworkManager.Singleton.LocalClientId, ulObjectNetworkID);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // InitalizeEquippableItemServerRpc: Server function for preparing an equipable item
+    // ready for usage after item pickup.
+    //
+    // Param:
+    //      ulClientID: ulong value for the players client ID
+    //      ulObjectNetworkID: ulong value for the Items network ID
+    //--------------------------------------------------------------------------------------
+    [ServerRpc]
+    private void InitalizeEquipableItemServerRpc(ulong ulClientID, ulong ulObjectNetworkID)
+    {
+        // Gett equippable item from server by network object ID and assign ownership
+        NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID].ChangeOwnership(ulClientID);
+
+        // Run client function for setting values of the equipable item
+        InitalizeEquipableItemClientRpc(ulObjectNetworkID);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // InitalizeEquippableItemClientRpc: Client function for preparing an equipable item
+    // ready for usage after item pickup.
+    //
+    // Param:
+    //      ulObjectNetworkID: ulong value for the Items network ID
+    //--------------------------------------------------------------------------------------
+    [ClientRpc]
+    private void InitalizeEquipableItemClientRpc(ulong ulObjectNetworkID)
+    {
+        // Get the equippable item from the server based on object network ID
+        GameObject gItemObject = NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID].gameObject;
+
+        // Set up item for usage, setting parent, pos, rotation and player object
+        gItemObject.transform.parent = transform;
+        gItemObject.transform.position = m_gInHandSpawn.transform.position;
+        gItemObject.transform.rotation = transform.rotation;
+        gItemObject.GetComponent<Equipable>().SetPlayerScript(transform.parent.GetComponent<Player>());
+        gItemObject.gameObject.GetComponent<SpriteRenderer>().enabled = true;
+    }
+
+    //--------------------------------------------------------------------------------------
     // EquipItem: Function for equipping and unequipping items for the player on the game 
     // server using server and client functions.
     //
@@ -166,17 +247,6 @@ public class Arm : NetworkBehaviour
         // Send debug message to console
         if (m_bDebugMode)
             Debug.Log("EquipItem function call started!");
-
-        // new int value for the item ID of the equipped item
-        int nItemID = -1;
-
-        // Loop through the inventory item database
-        foreach (var i in m_oInventoryManger.GetItemDatabase())
-        {
-            // Set the item ID based on the passed in item object
-            if (i.Value == oItem.GetItem())
-                nItemID = i.Key;
-        }
 
         // If the item is valid for equipping
         if (!oItem.IsStackEmpty() && oItem.GetItem().m_gSceneObject != null)
@@ -190,8 +260,7 @@ public class Arm : NetworkBehaviour
             m_oEquippedItemStack = oItem;
 
             // Run server rpc to equip item on each of the clients
-            // passing in players current client ID and itemID
-            EquipItemServerRpc(NetworkManager.Singleton.LocalClientId, nItemID);
+            EquipItemServerRpc(oItem.m_ulSceneObjectNetworkID);
 
             // Send debug message to console
             if (m_bDebugMode)
@@ -217,34 +286,17 @@ public class Arm : NetworkBehaviour
     // EquippedItemServerRpc: Server function for initating an equip event for all the clients
     //
     // Param:
-    //      ulClientID: ulong value for the players client ID
-    //      nItemID: int value for the nItemID in the inventory item database
+    //      ulObjectNetworkID: ulong value for the Items network ID
     //--------------------------------------------------------------------------------------
     [ServerRpc]
-    private void EquipItemServerRpc(ulong ulClientID, int nItemID)
+    private void EquipItemServerRpc(ulong ulObjectNetworkID)
     {
         // Send debug message to console
         if (m_bDebugMode)
             Debug.Log("ServerRpc for EquipItem Called!");
 
-        // New null gameobject for the item to be equipped
-        GameObject gItemObject = null;
-
-        // Loop through the inventory item database
-        foreach (var i in m_oInventoryManger.GetItemDatabase())
-        {
-            // Get the gameobject to be spawned on the server
-            if (i.Key == nItemID)
-                gItemObject = i.Value.m_gSceneObject;
-        }
-
-        // Spawn object on the server intended to be used as the equipped item
-        GameObject oEquippingItem = Instantiate(gItemObject);
-        oEquippingItem.transform.position = m_gInHandSpawn.transform.position;
-        oEquippingItem.GetComponent<NetworkObject>().SpawnWithOwnership(ulClientID);
-
-        // Get the network object ID for the spawned object to be equipped
-        mn_ulEquippedItemNetworkID.Value = oEquippingItem.GetComponent<NetworkObject>().NetworkObjectId;
+        // Assign object network ID to the equipped item network ID variable
+        mn_ulEquippedItemNetworkID.Value = ulObjectNetworkID;
 
         // Run client rpc to equip item on each of the clients
         EquipItemClientRpc(mn_ulEquippedItemNetworkID.Value);
@@ -266,20 +318,9 @@ public class Arm : NetworkBehaviour
         if (m_bDebugMode)
             Debug.Log("ClientRpc for EquipItem Called!");
 
-        // Destroy the previous equipped item
-        Destroy(m_gEquippedItem);
-
-        // Get the equipped item from the list of spawned network objects
+        // Get the equipped item from the list of spawned network objects and set item active
         m_gEquippedItem = NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID].gameObject;
-
-        // Set up equipped item for usage, setting parent, pos, rotation and player object
-        m_gEquippedItem.GetComponent<Equipable>().SetPlayerScript(transform.parent.GetComponent<Player>());
-        m_gEquippedItem.transform.parent = transform;
-        m_gEquippedItem.transform.position = m_gInHandSpawn.transform.position;
-        m_gEquippedItem.transform.rotation = transform.rotation;
-
-        // Enabled the sprite renderer once everything is ready
-        m_gEquippedItem.gameObject.GetComponent<SpriteRenderer>().enabled = true;
+        m_gEquippedItem.SetActive(true);
     }
 
     //--------------------------------------------------------------------------------------
@@ -312,5 +353,45 @@ public class Arm : NetworkBehaviour
         // if the equipped item isnt null set it to inactive
         if (m_gEquippedItem != null)
             m_gEquippedItem.SetActive(false);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // DropItem: Function for what happens when an equipable item is dropped.
+    //
+    // Param:
+    //      ulObjectNetworkID: ulong value for ID of the spawned network object.
+    //--------------------------------------------------------------------------------------
+    public void DropItem(ulong ulObjectNetworkID)
+    {
+        // Loop through the list of equipable item IDs
+        for (int i = 0; i < mn_aulEquipableItemIDs.Count; i++)
+        {
+            // Find the ID that matches the pass in object network ID
+            if (mn_aulEquipableItemIDs[i] == ulObjectNetworkID)
+            {
+                // Remove this network ID from the array
+                mn_aulEquipableItemIDs.Remove(ulObjectNetworkID);
+
+                // Break for loop and continue
+                break;
+            }
+        }
+
+        // Run server function to destroy/despawn the equipable items scene object
+        DropItemServerRpc(ulObjectNetworkID);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // DropItemServerRpc: Server function for destroying/despawning an equipable items
+    // scene object when dropping the associated inventory item.
+    //
+    // Param:
+    //      ulObjectNetworkID: ulong value for ID of the spawned network object.
+    //--------------------------------------------------------------------------------------
+    [ServerRpc]
+    private void DropItemServerRpc(ulong ulObjectNetworkID)
+    {
+        // Despawn/Destroy the equipable item that is no longer needed
+        Destroy(NetworkSpawnManager.SpawnedObjects[ulObjectNetworkID].gameObject);
     }
 }

@@ -48,53 +48,23 @@ public class SelectedStack : MonoBehaviour
     private Inventory m_oOriginInventory;
     //--------------------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------------------
-    // SetOriginSlot: Set the origin of the slot of the selected stack.
-    //
-    // Param:
-    //      nOrigin: An int for setting the origin slot.
-    //--------------------------------------------------------------------------------------
-    public void SetOriginSlot(int nOrigin)
-    {
-        // set the origin slot id
-        m_nOriginSlot = nOrigin;
-    }
+    // STANDARD GETTERS / SETTERS //
+    //-------------------------------------------------------------------------------------- 
+    // Getter of type int for getting the origin slot of the selected item stack
+    public int GetOriginSlot() { return m_nOriginSlot; }
 
-    //--------------------------------------------------------------------------------------
-    // GetOriginSlot: Get the origin slot of the selected item stack.
-    //
-    // Return:
-    //      int: An int representing the slot id.
-    //--------------------------------------------------------------------------------------
-    public int GetOriginSlot()
-    {
-        // return the origin slot
-        return m_nOriginSlot;
-    }
+    // Getter of type Inventory for getting the origin inventory of the selected item stack
+    public Inventory GetOriginInventory() { return m_oOriginInventory; }
 
-    //--------------------------------------------------------------------------------------
-    // SetOriginInventory: Set the origin inventory of the selected stack.
-    //
-    // Param:
-    //      oOrigin: The inventory to set the origin
-    //--------------------------------------------------------------------------------------
-    public void SetOriginInventory(Inventory oOrigin)
-    {
-        // set the origin inventory
-        m_oOriginInventory = oOrigin;
-    }
+    // Setter of type int  for setting the origin slot of the selected item stack
+    public void SetOriginSlot(int nOrigin) { m_nOriginSlot = nOrigin; }
 
+    // Setter of type Inventory for setting the origin inventory of the selected item stack
+    public void SetOriginInventory(Inventory oOrigin) { m_oOriginInventory = oOrigin; }
+    
+    // Setter of type ItemStack for setting the current selected item stack
+    public void SetSelectedStack(ItemStack oStack) { m_oCurrentStack = oStack; }
     //--------------------------------------------------------------------------------------
-    // GetOriginInventory: Get the origin inventory of the selected stack.
-    //
-    // Return:
-    //      Inventory: Returns the origin inventory of the selected stack.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetOriginInventory()
-    {
-        // return the origin inventory 
-        return m_oOriginInventory;
-    }
 
     //--------------------------------------------------------------------------------------
     // Update: Function that calls each frame to update game objects.
@@ -106,18 +76,6 @@ public class SelectedStack : MonoBehaviour
 
         // set the postion to follow the mosue
         transform.position = Input.mousePosition;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetSelectedStack: Set the currently selected item stack.
-    //
-    // Param:
-    //      oStack: and Item Stack for what to set the selected item.
-    //--------------------------------------------------------------------------------------
-    public void SetSelectedStack(ItemStack oStack)
-    {
-        // set the current stack to the selected stack
-        m_oCurrentStack = oStack;
     }
 
     //--------------------------------------------------------------------------------------

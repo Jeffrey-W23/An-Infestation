@@ -19,6 +19,8 @@ using UnityEngine;
 //--------------------------------------------------------------------------------------
 public class Container
 {
+    // PROTECTED VALUES //
+    //--------------------------------------------------------------------------------------
     // protected int for the amount of slots in this container/inventory.
     protected int m_nSlots;
 
@@ -33,6 +35,25 @@ public class Container
 
     // protected list of item slot for the slots of this container.
     protected List<ItemSlot> m_aoSlots = new List<ItemSlot>();
+    //--------------------------------------------------------------------------------------
+
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type GameObject for getting the prefab of the container, null as handled on children
+    public virtual GameObject GetPrefab() { return null; }
+
+    // Getter of type GameObject for getting the Spawned Container
+    public GameObject GetSpawnedContainer() { return m_gPrefab; }
+
+    // Getter of type int for getting the container size
+    public int GetContainerSize() { return m_nSlots; }
+
+    // Getter of type inventory for getting the inventory of this container
+    public Inventory GetInventory() { return m_oInventory; }
+
+    // Getter of type inventory for getting the inventory of the player
+    public Inventory GetPlayerInventory() { return m_oPlayerInventory; }
+    //--------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------
     // Default Constructor.
@@ -109,65 +130,5 @@ public class Container
     {
         // destroy prefab container object
         Object.Destroy(m_gPrefab);
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetPrefab: Get the container prefab for this container. 
-    //
-    // Return:
-    //      GameObject: Returns the prefab of this container.
-    //--------------------------------------------------------------------------------------
-    public virtual GameObject GetPrefab()
-    {
-        // return null, will be handled in children
-        return null;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetSpawnedContainer: Get the spawned prefab for this container. 
-    //
-    // Return:
-    //      GameObject: Returns the spawned prefab of this container.
-    //--------------------------------------------------------------------------------------
-    public GameObject GetSpawnedContainer()
-    {
-        // return the prefab
-        return m_gPrefab;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetContainerSize: Get the size of the container
-    //
-    // Return:
-    //      int: returns the size of the container.
-    //--------------------------------------------------------------------------------------
-    public int GetContainerSize()
-    {
-        // return the container inventory
-        return m_nSlots;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetInventory: Get the inventory of this container.
-    //
-    // Return:
-    //      Inventory: returns the inventory of this container.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetInventory()
-    {
-        // return the container inventory
-        return m_oInventory;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetPlayerInventory: Get the player inventory.
-    //
-    // Return:
-    //      Inventory: returns the player inventory.
-    //--------------------------------------------------------------------------------------
-    public Inventory GetPlayerInventory()
-    {
-        // return the player inventory
-        return m_oPlayerInventory;
     }
 }

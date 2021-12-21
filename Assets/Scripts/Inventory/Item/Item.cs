@@ -36,6 +36,10 @@ public class Item : ScriptableObject
     [LabelOverride("Item Type")] [Tooltip("What type of item? A weapon, ammo, health item?")]
     public EItemType m_eItemType;
 
+    // public bool for if the item is equipable
+    [LabelOverride("Is Item Equipable?")] [Tooltip("Is this item an equipable item for the player to use?")]
+    public bool m_bIsEquipable;
+
     // public gameobject for this items scene object.
     [LabelOverride("Object in Scene")] [Tooltip("The gameobject that will represent this item in the unity scene.")]
     public GameObject m_gSceneObject;

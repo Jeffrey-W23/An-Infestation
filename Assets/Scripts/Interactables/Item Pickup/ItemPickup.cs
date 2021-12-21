@@ -97,6 +97,15 @@ public class ItemPickup : Interactable
     }
 
     //--------------------------------------------------------------------------------------
+    // OnEnable: Function that will call when this gameObject is enabled.
+    //--------------------------------------------------------------------------------------
+    protected new void OnEnable()
+    {
+        // Run base OnEnable from Interactable class
+        base.OnEnable();
+    }
+
+    //--------------------------------------------------------------------------------------
     // PickupItem: virtual function for picking up an item and adding to an inventory.
     //--------------------------------------------------------------------------------------
     protected virtual bool PickupItem(Player oPlayer)

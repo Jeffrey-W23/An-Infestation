@@ -188,8 +188,8 @@ public class Interactable : NetworkBehaviour
     protected void OnInteractableCollectedChange(bool bOldState, bool bNewState)
     {
         // Finalize the interaction
-        if (bNewState)
-            FinalizeCollectableInteractionClientRpc();
+        if (bNewState && NetworkManager.Singleton.IsHost)
+            FinalizeCollectableInteractionServerRpc();
     }
 
     //--------------------------------------------------------------------------------------
@@ -317,8 +317,8 @@ public class Interactable : NetworkBehaviour
     // FinalizeCollectableInteractionClientRpc: Client function for finalizing interaction 
     // if the interactable is a collectable item.
     //--------------------------------------------------------------------------------------
-    [ClientRpc]
-    protected void FinalizeCollectableInteractionClientRpc()
+    [ServerRpc]
+    protected void FinalizeCollectableInteractionServerRpc()
     {
         // Unsubscribe from collected on change event
         m_nbInteractableCollected.OnValueChanged -= OnInteractableCollectedChange;

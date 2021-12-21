@@ -108,9 +108,25 @@ public class Equipable : NetworkBehaviour
     //--------------------------------------------------------------------------------------
     protected void Awake()
     {
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnEnable: Function that will call when this gameObject is enabled.
+    //--------------------------------------------------------------------------------------
+    protected void OnEnable()
+    {
         // set the custom cursor of this equipable
         if (m_bCustomCursor)
             CustomCursor.m_oInstance.SetCustomCursor(m_tCustomCursor);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // OnDisable: Function that will call when this gameObject is disabled.
+    //--------------------------------------------------------------------------------------
+    protected void OnDisable()
+    {
+        // set the cursor back to default
+        CustomCursor.m_oInstance.SetDefaultCursor();
     }
 
     //--------------------------------------------------------------------------------------

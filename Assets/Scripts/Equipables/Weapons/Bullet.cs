@@ -61,6 +61,15 @@ public class Bullet : NetworkBehaviour
     protected Vector3 m_v3SpawnPosition;
     //--------------------------------------------------------------------------------------
 
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Setter of type Vector3 for setting the spawn position of the bullet
+    public void SetSpawnPosition(Vector3 v3Pos) { m_v3SpawnPosition = v3Pos; }
+
+    // Setter of type Vector2 for setting the direction of the bullet
+    public void SetDirection(Vector2 v2NewDirection) { m_v2Direction = v2NewDirection; }
+    //--------------------------------------------------------------------------------------
+
     //--------------------------------------------------------------------------------------
     // initialization
     //--------------------------------------------------------------------------------------
@@ -95,30 +104,6 @@ public class Bullet : NetworkBehaviour
             // Set to inactive on collision.
             gameObject.SetActive(false);
         }
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetSpawnPosition: Set the spawn position of the bullet.
-    //
-    // Param:
-    //      v3Pos: The vector 3 position to set the spawn.
-    //--------------------------------------------------------------------------------------
-    public void SetSpawnPosition(Vector3 v3Pos)
-    {
-        // set the spawn position of the bullet
-        m_v3SpawnPosition = v3Pos;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetDirection: Direction setter for the bullet.
-    //
-    // Param:
-    //      v2NewDirection: a Vector2 for the new direction to set.
-    //--------------------------------------------------------------------------------------
-    public void SetDirection(Vector2 v2NewDirection)
-    {
-        // Update direction.
-        m_v2Direction = v2NewDirection;
     }
 
     //--------------------------------------------------------------------------------------

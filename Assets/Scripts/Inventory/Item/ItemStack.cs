@@ -18,6 +18,8 @@ using UnityEngine;
 //--------------------------------------------------------------------------------------
 public class ItemStack
 {
+    // PUBLIC VALUES //
+    //--------------------------------------------------------------------------------------
     // public static itemstack for an empty item stack
     public static ItemStack m_oEmpty = new ItemStack();
 
@@ -30,6 +32,25 @@ public class ItemStack
     // public int for the slot ID of this item stack
     public int m_nSlotId;
 
+    // public ulong for the network id of the scene object
+    public ulong m_ulSceneObjectNetworkID;
+    //--------------------------------------------------------------------------------------
+
+    // STANDARD GETTERS / SETTERS //
+    //--------------------------------------------------------------------------------------
+    // Getter of type Item for getting the item in this Item Stack
+    public Item GetItem() { return m_oItem; }
+
+    // Getter of type int for getting the count of this Item Stack
+    public int GetItemCount() { return m_nItemCount; }
+
+    // Getter of type ulong for getting the scene object network ID of this stack
+    public ulong GetSceneObjectNetworkID() { return m_ulSceneObjectNetworkID; }
+
+    //Setter of type int for setting the count of this Item Stack
+    public void SetItemCount(int nAmount) { m_nItemCount = nAmount; }
+    //--------------------------------------------------------------------------------------
+
     //--------------------------------------------------------------------------------------
     // Default Constructor.
     //--------------------------------------------------------------------------------------
@@ -39,6 +60,7 @@ public class ItemStack
         m_oItem = null;
         m_nItemCount = 0;
         m_nSlotId = -1;
+        m_ulSceneObjectNetworkID = 0;
     }
 
     //--------------------------------------------------------------------------------------
@@ -53,6 +75,7 @@ public class ItemStack
         m_oItem = null;
         m_nItemCount = 0;
         m_nSlotId = nSlotId;
+        m_ulSceneObjectNetworkID = 0;
     }
 
     //--------------------------------------------------------------------------------------
@@ -68,6 +91,24 @@ public class ItemStack
         m_oItem = oItem;
         m_nItemCount = nItemCount;
         m_nSlotId = -1;
+        m_ulSceneObjectNetworkID = 0;
+    }
+
+    //--------------------------------------------------------------------------------------
+    // Constructor.
+    //
+    // Param:
+    //      oItem: An Item for passing in an item object.
+    //      nItemCount: An int for passing in the item count.
+    //      ulObjectNetworkID: The network ID for the object in the scene.
+    //--------------------------------------------------------------------------------------
+    public ItemStack(Item oItem, int nItemCount, ulong ulObjectNetworkID)
+    {
+        // set default values
+        m_oItem = oItem;
+        m_nItemCount = nItemCount;
+        m_nSlotId = -1;
+        m_ulSceneObjectNetworkID = ulObjectNetworkID;
     }
 
     //--------------------------------------------------------------------------------------
@@ -77,49 +118,15 @@ public class ItemStack
     //      oItem: An Item of passing in an item object.
     //      nItemCount: An int for passing in the item count.
     //      nSlotId: An int for passing in a slot id.
+    //      ulObjectNetworkID: The network ID for the object in the scene.
     //--------------------------------------------------------------------------------------
-    public ItemStack(Item oItem, int nItemCount, int nSlotId)
+    public ItemStack(Item oItem, int nItemCount, int nSlotId, ulong ulObjectNetworkID)
     {
         // set default values
         m_oItem = oItem;
         m_nItemCount = nItemCount;
         m_nSlotId = nSlotId;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetItem: Get the item of which this stack is made up of.
-    //
-    // Return:
-    //      Item: item in the stack
-    //--------------------------------------------------------------------------------------
-    public Item GetItem()
-    {
-        // return the item
-        return m_oItem;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // GetItemCount: Get the item count of the item stack.
-    //
-    // Return:
-    //      int: the number of items in the stack.
-    //--------------------------------------------------------------------------------------
-    public int GetItemCount()
-    {
-        // return the item count
-        return m_nItemCount;
-    }
-
-    //--------------------------------------------------------------------------------------
-    // SetItemCount: Set the item count of the item stack.
-    //
-    // Param:
-    //      nAmount: An int for the amount to set the item count.
-    //--------------------------------------------------------------------------------------
-    public void SetItemCount(int nAmount)
-    {
-        // set the count of the item
-        m_nItemCount = nAmount;
+        m_ulSceneObjectNetworkID = ulObjectNetworkID;
     }
 
     //--------------------------------------------------------------------------------------
@@ -135,6 +142,9 @@ public class ItemStack
 
         // set the count to the passed in stacks count
         m_nItemCount = oStack.GetItemCount();
+
+        // set the scene object network Id to the passed in value
+        m_ulSceneObjectNetworkID = oStack.GetSceneObjectNetworkID();
     }
 
     //--------------------------------------------------------------------------------------
@@ -171,7 +181,7 @@ public class ItemStack
     public ItemStack CopyStack()
     {
         //return a copy of the stack
-        return new ItemStack(m_oItem, m_nItemCount, m_nSlotId);
+        return new ItemStack(m_oItem, m_nItemCount, m_nSlotId, m_ulSceneObjectNetworkID);
     }
 
     //--------------------------------------------------------------------------------------
