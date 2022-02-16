@@ -57,6 +57,8 @@ MonoBehaviour:
     NetworkTransport: {fileID: 1892249942591769523}
     RegisteredScenes:
     - ShootingRange
+    - 
+    - HowardStreet
     AllowRuntimeSceneChanges: 0
     NetworkPrefabs:
     - Prefab: {fileID: 9095680410032366930, guid: 7fdd207507fd91049ae64b58267cd707, type: 3}
